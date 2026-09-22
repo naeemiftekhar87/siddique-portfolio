@@ -697,7 +697,7 @@ Heading line-height **1.2** · Body line-height **1.6** · Font smoothing **anti
 | Success/error messages                                                            | `Sonner` (toast)                                             |
 | Admin sidebar layout                                                              | `Sidebar`                                                    |
 | Admin data lists (messages, media list view)                                      | `Table`, `DropdownMenu`, `Pagination`                        |
-| Analytics charts (area, bar, pie)                                                 | `Chart` (Recharts) using `--chart-1`…`--chart-5`             |
+| Dashboard charts (top pages bar, downloads area)                                          | `Chart` (Recharts) using `--chart-1`…`--chart-5`            |
 | DOI copy hint, icon buttons                                                       | `Tooltip`                                                    |
 | Loading states                                                                    | `Skeleton`                                                   |
 | Detail page back navigation                                                       | `Breadcrumb`                                                 |

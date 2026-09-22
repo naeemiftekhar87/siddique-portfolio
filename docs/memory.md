@@ -9,7 +9,7 @@ A minimal Next.js 16.3.5 (App Router) + React 19.2.8 + TypeScript + Tailwind CSS
 ### Supabase for Data, Media Storage, and Authentication
 
 **Decision (Phase 5):** The full-stack backend uses **Supabase** as the single external platform for:
-- **Database:** Supabase Postgres (hosted) — the source of truth for all PRD entities (Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, navigation/footer/page config, SEOEntry, MediaAsset, AnalyticsEvent, AdminUser).
+- **Database:** Supabase Postgres (hosted) — the source of truth for all PRD entities (Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, navigation/footer/page config, SEOEntry, MediaAsset, AdminUser).
 - **Storage:** Supabase Storage (S3-compatible object storage, backed by Postgres with a storage schema) — the source of truth for all media uploads (profile photos, certificate images, project images, eBook covers, uploaded documents).
 - **Authentication:** Supabase Auth (email + password, server-side sessions via cookies, brute-force protection built-in) — the source of truth for the single-owner admin login/session lifecycle.
 
@@ -23,11 +23,18 @@ This resolves the Phase 5 open architecture decisions (database, media/object st
 
 **Not adopted:** A separate Express/Vite backend, separate API repository, Firestore, S3/Cloudflare R2 as a standalone service, or self-hosted Postgres. Mixing Supabase Postgres with any other persistence system is disallowed unless a separate decision record is written.
 
+### No Analytics module
+
+**Decision (Phase 5):** There is no analytics feature. The dedicated `/admin/analytics` page, the `/api/analytics` route, the `lib/analytics/` event-tracking layer, behavioral visitor/page-view tracking, the pie chart (referrers), date-range filter, and CSV export are all removed. The `AnalyticsEvent` entity is dropped from the data model and the PRD sitemap.
+
+The dashboard (`/admin`) keeps only content/message metrics: 9 stat cards (Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks, Unread Messages — "Visitors" removed). As lightweight content-metric overview widgets (not a tracking system), the dashboard renders a bar chart (top pages) and an area chart (downloads); the charting library remains **Recharts** for these widgets. The PRD Privacy requirement is reframed to "no behavioural tracking of visitors."
+
 ## Completed Work
 
 - Repository scaffold confirmed: Next.js 16.3.5, React 19.2.8, TypeScript 5, Tailwind CSS v4, ESLint 9, `next/font/google` with Geist/Geist Mono.
 - `docs/PRD.md`, `docs/phases.md`, `docs/architecture.md`, `docs/design.md` created as the canonical guides.
 - Architecture decisions for Supabase data/media/auth recorded.
+- Analytics module removed (no `/admin/analytics`, no `/api/analytics`, no `lib/analytics/`, no tracking); dashboard reduced to 9 content/message stat cards plus lightweight top-pages/downloads overview charts.
 
 ## Pending Work
 

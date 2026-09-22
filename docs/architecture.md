@@ -4,7 +4,7 @@
 
 This document defines the architecture for the Siddique academic and professional portfolio. It is the technical reference for the public portfolio, the single-owner admin CMS, the full-stack application boundary, the data lifecycle, and the phased migration from a static scaffold to a persistent product.
 
-This is a **full-stack Next.js project**. The public site, admin UI, server-side business logic, authentication, API endpoints, data access, and deployment unit live in the same Next.js application and repository. A database, object storage, email provider, or analytics service may be external dependencies, but they are not a separate frontend/backend codebase.
+This is a **full-stack Next.js project**. The public site, admin UI, server-side business logic, authentication, API endpoints, data access, and deployment unit live in the same Next.js application and repository. A database, object storage, or email provider may be external dependencies, but they are not a separate frontend/backend codebase.
 
 The repository currently contains a minimal Next.js App Router scaffold. The architecture below distinguishes the current baseline from the target structure so that future work does not assume that the backend, database, authentication, or UI component library already exists.
 
@@ -15,7 +15,7 @@ The repository currently contains a minimal Next.js App Router scaffold. The arc
 - Prefer Server Components for public content, metadata, and initial data access. Use Client Components only for browser state, forms, filters, accordions, dialogs, and other interactions.
 - Use Next.js Route Handlers for explicit REST-style endpoints and Server Actions for page-bound form mutations when that model is clearer. Do not implement the same operation through both without a documented reason.
 - Keep presentation, data access, domain logic, authentication, and persistence in separate layers.
-- Maintain one source of truth for profile, career, research, portfolio, resume, website, SEO, media, and analytics data.
+- Maintain one source of truth for profile, career, research, portfolio, resume, website, SEO, media, and site configuration data.
 - Keep public reads separate from protected admin writes.
 - Build in the order defined by `docs/phases.md`; do not implement Phase 5 persistence or Phase 6 admin modules before their prerequisites exist.
 - Treat `P0` requirements as launch-critical, `P1` as required after the core flow, and `P2` as future work.
@@ -35,7 +35,7 @@ The checked-in application is a single Next.js application with:
 - `public/` for static assets.
 - Root configuration files for TypeScript, ESLint, Next.js, PostCSS, and dependencies.
 - No `src/` directory.
-- No backend implementation, database client, authentication system, media storage, analytics service, or configured test framework yet.
+- No backend implementation, database client, authentication system, media storage, or configured test framework yet.
 - No `components/` or `lib/` directories yet.
 
 The PRD refers to a typed seed-data file at `src/data/index.ts`, but that file is not present. Do not import it or describe it as implemented. A temporary typed data layer may be created during Phases 1–4 at an agreed repository path; the recommended path for this repository is `lib/data/index.ts`.
@@ -46,7 +46,7 @@ The PRD refers to a typed seed-data file at `src/data/index.ts`, but that file i
 | --- | --- | --- |
 | Routing and page composition | URLs, layouts, route groups, metadata, loading/error/not-found states | `app/` |
 | Public presentation | Portfolio pages, shared navigation, footer, cards, filters, resume views | `components/portfolio/` and route-local components |
-| Admin presentation | Login, dashboard, CRUD forms, media picker, settings, analytics views | `components/admin/` |
+| Admin presentation | Login, dashboard, dashboard charts, CRUD forms, media picker, settings | `components/admin/` |
 | Shared UI | Reusable buttons, cards, badges, tabs, dialogs, tables, and layout primitives | `components/ui/` when shadcn is initialized |
 | Application API | REST-style endpoints, request validation, authorization, response contracts | `app/api/.../route.ts` |
 | Server mutations | Page-bound form actions, cache invalidation, redirects, and server-side validation | `app/.../actions.ts` or `lib/actions/` |
@@ -55,8 +55,7 @@ The PRD refers to a typed seed-data file at `src/data/index.ts`, but that file i
 | Database access | Schema queries, transactions, migrations, and persistence adapters | `lib/db/` |
 | Media storage | Upload handling, object storage adapters, file metadata | `lib/storage/` |
 | Resume logic | Resume configuration, variant selection, export preparation | `lib/resume/` |
-| Analytics | Anonymous event ingestion and read models | `lib/analytics/` |
-| External integrations | Email delivery, optional PDF rendering, optional analytics provider | Bounded adapters behind `lib/` |
+| External integrations | Email delivery, optional PDF rendering | Bounded adapters behind `lib/` |
 
 The layers should depend inward: pages and components call typed data-access functions; data-access functions call API, database, or storage adapters; persistence and external services never import UI components.
 
@@ -115,7 +114,7 @@ flowchart LR
 2. The authentication layer validates the credentials, creates a server-side session, and applies expiry and brute-force protection.
 3. Every `/admin/*` route checks authentication before rendering protected content.
 4. Admin forms validate input on the client and again in the server action or Route Handler.
-5. Protected mutations persist content, configuration, messages, media metadata, SEO records, or analytics settings.
+5. Protected mutations persist content, configuration, messages, media metadata, or SEO records.
 6. Successful mutations invalidate or revalidate the affected public reads so changes appear after refresh or within the documented cache TTL.
 7. Destructive actions require a separate confirmation step.
 
@@ -193,7 +192,6 @@ app/
 │   ├── admin/
 │   │   └── .../route.ts
 │   ├── media/route.ts
-│   ├── analytics/route.ts
 │   └── resume/export/route.ts
 ├── (public)/
 │   ├── page.tsx
@@ -234,7 +232,6 @@ app/
     ├── admin/research/working/page.tsx
     ├── admin/ebooks/page.tsx
     ├── admin/messages/page.tsx
-    ├── admin/analytics/page.tsx
     ├── admin/resume/professional/page.tsx
     ├── admin/resume/academic/page.tsx
     ├── admin/resume/research/page.tsx
@@ -267,7 +264,6 @@ lib/
 ├── db/                              # database client, schema, migrations, repositories
 ├── storage/                         # media upload and object-storage adapters
 ├── resume/                          # resume configuration and export logic
-└── analytics/                       # event contracts and read helpers
 
 public/
 ├── images/
@@ -341,10 +337,9 @@ Do not claim these capabilities exist. Add them only when the relevant phase and
 | **Database** | **Supabase Postgres (hosted)** — chosen | **Phase 5 — resolved** |
 | **Media storage** | **Supabase Storage (S3-compatible)** — chosen | **Phase 5 — resolved** |
 | **Admin authentication** | **Supabase Auth (email/password + server-side sessions)** — chosen | **Phase 5 — resolved** |
-| Charts | A maintained React chart library; Recharts is a PRD candidate | Phase 6 |
+| Charts | A maintained React chart library; Recharts is a PRD candidate | Phase 5 (dashboard overview charts) |
 | Resume PDF | Client print CSS or server-side headless-browser rendering | Phase 4 |
 | Email | Transactional email provider or equivalent adapter | Phase 6 |
-| Analytics | First-party database events or a privacy-friendly provider | Phase 6 |
 
 The backend surface, database, storage, and authentication choices are resolved for Phase 5: **Supabase** provides the database (Postgres), object storage, and authentication. Do not mix Supabase Postgres/Storage with an incompatible persistence system without a recorded reason.
 
@@ -352,7 +347,7 @@ The backend surface, database, storage, and authentication choices are resolved 
 
 ### 7.1 Data ownership
 
-The PRD entities are the domain model: Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, PortfolioCategory, navigation/footer/page configuration, SEOEntry, MediaAsset, AnalyticsEvent, and AdminUser.
+The PRD entities are the domain model: Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, PortfolioCategory, navigation/footer/page configuration, SEOEntry, MediaAsset, and AdminUser.
 
 Define TypeScript types before creating forms, API contracts, or database schemas. Keep identifiers stable and use explicit status values where the PRD defines them.
 
@@ -412,7 +407,7 @@ During Phase 5 and later:
 | Phase 3 | Research, publication, eBook, and dynamic detail routes |
 | Phase 4 | Resume variants, shared resume configuration, and export boundary |
 | Phase 5 | Same-app full-stack backend, database, authentication, protected API, admin shell, live public reads |
-| Phase 6 | Advanced admin modules, media storage, contact pipeline, SEO, analytics, and settings |
+| Phase 6 | Advanced admin modules, media storage, contact pipeline, SEO, and settings |
 | Phase 7 | Security, performance, accessibility, deployment, backups, and monitoring |
 
 A phase is complete only when its implementation, acceptance criteria, and definition of done in `docs/phases.md` are verified.
@@ -425,8 +420,8 @@ The following decisions remain open until the relevant phase:
 2. Select media/object storage and upload boundaries. **Resolved:** Supabase Storage (S3-compatible) buckets accessed through `lib/storage/`.
 3. Select the authentication/session mechanism and password policy. **Resolved:** Supabase Auth (email/password + server-side sessions, built-in brute-force protection).
 4. Confirm the final brand fonts and whether the current Geist setup remains.
-5. Select the charting library for analytics.
+5. Select the charting library for the dashboard overview charts (Recharts is the PRD candidate).
 6. Select the resume PDF rendering strategy.
-7. Select the transactional email provider and analytics approach.
+7. Select the transactional email provider.
 
 Record each decision in this file and, when requested by the user, in `docs/memory.md`.

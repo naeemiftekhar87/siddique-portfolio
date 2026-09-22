@@ -14,8 +14,8 @@
 | 2     | Core Public Pages    | 40    | 0    | ⬜ Not started |
 | 3     | Research & eBooks    | 32    | 0    | ⬜ Not started |
 | 4     | Resume System        | 20    | 0    | ⬜ Not started |
-| 5     | Backend & Admin Core | 46    | 0    | ⬜ Not started |
-| 6     | Advanced Admin       | 52    | 0    | ⬜ Not started |
+| 5     | Backend & Admin Core | 47    | 0    | ⬜ Not started |
+| 6     | Advanced Admin       | 48    | 0    | ⬜ Not started |
 | 7     | Hardening & Launch   | 26    | 0    | ⬜ Not started |
 
 **Status legend:** ⬜ Not started · 🟨 In progress · ✅ Complete
@@ -269,7 +269,8 @@
 
 ### 5.4 Dashboard (`/admin`)
 
-- [ ] 10 stat cards wired to real counts
+- [ ] 9 stat cards wired to real content/message counts (Visitors removed — no analytics)
+- [ ] Dashboard overview charts: bar chart (top pages) and area chart (downloads)
 - [ ] Recent Activity feed (5 items with icons)
 - [ ] Quick Actions panel (6 links)
 
@@ -362,14 +363,7 @@
 - [ ] Image optimisation (resize/WebP) — _P1_
 - [ ] Media picker used inside other admin forms
 
-### 6.8 Analytics
-
-- [ ] Event tracking (page views, downloads) on public site
-- [ ] `/admin/analytics` — area chart (visitors/views/downloads)
-- [ ] Bar chart (top pages), pie chart (referrers), stat tiles
-- [ ] Date-range filter and CSV export — _P1_
-
-### 6.9 Settings
+### 6.8 Settings
 
 - [ ] Profile quick-edit
 - [ ] 4 notification toggles

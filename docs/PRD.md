@@ -18,7 +18,7 @@
 A personal website for an academic-professional that presents their career, research, portfolio, certificates, eBooks, and resume in one polished place. It has two parts:
 
 1. **Public Website** – a visitor-facing site (Home, About, Experience, Education, Skills, Achievements, Certificates, Portfolio, Research, Publications, eBooks, Resume Center, Contact).
-2. **Admin Panel** – a secure back office where the owner manages every piece of content, the resume/CV output, site appearance, SEO, media, messages, and analytics without touching code.
+2. **Admin Panel** – a secure back office where the owner manages every piece of content, the resume/CV output, site appearance, SEO, media, and messages without touching code.
 
 ### 1.2 Problem Statement
 
@@ -49,7 +49,7 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 
 | Persona                              | Description                                 | Key Needs                                                           |
 | ------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------- |
-| **Site Owner (Admin)**               | The academic/professional who owns the site | Fast content updates, resume generation, message inbox, analytics   |
+| **Site Owner (Admin)**               | The academic/professional who owns the site | Fast content updates, resume generation, message inbox                                       |
 | **Recruiter / Hiring Manager**       | Evaluates the owner's fit for a role        | Quick view of experience, skills, certificates, downloadable resume |
 | **Researcher / Collaborator**        | Looks for research alignment                | Publications, DOI links, interests, upcoming topics, contact        |
 | **Academic Committee / Institution** | Reviews credentials                         | Education, achievements, verified certificates, academic CV         |
@@ -240,7 +240,8 @@ Combined page with a 3-section toggle.
 
 ### 6.2 Dashboard (`/admin`)
 
-- **P0** 10 stat cards: Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks, Unread Messages, Visitors.
+- **P0** 9 stat cards: Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks, Unread Messages.
+- **P0** Overview charts on the dashboard: bar chart (top pages) and area chart (downloads) as content-metric widgets (not a tracking/analytics system).
 - **P0** Recent Activity feed (5 items with type icons).
 - **P0** Quick Actions panel (6 shortcut links).
 
@@ -297,13 +298,7 @@ Combined page with a 3-section toggle.
 - **P0** Upload zone; grid/list toggle; search; type filter (images/documents); copy URL; delete with confirmation.
 - **P1** Image optimisation (resize, WebP), file size/type limits.
 
-### 6.9 Analytics (`/admin/analytics`)
-
-- **P0** Area chart (monthly visitors / views / downloads), bar chart (top pages), pie chart (referrers), stat tiles.
-- **P1** Date-range filter; export CSV.
-- **P0** Privacy-friendly tracking (no personal data; cookie notice where required).
-
-### 6.10 Settings (`/admin/settings`)
+### 6.9 Settings (`/admin/settings`)
 
 - **P0** Profile quick-edit.
 - **P0** Notification toggles (4 types).
@@ -334,7 +329,6 @@ Combined page with a 3-section toggle.
 | **NavItem / FooterConfig / PageConfig** | label, path, visible, order; tagline, copyright, links; home/about editable fields                                             |
 | **SEOEntry**                            | page path, title, description, keywords, ogImage, canonical, noindex                                                           |
 | **MediaAsset**                          | id, url, type, size, uploadedAt                                                                                                |
-| **AnalyticsEvent**                      | type (view/download), path, referrer, timestamp                                                                                |
 | **AdminUser**                           | email, passwordHash, notification prefs                                                                                        |
 
 **Supabase decision:** The Phase 5 backend uses **Supabase** as the single platform for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The existing typed data at `lib/data/index.ts` (seed data: 1 profile, 6 experiences, 2 education entries, 38 skills, 15 certificates, 4 projects, 6 research papers, 4 languages, 5 eBooks, 12 achievements, 6 messages) is the seed/migration source for Supabase Postgres and Storage. Mixing Supabase with any other persistence system is disallowed unless a separate decision record is written.
@@ -349,7 +343,7 @@ Combined page with a 3-section toggle.
 | **SEO**             | Server-side rendering or pre-rendering for public pages; clean URLs; sitemap; OG tags                                            |
 | **Accessibility**   | WCAG 2.1 AA; keyboard-friendly accordions, tabs, drag-reorder alternatives                                                       |
 | **Security**        | HTTPS, CSRF/XSS protection, input validation and sanitisation, rate limiting, secure file upload validation, role-protected APIs |
-| **Privacy**         | Anonymous analytics; GDPR-friendly; contact data stored securely                                                                 |
+| **Privacy**         | GDPR-friendly; contact data stored securely; no behavioural tracking of visitors                                                   |
 | **Reliability**     | 99.9% uptime target; automated backups of content and media                                                                      |
 | **Browser support** | Latest two versions of Chrome, Edge, Safari, Firefox; iOS Safari and Android Chrome                                              |
 | **Maintainability** | Typed codebase (TypeScript), reusable components, documented API, CI/CD                                                          |
@@ -361,7 +355,7 @@ Combined page with a 3-section toggle.
 
 | Layer              | Recommendation                                                                                              |
 | ------------------ | ----------------------------------------------------------------------------------------------------------- |
-| **Frontend**       | React + TypeScript, React Router, Tailwind CSS (or equivalent design tokens), Recharts for analytics charts |
+| **Frontend**       | React + TypeScript, React Router, Tailwind CSS (or equivalent design tokens), Recharts for dashboard charts |
 | **Rendering**      | Vite SPA with pre-rendering, or Next.js for SSR/SEO (preferred if SEO is a priority)                        |
 | **Backend/API**    | Supabase (Postgres, Storage, Auth) accessed via Next.js Route Handlers/Server Actions and a server-only client in `lib/db/` |
 | **Database**       | Supabase Postgres (hosted) for content; Supabase Storage (S3-compatible) for media |
@@ -370,7 +364,6 @@ Combined page with a 3-section toggle.
 | **PDF generation** | Server-side headless-browser rendering of resume routes, or client-side print CSS                           |
 | **Email**          | Transactional email service for contact notifications                                                       |
 | **Hosting**        | Static/edge hosting + CDN for frontend; managed API and DB                                                  |
-| **Analytics**      | First-party event tracking stored in DB, or privacy-friendly provider                                       |
 
 ---
 
@@ -410,12 +403,12 @@ Combined page with a 3-section toggle.
 - Messages inbox (contact form wired end-to-end, email notifications).
 - Resume editors (4), portfolio gallery/categories.
 - Website editors (home, about, navigation, footer).
-- SEO, Media Library, Analytics, Settings.
+- SEO, Media Library, Settings.
 
 ### Phase 7 – Hardening & Launch (Weeks 17–18)
 
 - Accessibility audit, performance tuning, security review.
-- Cross-browser/device QA, content migration, analytics verification.
+- Cross-browser/device QA, content migration.
 - Production deployment, backups, monitoring.
 
 ### Future (Post-launch)
@@ -482,4 +475,4 @@ Combined page with a 3-section toggle.
 `/`, `/about`, `/experience`, `/education`, `/skills`, `/achievements`, `/certificates`, `/certificates/:id`, `/portfolio`, `/portfolio/:id`, `/research`, `/research/:id`, `/research/upcoming`, `/publications`, `/ebooks`, `/ebooks/:id`, `/resume`, `/resume/infographic`, `/contact`, `/*` (404)
 
 **Admin**
-`/admin/login`, `/admin`, `/admin/profile`, `/admin/experience`, `/admin/education`, `/admin/skills`, `/admin/achievements`, `/admin/certificates/professional`, `/admin/certificates/academic`, `/admin/projects`, `/admin/publications`, `/admin/research/papers`, `/admin/research/profile`, `/admin/research/interests`, `/admin/research/upcoming`, `/admin/research/working`, `/admin/ebooks`, `/admin/messages`, `/admin/analytics`, `/admin/resume/professional`, `/admin/resume/academic`, `/admin/resume/research`, `/admin/resume/infographic`, `/admin/portfolio/gallery`, `/admin/portfolio/categories`, `/admin/website/home`, `/admin/website/about`, `/admin/website/navigation`, `/admin/website/footer`, `/admin/seo`, `/admin/media`, `/admin/settings`
+`/admin/login`, `/admin`, `/admin/profile`, `/admin/experience`, `/admin/education`, `/admin/skills`, `/admin/achievements`, `/admin/certificates/professional`, `/admin/certificates/academic`, `/admin/projects`, `/admin/publications`, `/admin/research/papers`, `/admin/research/profile`, `/admin/research/interests`, `/admin/research/upcoming`, `/admin/research/working`, `/admin/ebooks`, `/admin/messages`, `/admin/resume/professional`, `/admin/resume/academic`, `/admin/resume/research`, `/admin/resume/infographic`, `/admin/portfolio/gallery`, `/admin/portfolio/categories`, `/admin/website/home`, `/admin/website/about`, `/admin/website/navigation`, `/admin/website/footer`, `/admin/seo`, `/admin/media`, `/admin/settings`
