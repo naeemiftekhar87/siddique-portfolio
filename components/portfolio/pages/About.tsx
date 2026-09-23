@@ -1,6 +1,15 @@
+import { education, experiences, profile } from "@/lib/data";
+import {
+  ArrowRight,
+  BookOpen,
+  Briefcase,
+  GitFork,
+  GraduationCap,
+  Link2,
+  Mail,
+  MapPin,
+} from "lucide-react";
 import Link from "next/link";
-import { Link2, GitFork, GraduationCap, MapPin, Mail, ArrowRight, BookOpen, Briefcase, FileText, Download } from "lucide-react";
-import { profile, experiences, education } from "@/lib/data";
 
 export default function About() {
   const currentRole = experiences[0];
@@ -24,21 +33,46 @@ export default function About() {
               </div>
             </div>
             <div className="flex-1">
-              <p className="text-cyan-400 text-sm font-medium tracking-wide uppercase mb-3">Profile</p>
-              <h1 className="font-serif text-5xl text-white mb-3 leading-tight">{profile.name}</h1>
-              <p className="text-cyan-300 font-medium mb-4">{profile.headline}</p>
+              <p className="text-cyan-400 text-sm font-medium tracking-wide uppercase mb-3">
+                Profile
+              </p>
+              <h1 className="font-serif text-5xl text-white mb-3 leading-tight">
+                {profile.name}
+              </h1>
+              <p className="text-cyan-300 font-medium mb-4">
+                {profile.headline}
+              </p>
               <div className="flex flex-wrap gap-4 text-slate-400 text-sm mb-6">
-                <span className="flex items-center gap-1.5"><MapPin size={14} /> {profile.location}</span>
-                <span className="flex items-center gap-1.5"><Mail size={14} /> {profile.email}</span>
+                <span className="flex items-center gap-1.5">
+                  <MapPin size={14} /> {profile.location}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Mail size={14} /> {profile.email}
+                </span>
               </div>
               <div className="flex gap-3">
-                <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors">
+                <a
+                  href={profile.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors"
+                >
                   <Link2 size={14} /> LinkedIn
                 </a>
-                <a href={profile.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors">
+                <a
+                  href={profile.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors"
+                >
                   <GitFork size={14} /> GitHub
                 </a>
-                <a href={profile.scholar} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors">
+                <a
+                  href={profile.scholar}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors"
+                >
                   <GraduationCap size={14} /> Scholar
                 </a>
               </div>
@@ -53,7 +87,10 @@ export default function About() {
               { value: profile.stats.publications, label: "Publications" },
               { value: profile.stats.skills, label: "Skills" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4 text-center">
+              <div
+                key={label}
+                className="glass-dark rounded-2xl p-4 text-center"
+              >
                 <div className="font-serif text-2xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
               </div>
@@ -67,33 +104,63 @@ export default function About() {
           {/* Main content */}
           <div className="lg:col-span-2 space-y-10">
             <div>
-              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">Professional Summary</h2>
-              <p className="text-slate-600 leading-relaxed text-base">{profile.summary}</p>
-            </div>
-
-            <div>
-              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">Career Focus</h2>
-              <p className="text-slate-600 leading-relaxed">
-                Placeholder career focus. Replace it with a few sentences about your current role, the problems you focus on, and how your professional experience and research connect.
+              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                Professional Summary
+              </h2>
+              <p className="text-slate-600 leading-relaxed text-base">
+                {profile.summary}
               </p>
             </div>
 
             <div>
-              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">Academic Journey</h2>
+              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                Career Focus
+              </h2>
+              <p className="text-slate-600 leading-relaxed">
+                Placeholder career focus. Replace it with a few sentences about
+                your current role, the problems you focus on, and how your
+                professional experience and research connect.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                Academic Journey
+              </h2>
               <p className="text-slate-600 leading-relaxed mb-6">
-                Placeholder academic journey. Replace it with a short narrative about your degrees, the institutions you studied at, and how your studies connect to your current work and research.
+                Placeholder academic journey. Replace it with a short narrative
+                about your degrees, the institutions you studied at, and how
+                your studies connect to your current work and research.
               </p>
               <div className="space-y-3">
                 {education.map((edu) => (
-                  <div key={edu.id} className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.status === "In Progress" ? "bg-blue-100" : "bg-teal-100"}`}>
-                      <GraduationCap size={16} className={edu.status === "In Progress" ? "text-blue-600" : "text-teal-600"} />
+                  <div
+                    key={edu.id}
+                    className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100"
+                  >
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.status === "In Progress" ? "bg-blue-100" : "bg-teal-100"}`}
+                    >
+                      <GraduationCap
+                        size={16}
+                        className={
+                          edu.status === "In Progress"
+                            ? "text-blue-600"
+                            : "text-teal-600"
+                        }
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-slate-800 font-medium text-sm">{edu.degree}</p>
-                      <p className="text-slate-500 text-xs mt-0.5">{edu.university} · {edu.startDate}–{edu.endDate}</p>
+                      <p className="text-slate-800 font-medium text-sm">
+                        {edu.degree}
+                      </p>
+                      <p className="text-slate-500 text-xs mt-0.5">
+                        {edu.university} · {edu.startDate}–{edu.endDate}
+                      </p>
                     </div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 border ${edu.status === "In Progress" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-green-50 text-green-600 border-green-100"}`}>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 border ${edu.status === "In Progress" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-green-50 text-green-600 border-green-100"}`}
+                    >
                       {edu.status}
                     </span>
                   </div>
@@ -103,18 +170,36 @@ export default function About() {
 
             {currentRole && (
               <div>
-                <h2 className="font-serif text-2xl text-[#040d1f] mb-4">Current Role</h2>
+                <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                  Current Role
+                </h2>
                 <div className="glass-card rounded-2xl p-6 hover:shadow-md transition-all">
                   <div className="flex items-start gap-4">
-                    <img src={currentRole.logo} alt={currentRole.company} className="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-100" />
+                    <img
+                      src={currentRole.logo}
+                      alt={currentRole.company}
+                      className="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-100"
+                    />
                     <div className="flex-1">
-                      <h3 className="font-semibold text-slate-900">{currentRole.position}</h3>
-                      <p className="text-blue-600 text-sm font-medium">{currentRole.company}</p>
-                      <p className="text-slate-400 text-xs mt-0.5">{currentRole.startDate} – {currentRole.endDate} · {currentRole.location}</p>
-                      <p className="text-slate-600 text-sm mt-3 leading-relaxed">{currentRole.description}</p>
+                      <h3 className="font-semibold text-slate-900">
+                        {currentRole.position}
+                      </h3>
+                      <p className="text-blue-600 text-sm font-medium">
+                        {currentRole.company}
+                      </p>
+                      <p className="text-slate-400 text-xs mt-0.5">
+                        {currentRole.startDate} – {currentRole.endDate} ·{" "}
+                        {currentRole.location}
+                      </p>
+                      <p className="text-slate-600 text-sm mt-3 leading-relaxed">
+                        {currentRole.description}
+                      </p>
                     </div>
                   </div>
-                  <Link href="/experience" className="flex items-center gap-1.5 text-sm text-blue-600 font-medium mt-4 hover:gap-2.5 transition-all">
+                  <Link
+                    href="/experience"
+                    className="flex items-center gap-1.5 text-sm text-blue-600 font-medium mt-4 hover:gap-2.5 transition-all"
+                  >
                     Full experience history <ArrowRight size={14} />
                   </Link>
                 </div>
@@ -126,22 +211,31 @@ export default function About() {
           <div className="space-y-6">
             <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
               <h3 className="font-serif text-lg text-[#040d1f] mb-4 flex items-center gap-2">
-                <BookOpen size={16} className="text-blue-500" /> Research Interests
+                <BookOpen size={16} className="text-blue-500" /> Research
+                Interests
               </h3>
               <div className="flex flex-wrap gap-2">
                 {profile.researchInterests.map((interest) => (
-                  <span key={interest} className="px-3 py-1.5 bg-white text-blue-700 text-xs rounded-xl border border-blue-100 font-medium hover:bg-blue-50 transition-colors cursor-default">
+                  <span
+                    key={interest}
+                    className="px-3 py-1.5 bg-white text-blue-700 text-xs rounded-xl border border-blue-100 font-medium hover:bg-blue-50 transition-colors cursor-default"
+                  >
                     {interest}
                   </span>
                 ))}
               </div>
-              <Link href="/research" className="flex items-center gap-1 text-xs text-blue-600 mt-4 hover:underline">
+              <Link
+                href="/research"
+                className="flex items-center gap-1 text-xs text-blue-600 mt-4 hover:underline"
+              >
                 View research papers <ArrowRight size={11} />
               </Link>
             </div>
 
             <div className="glass-card rounded-2xl p-6">
-              <h3 className="font-serif text-lg text-[#040d1f] mb-4">At a Glance</h3>
+              <h3 className="font-serif text-lg text-[#040d1f] mb-4">
+                At a Glance
+              </h3>
               <div className="space-y-3">
                 {[
                   ["Experience", profile.stats.experience + " years"],
@@ -151,46 +245,16 @@ export default function About() {
                   ["Publications", profile.stats.publications],
                   ["Technical Skills", profile.stats.skills],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                  <div
+                    key={label}
+                    className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0"
+                  >
                     <span className="text-slate-500 text-sm">{label}</span>
-                    <span className="font-semibold text-[#040d1f] text-sm font-mono">{value}</span>
+                    <span className="font-semibold text-[#040d1f] text-sm font-mono">
+                      {value}
+                    </span>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="bg-[#040d1f] rounded-2xl p-6 text-white">
-              <h3 className="font-serif text-lg mb-4 flex items-center gap-2">
-                <Briefcase size={16} className="text-cyan-400" /> Domain Expertise
-              </h3>
-              <div className="space-y-2">
-                {["Expertise Area 1", "Expertise Area 2", "Expertise Area 3", "Expertise Area 4", "Expertise Area 5", "Expertise Area 6", "Expertise Area 7"].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-sm text-slate-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Resume & CV */}
-            <div className="bg-gradient-to-br from-[#040d1f] to-blue-900 rounded-2xl p-6 text-white">
-              <h3 className="font-serif text-lg mb-1 flex items-center gap-2">
-                <FileText size={16} className="text-cyan-400" /> Resume & CV
-              </h3>
-              <p className="text-slate-400 text-xs mb-4 leading-relaxed">
-                Professional resume, academic CV, and research portfolio available for download.
-              </p>
-              <div className="flex flex-col gap-2">
-                <Link
-                  href="/resume"
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white text-[#040d1f] text-sm font-semibold rounded-xl hover:bg-blue-50 transition-colors"
-                >
-                  <FileText size={14} /> View Resume Center
-                </Link>
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-white/10 text-white text-sm font-medium rounded-xl border border-white/20 hover:bg-white/20 transition-colors">
-                  <Download size={14} /> Download PDF
-                </button>
               </div>
             </div>
 
@@ -199,9 +263,17 @@ export default function About() {
                 { label: "Experience", to: "/experience", icon: Briefcase },
                 { label: "Research", to: "/research", icon: BookOpen },
                 { label: "Portfolio", to: "/portfolio", icon: GitFork },
-                { label: "Certificates", to: "/certificates", icon: GraduationCap },
+                {
+                  label: "Certificates",
+                  to: "/certificates",
+                  icon: GraduationCap,
+                },
               ].map(({ label, to, icon: Icon }) => (
-                <Link key={to} href={to} className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-600 text-sm hover:border-blue-200 hover:text-blue-600 transition-all">
+                <Link
+                  key={to}
+                  href={to}
+                  className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-600 text-sm hover:border-blue-200 hover:text-blue-600 transition-all"
+                >
                   <Icon size={14} /> {label}
                 </Link>
               ))}
