@@ -34,14 +34,16 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 - Make research output (papers, metrics, pipeline) highly discoverable.
 - Let the owner update all content in minutes with no developer help.
 - Generate multiple resume/CV formats from the same data.
-- Track visitor engagement to inform decisions.
+- Surface content and inbox metrics (content counts, resume/eBook downloads, unread messages) on the admin dashboard — without behavioural tracking of visitors.
 
 ### 1.5 Non-Goals (v1)
 
 - Multi-user / multi-tenant hosting (single owner only).
-- E-commerce checkout for eBooks (v1 shows price and a Get/Download button; payment integration is a later phase).
+- E-commerce checkout for eBooks. All eBooks are free: the owner uploads a PDF and visitors read it on the site (and can download it).
+- Multi-language content (English only).
 - Blogging/newsletter platform.
 - Native mobile apps.
+- Automatic import, scraping, or sync of content from LinkedIn, Google Scholar, ResearchGate, ORCID, or any other external source. All content, including Scholar metrics, is entered manually by the owner through the admin panel.
 
 ---
 
@@ -49,7 +51,7 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 
 | Persona                              | Description                                 | Key Needs                                                           |
 | ------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------- |
-| **Site Owner (Admin)**               | The academic/professional who owns the site | Fast content updates, resume generation, message inbox                                       |
+| **Site Owner (Admin)**               | The academic/professional who owns the site | Fast content updates, resume generation, message inbox              |
 | **Recruiter / Hiring Manager**       | Evaluates the owner's fit for a role        | Quick view of experience, skills, certificates, downloadable resume |
 | **Researcher / Collaborator**        | Looks for research alignment                | Publications, DOI links, interests, upcoming topics, contact        |
 | **Academic Committee / Institution** | Reviews credentials                         | Education, achievements, verified certificates, academic CV         |
@@ -59,14 +61,12 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 
 ## 3. Success Metrics
 
-| Metric                                            | Target (first 6 months)          |
-| ------------------------------------------------- | -------------------------------- |
-| Lighthouse Performance / Accessibility / SEO      | ≥ 90 each                        |
-| Avg. time on site                                 | > 2 minutes                      |
-| Resume downloads / month                          | Tracked, growth month over month |
-| Contact form submissions / month                  | Tracked, growth month over month |
-| Time for owner to publish a new paper/certificate | < 3 minutes                      |
-| Bounce rate on Home                               | < 55%                            |
+| Metric                                            | Target (first 6 months)                                            |
+| ------------------------------------------------- | ------------------------------------------------------------------ |
+| Lighthouse Performance / Accessibility / SEO      | ≥ 90 each                                                          |
+| Resume downloads / month                          | Counted anonymously (no visitor tracking), growth month over month |
+| Contact form submissions / month                  | Counted from Messages, growth month over month                     |
+| Time for owner to publish a new paper/certificate | < 3 minutes                                                        |
 
 ---
 
@@ -96,7 +96,7 @@ Priority legend: **P0** = must have for launch, **P1** = should have, **P2** = n
 ### 5.2 Navbar (fixed)
 
 - **P0** Deep navy glassmorphism background: semi-transparent at top, opaque after scroll.
-- **P0** Brand/logo and 7 links: Home, About, Certificates, Portfolio, Research, eBooks, Contact.
+- **P0** Brand wordmark (the owner's name from Profile, in the display font; there is no logo) and 7 links: Home, About, Certificates, Portfolio, Research, eBooks, Contact.
 - **P0** Active link shown as glass pill.
 - **P0** Social icons (Google Scholar, LinkedIn, GitHub) with cyan hover.
 - **P0** Mobile hamburger with dark glass dropdown.
@@ -104,7 +104,7 @@ Priority legend: **P0** = must have for launch, **P1** = should have, **P2** = n
 
 ### 5.3 Footer
 
-- **P0** Dark (#0a1628) 4-column layout: Brand + social + CTA; Explore links; Research links; Resume & Profile links.
+- **P0** Dark navy (design.md `navy` token, `#040d1f`) 4-column layout: Brand + social + CTA; Explore links; Research links; Resume & Profile links.
 - **P0** Stats strip with 6 metrics.
 - **P0** Copyright bar.
 - **P1** Tagline, copyright text, social URLs, and quick links driven by Footer Editor.
@@ -195,9 +195,10 @@ Combined page with a 3-section toggle.
 ### 5.16 eBooks (`/ebooks`, `/ebooks/:id`)
 
 - **P0** Hero stats: titles, pages, categories, downloads.
-- **P0** Filterable grid: cover, category, page count, price, description.
+- **P0** Filterable grid: cover, category, page count, description.
 - **P0** Detail page: title, subtitle, author, description, ISBN, pages, year, category, _Download/Get_ button, back navigation.
-- **P2** Payment integration for paid titles (future phase).
+- **P0** eBook content is a PDF uploaded by the owner (Supabase Storage). The detail page shows it in an in-site PDF viewer (_Read online_), with a _Download_ button; downloads are counted anonymously (`DownloadStat`).
+- **P2** Payment integration (future phase; not planned).
 
 ### 5.17 Resume Center (`/resume`)
 
@@ -205,7 +206,7 @@ Combined page with a 3-section toggle.
 - **P0** Sticky tabs: Professional Resume / Academic CV / Research CV.
 - **P0** White-paper resume document with gradient navy header.
 - **P0** Sections: Summary, Experience, Education, Technical Skills, Certifications, Languages (flag, name, level, progress bar), Research & Publications (Academic/Research CV only).
-- **P0** PDF export that matches the on-screen document (print stylesheet or server-side render).
+- **P0** PDF export that is exactly what the site shows: the server renders the same resume route in headless Chromium (A4 print CSS) and returns the PDF, so on-screen and PDF output share one source.
 - **P1** Sections, counts, accent colour, and font are controlled by the admin Resume Editor.
 
 ### 5.18 Infographic Resume (`/resume/infographic`)
@@ -235,13 +236,12 @@ Combined page with a 3-section toggle.
 - **P0** Login (`/admin/login`) with email + password.
 - **P0** All `/admin/*` routes protected; redirect to login when unauthenticated.
 - **P0** Session expiry, logout, secure password hashing, brute-force lockout.
-- **P1** Two-factor authentication (TOTP).
 - **P0** Destructive actions require confirmation (two-step delete).
 
 ### 6.2 Dashboard (`/admin`)
 
 - **P0** 9 stat cards: Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks, Unread Messages.
-- **P0** Overview charts on the dashboard: bar chart (top pages) and area chart (downloads) as content-metric widgets (not a tracking/analytics system).
+- **P0** Overview charts on the dashboard (Recharts), built only from content and anonymous counters: a bar chart of content items per section (experience, certificates, projects, papers, eBooks, and so on) and an area chart of resume/eBook downloads over time. No page-view or visitor data.
 - **P0** Recent Activity feed (5 items with type icons).
 - **P0** Quick Actions panel (6 shortcut links).
 
@@ -263,7 +263,7 @@ Combined page with a 3-section toggle.
 | `/admin/research/interests`        | Research Interests        | Tag manager (add via Enter/button, remove with ×); live preview                                                           |
 | `/admin/research/upcoming`         | Upcoming Research         | CRUD; title, area, status, expected year, research question, contribution, methodology, keywords; expandable cards        |
 | `/admin/research/working`          | Working Papers            | CRUD; version, target journal, submission date, preprint URL; status pipeline (Draft → Accepted)                          |
-| `/admin/ebooks`                    | eBooks                    | CRUD; cover image, category, pages, price, ISBN, description                                                              |
+| `/admin/ebooks`                    | eBooks                    | CRUD; cover image, **PDF file upload**, category, pages, ISBN, description                                                |
 | `/admin/messages`                  | Messages                  | Read/unread list, mark-read, reply, delete with confirmation                                                              |
 
 ### 6.4 Resume Management
@@ -322,16 +322,17 @@ Combined page with a 3-section toggle.
 | **UpcomingResearch**                    | id, title, area, status, expectedYear, researchQuestion, contribution, methodology, keywords[]                                 |
 | **WorkingPaper**                        | id, title, version, targetJournal, submissionDate, preprintUrl, status                                                         |
 | **Language**                            | id, name, flag, level, proficiency %                                                                                           |
-| **eBook**                               | id, title, subtitle, author, cover, category, pages, year, price, ISBN, description, fileUrl, downloads                        |
+| **eBook**                               | id, title, subtitle, author, cover, category, pages, year, ISBN, description, fileUrl (uploaded PDF), downloads                |
 | **Message**                             | id, name, email, subject, body, createdAt, read, repliedAt                                                                     |
 | **ResumeConfig**                        | type, sections visibility, counts, accent colour, font, custom note                                                            |
 | **PortfolioCategory**                   | id, name, slug, colour, order                                                                                                  |
 | **NavItem / FooterConfig / PageConfig** | label, path, visible, order; tagline, copyright, links; home/about editable fields                                             |
 | **SEOEntry**                            | page path, title, description, keywords, ogImage, canonical, noindex                                                           |
 | **MediaAsset**                          | id, url, type, size, uploadedAt                                                                                                |
-| **AdminUser**                           | email, passwordHash, notification prefs                                                                                        |
+| **AdminUser**                           | Supabase Auth user (email; password hashed by Supabase) + notification prefs; seeded by an admin seed script                   |
+| **DownloadStat**                        | date, kind (resume variant / eBook), targetId, count — daily aggregate only; no IP, cookie, user-agent, or visitor identifier  |
 
-**Supabase decision:** The Phase 5 backend uses **Supabase** as the single platform for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The existing typed data at `lib/data/index.ts` (seed data: 1 profile, 6 experiences, 2 education entries, 38 skills, 15 certificates, 4 projects, 6 research papers, 4 languages, 5 eBooks, 12 achievements, 6 messages) is the seed/migration source for Supabase Postgres and Storage. Mixing Supabase with any other persistence system is disallowed unless a separate decision record is written.
+**Supabase decision:** The Phase 5 backend uses **Supabase** as the single platform for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The typed seed data at `lib/data/index.ts` — to be created in Phase 1; it does not exist yet; **clearly marked placeholder content** for building the UI, since real content is entered by the owner through the admin — (seed data: 1 profile, 6 experiences, 2 education entries, 38 skills, 15 certificates, 4 projects, 6 research papers, 4 languages, 5 eBooks, 12 achievements, 6 messages) is the seed/migration source for Supabase Postgres and Storage. Mixing Supabase with any other persistence system is disallowed unless a separate decision record is written.
 
 ---
 
@@ -343,7 +344,7 @@ Combined page with a 3-section toggle.
 | **SEO**             | Server-side rendering or pre-rendering for public pages; clean URLs; sitemap; OG tags                                            |
 | **Accessibility**   | WCAG 2.1 AA; keyboard-friendly accordions, tabs, drag-reorder alternatives                                                       |
 | **Security**        | HTTPS, CSRF/XSS protection, input validation and sanitisation, rate limiting, secure file upload validation, role-protected APIs |
-| **Privacy**         | GDPR-friendly; contact data stored securely; no behavioural tracking of visitors                                                   |
+| **Privacy**         | GDPR-friendly; contact data stored securely; no behavioural tracking of visitors                                                 |
 | **Reliability**     | 99.9% uptime target; automated backups of content and media                                                                      |
 | **Browser support** | Latest two versions of Chrome, Edge, Safari, Firefox; iOS Safari and Android Chrome                                              |
 | **Maintainability** | Typed codebase (TypeScript), reusable components, documented API, CI/CD                                                          |
@@ -353,17 +354,17 @@ Combined page with a 3-section toggle.
 
 ## 9. Technical Approach (Recommended)
 
-| Layer              | Recommendation                                                                                              |
-| ------------------ | ----------------------------------------------------------------------------------------------------------- |
-| **Frontend**       | React + TypeScript, React Router, Tailwind CSS (or equivalent design tokens), Recharts for dashboard charts |
-| **Rendering**      | Vite SPA with pre-rendering, or Next.js for SSR/SEO (preferred if SEO is a priority)                        |
-| **Backend/API**    | Supabase (Postgres, Storage, Auth) accessed via Next.js Route Handlers/Server Actions and a server-only client in `lib/db/` |
-| **Database**       | Supabase Postgres (hosted) for content; Supabase Storage (S3-compatible) for media |
-| **Auth**           | Supabase Auth: email/password + server-side sessions, brute-force protection       |
-| **Media storage**  | Supabase Storage (object storage) for images, covers, documents                  |
-| **PDF generation** | Server-side headless-browser rendering of resume routes, or client-side print CSS                           |
-| **Email**          | Transactional email service for contact notifications                                                       |
-| **Hosting**        | Static/edge hosting + CDN for frontend; managed API and DB                                                  |
+| Layer              | Recommendation                                                                                                                                                                                                                                                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend**       | Next.js 16 App Router + React 19 + TypeScript, Tailwind CSS v4 design tokens, shadcn/ui, Recharts for dashboard charts                                                                                                                                         |
+| **Rendering**      | Next.js full-stack app: Server Components (SSR/ISR) for public pages; no Vite, React Router, or separate backend                                                                                                                                               |
+| **Backend/API**    | Plain Supabase client (`@supabase/supabase-js` + `@supabase/ssr`) in server-only `lib/db/`; Server Components for reads, Server Actions for admin CRUD, Route Handlers for auth/contact/media/resume export; zod validation. No ORM (Prisma) or TanStack Query |
+| **Database**       | Supabase Postgres (hosted) for content; Supabase Storage (S3-compatible) for media                                                                                                                                                                             |
+| **Auth**           | Supabase Auth: email/password + server-side sessions, brute-force protection                                                                                                                                                                                   |
+| **Media storage**  | Supabase Storage (object storage) for images, covers, documents                                                                                                                                                                                                |
+| **PDF generation** | Headless Chromium renders the resume route server-side (`app/api/resume/export`) so the PDF matches the site exactly                                                                                                                                           |
+| **Email**          | Resend (owner notifications for new contact messages; replies)                                                                                                                                                                                                 |
+| **Hosting**        | Vercel (Next.js serverless/Node runtime + CDN); Supabase for DB/storage/auth; custom domain registered at Namecheap                                                                                                                                            |
 
 ---
 
@@ -453,19 +454,27 @@ Combined page with a 3-section toggle.
 
 - Single owner/admin; no public user accounts.
 - Content is primarily in English.
-- Google Scholar metrics are entered manually in v1.
+- All content, including Google Scholar metrics, is entered manually by the owner through the admin panel; nothing is fetched automatically.
+- The database (including production) is initially seeded with clearly marked placeholder data; the owner overwrites it through the admin. The seed must never overwrite owner-edited records.
+- Owner's external profiles (link targets only, never fetched; GitHub URL to be provided by the owner): LinkedIn `https://www.linkedin.com/in/mdtarakesiddique`, Google Scholar `https://scholar.google.com/citations?user=ohf_wZIAAAAJ&hl=en`, ResearchGate `https://www.researchgate.net/profile/Md-Siddique-50`.
 
 **Open Questions**
 
-1. Should eBooks be free downloads only, or should payments be supported at launch?
-2. Is a custom domain and email service already available?
-3. Is SSR (Next.js) acceptable, or must the site remain a static SPA?
-4. Is multi-language support (e.g. English + Bangla) required in the near term?
-5. Are there brand assets (logo, colour palette, fonts) beyond the current navy/cyan/amber scheme?
+1. The owner's GitHub URL (the owner will create and provide it).
+2. The exact domain name (registered at Namecheap) and the personal address that should receive contact notifications.
 
 **Resolved Decisions**
 
-- The Phase 5 backend uses **Supabase** for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The existing typed seed data at `lib/data/index.ts` is the migration source; no separate S3-compatible service or self-hosted database is in scope. Mixing Supabase with an incompatible persistence system requires a documented decision record.
+- The product is a full-stack **Next.js 16 App Router** application (SSR for public pages, Route Handlers/Server Actions for the backend) in a single repository — not a static SPA.
+- **eBooks:** free, no payments; owner uploads a PDF that is read on the site and downloadable. **No multi-language** (English only).
+- **Branding:** no logo; the owner's name is the wordmark. Colours and fonts follow `docs/design.md`.
+- **Resume PDF:** server-side headless-Chromium rendering of the resume routes so the PDF matches the site exactly.
+- **Email:** Resend (contact notifications and replies), sending from the owner's Namecheap domain once its DNS records are verified. The domain has no mailbox; notifications go to the owner's personal address, with Reply-To set to the visitor.
+- **Hosting:** Vercel, with the Namecheap custom domain pointed at it.
+- **Database:** the Supabase database is empty; the schema is created from migrations, then seeded with placeholder content and the single admin user via seed scripts.
+- There is **no analytics module**: no `/admin/analytics`, no `/api/analytics`, no visitor/page-view tracking. The dashboard shows content/message metrics plus anonymous daily download counts (`DownloadStat`). The "top pages" chart is replaced by a content-per-section chart; time-on-site and bounce-rate metrics are dropped. A cookieless hosted analytics tool (e.g. Plausible, Umami, Vercel Web Analytics) is not adopted and would need owner approval.
+- **Data layer:** plain Supabase client — no Prisma, no TanStack Query/Form (the Kilo plan was rejected on 2026-09-23). Schema changes are SQL migrations via the Supabase CLI with generated TypeScript types; RLS is enabled on every table.
+- The Phase 5 backend uses **Supabase** for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The typed seed data at `lib/data/index.ts` (created in Phase 1) is the migration source; no separate S3-compatible service or self-hosted database is in scope. Mixing Supabase with an incompatible persistence system requires a documented decision record.
 
 ---
 

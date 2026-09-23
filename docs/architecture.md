@@ -21,7 +21,7 @@ The repository currently contains a minimal Next.js App Router scaffold. The arc
 - Treat `P0` requirements as launch-critical, `P1` as required after the core flow, and `P2` as future work.
 - Use semantic HTML, keyboard navigation, visible focus states, meaningful image alternatives, and `prefers-reduced-motion` support.
 - Keep the public experience responsive at 360 px without horizontal scrolling.
-- Once the full-stack runtime is active, deploy the application with a Next.js server or serverless runtime. A static-only export is not suitable for authenticated API routes, database access, or server-side mutations.
+- **Hosting is Vercel** (decided 2026-09-23) with the owner's Namecheap domain. Use the Node.js runtime (not Edge) for routes that use the Supabase service-role client, Resend, or headless Chromium. Server state does not persist between serverless invocations, so rate limits (login, contact) must live in Supabase or a Vercel feature, not in memory. Environment variables are set in the Vercel project settings. A static-only export is not suitable for authenticated API routes, database access, or server-side mutations.
 
 ## 3. System architecture
 
@@ -29,16 +29,15 @@ The repository currently contains a minimal Next.js App Router scaffold. The arc
 
 The checked-in application is a single Next.js application with:
 
-- `app/layout.tsx` as the root layout.
-- `app/page.tsx` as the current home route.
-- `app/globals.css` as the global Tailwind CSS entry point.
-- `public/` for static assets.
-- Root configuration files for TypeScript, ESLint, Next.js, PostCSS, and dependencies.
+- `app/layout.tsx` as the single root layout (design.md fonts via `next/font/google`, `TooltipProvider`, default metadata).
+- `app/globals.css` with the design.md theme (brand tokens, light public theme, `.admin-theme` dark theme, glass/hero/navbar classes).
+- `app/(public)/` (layout + placeholder pages for every public route) and `app/(admin)/admin/` (dark-theme layout, noindex, placeholder pages for every admin route). `app/not-found.tsx` is the minimal 404.
+- `components/ui/` (shadcn, Radix base, Nova preset), `components/portfolio/` and `components/admin/` (placeholders and the admin `<html>` theme toggle), `hooks/use-mobile.ts`, and `lib/utils.ts`.
+- Empty `lib/{data,api,auth,db,storage,email,resume}/` and `public/{images,documents,icons}/` folders (tracked with `.gitkeep`).
 - No `src/` directory.
 - No backend implementation, database client, authentication system, media storage, or configured test framework yet.
-- No `components/` or `lib/` directories yet.
 
-The PRD refers to a typed seed-data file at `src/data/index.ts`, but that file is not present. Do not import it or describe it as implemented. A temporary typed data layer may be created during Phases 1–4 at an agreed repository path; the recommended path for this repository is `lib/data/index.ts`.
+The PRD refers to a typed seed-data file at `lib/data/index.ts`, but that file is not present yet; it is created in Phase 1 (task 1.4). Do not import it or describe it as implemented until it exists. Supabase project credentials exist in the gitignored `.env` (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`), but no Supabase client or schema has been written.
 
 ### 3.2 Full-stack target architecture
 
@@ -55,7 +54,7 @@ The PRD refers to a typed seed-data file at `src/data/index.ts`, but that file i
 | Database access | Schema queries, transactions, migrations, and persistence adapters | `lib/db/` |
 | Media storage | Upload handling, object storage adapters, file metadata | `lib/storage/` |
 | Resume logic | Resume configuration, variant selection, export preparation | `lib/resume/` |
-| External integrations | Email delivery, optional PDF rendering | Bounded adapters behind `lib/` |
+| External integrations | Email delivery (Resend, `lib/email/`), resume PDF rendering (headless Chromium) | Bounded adapters behind `lib/` |
 
 The layers should depend inward: pages and components call typed data-access functions; data-access functions call API, database, or storage adapters; persistence and external services never import UI components.
 
@@ -170,7 +169,8 @@ siddique-portfolio/
 ├── eslint.config.mjs
 ├── postcss.config.mjs
 ├── tsconfig.json
-└── CLAUDE.md
+├── AGENTS.md                         # canonical agent guide
+└── CLAUDE.md                         # points to AGENTS.md
 ```
 
 ### 5.2 Target application structure
@@ -189,8 +189,6 @@ app/
 │   │   ├── logout/route.ts
 │   │   └── session/route.ts
 │   ├── contact/route.ts
-│   ├── admin/
-│   │   └── .../route.ts
 │   ├── media/route.ts
 │   └── resume/export/route.ts
 ├── (public)/
@@ -264,6 +262,7 @@ lib/
 ├── db/                              # database client, schema, migrations, repositories
 ├── storage/                         # media upload and object-storage adapters
 ├── resume/                          # resume configuration and export logic
+├── email/                           # Resend adapter (server-only)
 
 public/
 ├── images/
@@ -293,11 +292,11 @@ Create these directories only when they contain code or assets. Do not create em
 | Styling | Tailwind CSS `4` | Utility-first styling and design tokens |
 | CSS processing | `@tailwindcss/postcss` | Tailwind processing for `app/globals.css` |
 | Linting | ESLint `9` and `eslint-config-next` | Static checks and Next.js rules |
-| Fonts | `next/font/google` with Geist and Geist Mono | Current scaffold font setup |
+| Fonts | `next/font/google` with Geist and Geist Mono | Current scaffold font setup; to be replaced in Phase 1 |
 | Path alias | `@/*` | Imports rooted at the repository root |
 | Package manager | npm | Dependency and script execution |
 
-The current font setup is a scaffold decision, not a final brand decision. The design guide proposes a display, sans, and mono font system. Any replacement must use Next.js font optimization and must be resolved before it is applied globally.
+The Geist setup is a scaffold placeholder. **Decided (2026-09-23):** the brand fonts follow `docs/design.md`: DM Serif Display (headings), Plus Jakarta Sans (body, Inter fallback), and JetBrains Mono (data). They are loaded through `next/font/google`.
 
 ### 6.2 Full-stack capabilities provided by Next.js
 
@@ -317,29 +316,30 @@ The current font setup is a scaffold decision, not a final brand decision. The d
 
 The repository does not currently include:
 
-- shadcn/ui or `components/ui/`.
-- A database client, ORM, database server, or migration tool.
+- A database client or migration tool (Phase 5: `@supabase/supabase-js`, `@supabase/ssr`, Supabase CLI; no ORM).
+
 - An authentication library or implemented session system.
-- Form or schema-validation libraries.
-- A charting library.
+- Form or schema-validation libraries (Phase 5: `react-hook-form` + `zod`, used with shadcn `field`).
 - Media upload or object-storage integration.
 - Email delivery integration.
 - A configured test framework or test command.
 
-Do not claim these capabilities exist. Add them only when the relevant phase and user-approved architecture require them.
+shadcn/ui (with `radix-ui`, `lucide-react`, `sonner`, and `recharts` via the `chart` component) **is installed** as of 2026-09-23. Do not claim the capabilities above exist. Add them only when the relevant phase and user-approved architecture require them.
 
 ### 6.4 Phase-dependent choices
 
 | Area | Allowed direction | Decision point |
 | --- | --- | --- |
 | Temporary data | Typed in-memory or seed-data module | Phase 1 |
-| Backend surface | Next.js Route Handlers, Server Actions, or a documented combination | Phase 5 |
+| **Backend surface** | **Server Components for reads; Server Actions for admin CRUD; Route Handlers for auth, contact, media upload, resume export** — chosen | **Phase 5 — resolved** |
+| **Data client** | **Plain `@supabase/supabase-js` + `@supabase/ssr`; no Prisma, no TanStack Query/Form** — chosen | **Phase 5 — resolved** |
+| **Validation / forms** | **zod on the server; shadcn `Form` (react-hook-form + zod) in admin UIs** — chosen | **Phase 5 — resolved** |
 | **Database** | **Supabase Postgres (hosted)** — chosen | **Phase 5 — resolved** |
 | **Media storage** | **Supabase Storage (S3-compatible)** — chosen | **Phase 5 — resolved** |
 | **Admin authentication** | **Supabase Auth (email/password + server-side sessions)** — chosen | **Phase 5 — resolved** |
-| Charts | A maintained React chart library; Recharts is a PRD candidate | Phase 5 (dashboard overview charts) |
-| Resume PDF | Client print CSS or server-side headless-browser rendering | Phase 4 |
-| Email | Transactional email provider or equivalent adapter | Phase 6 |
+| **Charts** | **Recharts via shadcn `Chart`** — chosen | **Phase 5 — resolved** |
+| **Resume PDF** | **Server-side headless Chromium renders the resume route (A4 print CSS) in `app/api/resume/export/route.ts`**. Because hosting is Vercel, use `puppeteer-core` + `@sparticuz/chromium` (serverless-sized Chromium) on the Node.js runtime with a raised `maxDuration`; confirm the function stays under Vercel's bundle-size limit. Adding the packages still needs owner approval in Phase 4 | **Phase 4 — strategy resolved** |
+| **Email** | **Resend** (`resend` SDK behind `lib/email/`; `RESEND_API_KEY` server-only). Sender domain: the owner's Namecheap domain, verified in Resend by adding its SPF/DKIM (and recommended DMARC) DNS records at Namecheap. No mailbox is needed to send. Notifications go to the owner's personal address, with Reply-To set to the visitor's email. Until the domain is verified, use Resend's test sender to the account email | **Phase 6 — resolved** |
 
 The backend surface, database, storage, and authentication choices are resolved for Phase 5: **Supabase** provides the database (Postgres), object storage, and authentication. Do not mix Supabase Postgres/Storage with an incompatible persistence system without a recorded reason.
 
@@ -365,7 +365,11 @@ During Phases 1–4:
 
 During Phase 5 and later:
 
-- The chosen persistence layer is **Supabase**: Supabase Postgres for data and Supabase Storage for media (S3-compatible). Keep the server-only client and all credentials in `lib/db/supabase.ts`; never expose the service-role key to the browser.
+- The chosen persistence layer is **Supabase**: Supabase Postgres for data and Supabase Storage for media (S3-compatible), accessed with the **plain Supabase client** (`@supabase/supabase-js` + `@supabase/ssr`). No ORM (Prisma) and no client data cache (TanStack Query) — decided 2026-09-23.
+- Clients live in server-only modules under `lib/db/` (marked with `import "server-only"`): a cookie-aware `@supabase/ssr` client for the admin session, and a service-role client for privileged writes that is used only after the session is verified. Never expose the secret key (`sb_secret_…`) to the browser.
+- Schema is owned by SQL migrations managed with the Supabase CLI (`supabase/migrations/`); TypeScript types are generated from the schema (`supabase gen types typescript`) into `lib/db/` and used by all selectors and actions.
+- Row Level Security is enabled on every table, deny by default. Public content tables get read-only `select` policies; messages, download stats, and admin/config data have no public policies.
+- Public reads: Server Components call `lib/data/` selectors. Admin CRUD: Server Actions (session check → zod validation → write → `revalidatePath`/`revalidateTag`). Route Handlers are used only for auth, the contact form, media upload, resume export, and the download counter. Do not implement the same mutation both ways.
 - Expose persistence through typed Route Handlers, Server Actions, or server-only data-access functions under `lib/data/` and `lib/storage/`.
 - Keep public reads unauthenticated and protected writes authenticated.
 - Validate and sanitize all write payloads on the server.
@@ -419,9 +423,11 @@ The following decisions remain open until the relevant phase:
 1. Select the database and migration strategy. **Resolved:** Supabase Postgres (hosted), migrated from `lib/data/index.ts` seed data.
 2. Select media/object storage and upload boundaries. **Resolved:** Supabase Storage (S3-compatible) buckets accessed through `lib/storage/`.
 3. Select the authentication/session mechanism and password policy. **Resolved:** Supabase Auth (email/password + server-side sessions, built-in brute-force protection).
-4. Confirm the final brand fonts and whether the current Geist setup remains.
-5. Select the charting library for the dashboard overview charts (Recharts is the PRD candidate).
-6. Select the resume PDF rendering strategy.
-7. Select the transactional email provider.
+4. Confirm the final brand fonts. **Resolved:** follow `docs/design.md` (DM Serif Display / Plus Jakarta Sans / JetBrains Mono via `next/font/google`).
+5. Select the charting library for the dashboard overview charts. **Resolved:** Recharts via shadcn `Chart`; charts use content counts and anonymous `DownloadStat` aggregates only (no visitor tracking).
+8. Select the data client and admin data-flow. **Resolved (2026-09-23):** plain Supabase client, Server Actions for admin CRUD, zod validation; Prisma and TanStack Query/Form rejected.
+6. Select the resume PDF rendering strategy. **Resolved:** server-side headless Chromium rendering of the resume routes, so the PDF matches the site exactly.
+7. Select the transactional email provider. **Resolved:** Resend.
+9. Database starting state. **Resolved:** the Supabase database is empty. Migrations create the schema; a content seed script loads placeholders; an admin seed script creates the single Supabase Auth user via the Admin API from `ADMIN_EMAIL`/`ADMIN_PASSWORD` env vars (never committed), idempotently.
 
-Record each decision in this file and, when requested by the user, in `docs/memory.md`.
+Record each decision in this file and in `docs/memory.md`.

@@ -3,6 +3,10 @@
 Single source of truth for typography, colour, glassmorphism, and the admin theme.
 **Target file:** `src/index.css` (the CSS file referenced in `components.json → tailwind.css`).
 
+> **Next.js adaptation (this repo):** this guide was written for Vite. Read `src/index.css` as `app/globals.css`, `index.html` font `<link>`s as `next/font/google` in `app/layout.tsx`, `src/components/ui/` as `components/ui/`, and the React Router `AdminLayout` (§4) as an `app/(admin)/admin/layout.tsx` with a small client component that toggles the `admin-theme dark` classes. The token values, component variants, and theme rules apply unchanged. The owner confirmed these fonts replace Geist (2026-09-23); load them with `next/font/google` instead of the §1.1 `<link>` tags. Design.md colours are also authoritative over any other hex values in the PRD or phases.
+>
+> **Installed shadcn (2026-09-23):** shadcn 4.x with the **Radix** base and **Nova** preset (Lucide icons). Differences from this guide: the `form` component no longer exists (use `field` with react-hook-form + zod); `sonner.tsx` takes an explicit `theme` prop instead of `next-themes`; the radius scale is Nova's (`rounded-sm` … `rounded-4xl`); the admin theme selector is `.admin-theme` so the admin wrapper is dark on the server render. Headings inside shadcn components use `font-heading`, which maps to the display font.
+
 ---
 
 ## 0. Instructions for the AI (read first)
@@ -687,7 +691,7 @@ Heading line-height **1.2** · Body line-height **1.6** · Font smoothing **anti
 | Skills category tabs, Certificates filter, Research 3-section toggle, resume tabs | `Tabs` (or `ToggleGroup` for pill toggles)                   |
 | Experience accordion, Upcoming Research cards                                     | `Accordion`                                                  |
 | Mobile navbar menu                                                                | `Sheet`                                                      |
-| Search bars, contact form fields                                                  | `Input`, `Textarea`, `Label`, `Form` (react-hook-form + zod) |
+| Search bars, contact form fields                                                  | `Input`, `Textarea`, `Label`, `Field` (react-hook-form + zod) |
 | Filters (status, area)                                                            | `Select`                                                     |
 | Proficiency and language bars                                                     | `Progress`                                                   |
 | Proficiency slider (admin), resume count sliders                                  | `Slider`                                                     |
@@ -697,7 +701,7 @@ Heading line-height **1.2** · Body line-height **1.6** · Font smoothing **anti
 | Success/error messages                                                            | `Sonner` (toast)                                             |
 | Admin sidebar layout                                                              | `Sidebar`                                                    |
 | Admin data lists (messages, media list view)                                      | `Table`, `DropdownMenu`, `Pagination`                        |
-| Dashboard charts (top pages bar, downloads area)                                          | `Chart` (Recharts) using `--chart-1`…`--chart-5`            |
+| Dashboard charts (content-per-section bar, downloads area)                        | `Chart` (Recharts) using `--chart-1`…`--chart-5`            |
 | DOI copy hint, icon buttons                                                       | `Tooltip`                                                    |
 | Loading states                                                                    | `Skeleton`                                                   |
 | Detail page back navigation                                                       | `Breadcrumb`                                                 |

@@ -8,15 +8,15 @@
 
 ## Progress Overview
 
-| Phase | Name                 | Tasks | Done | Status         |
-| ----- | -------------------- | ----- | ---- | -------------- |
-| 1     | Foundation           | 22    | 0    | ⬜ Not started |
-| 2     | Core Public Pages    | 40    | 0    | ⬜ Not started |
-| 3     | Research & eBooks    | 32    | 0    | ⬜ Not started |
-| 4     | Resume System        | 20    | 0    | ⬜ Not started |
-| 5     | Backend & Admin Core | 47    | 0    | ⬜ Not started |
-| 6     | Advanced Admin       | 48    | 0    | ⬜ Not started |
-| 7     | Hardening & Launch   | 26    | 0    | ⬜ Not started |
+| Phase | Name                 | Tasks (incl. DoD) | Done | Status         |
+| ----- | -------------------- | ----------------- | ---- | -------------- |
+| 1     | Foundation           | 24                | 5    | 🟨 In progress |
+| 2     | Core Public Pages    | 45                | 0    | ⬜ Not started |
+| 3     | Research & eBooks    | 26                | 0    | ⬜ Not started |
+| 4     | Resume System        | 17                | 0    | ⬜ Not started |
+| 5     | Backend & Admin Core | 40                | 1    | 🟨 In progress |
+| 6     | Advanced Admin       | 41                | 0    | ⬜ Not started |
+| 7     | Hardening & Launch   | 30                | 0    | ⬜ Not started |
 
 **Status legend:** ⬜ Not started · 🟨 In progress · ✅ Complete
 
@@ -29,15 +29,15 @@
 
 ### 1.1 Project Setup
 
-- [ ] Initialise project (Next.js + React + TypeScript)
-- [ ] Configure Tailwind CSS (or design tokens) and fonts
-- [ ] Set up ESLint and folder structure (`components/`, `app/`, `lib/`, `public/`)
+- [x] Initialise project (Next.js + React + TypeScript)
+- [x] Configure Tailwind CSS design tokens and fonts (DM Serif Display, Plus Jakarta Sans, JetBrains Mono via `next/font/google`)
+- [x] Set up ESLint and folder structure (`components/`, `app/`, `lib/`, `public/`)
 - [ ] Set up Git repo, branching strategy, and `.env` handling
-- [ ] Define all public route placeholders with the App Router
+- [x] Define all public route placeholders with the App Router (admin route placeholders too)
 
 ### 1.2 Design System
 
-- [ ] Define colour tokens (navy `#0a1628`, cyan, amber, category colours)
+- [x] Define colour tokens from `docs/design.md` §2 (navy `#040d1f` family, electric, cyan, teal, amber, category colours)
 - [ ] Build reusable **Hero** component (dark hero with title, subtitle, stats slot)
 - [ ] Build **Card**, **Badge** (status colours), **Chip/Tag**, **Button** variants
 - [ ] Build **Stat counter** component (animated)
@@ -46,7 +46,7 @@
 
 ### 1.3 Layout Components
 
-- [ ] **Navbar:** glassmorphism (transparent → opaque on scroll), logo, 7 links, active pill
+- [ ] **Navbar:** glassmorphism (transparent → opaque on scroll), name wordmark (no logo), 7 links, active pill
 - [ ] Navbar: social icons (Scholar, LinkedIn, GitHub) with cyan hover
 - [ ] Navbar: mobile hamburger + dark glass dropdown
 - [ ] **Footer:** 4-column layout (Brand, Explore, Research, Resume & Profile)
@@ -57,7 +57,7 @@
 ### 1.4 Data Layer
 
 - [ ] Define TypeScript types for all entities (Profile, Experience, Education, Skill, Certificate, Project, Paper, Language, eBook, Achievement, Message)
-- [ ] Create `lib/data/index.ts` with seed data (1 profile, 6 experiences, 2 education, 38 skills, 15 certificates, 4 projects, 6 papers, 4 languages, 5 eBooks, 12 achievements, 6 messages)
+- [ ] Create `lib/data/index.ts` with clearly marked **placeholder** seed data (1 profile, 6 experiences, 2 education, 38 skills, 15 certificates, 4 projects, 6 papers, 4 languages, 5 eBooks, 12 achievements, 6 messages). Only the owner's real profile URLs (LinkedIn, Scholar, ResearchGate) are real; everything else is entered by the owner via the admin later.
 - [ ] Create helper selectors (recent experience, latest papers, stats calculators)
 
 **✅ Definition of Done**
@@ -127,7 +127,7 @@
 - [ ] Detail page: description, skills, credential ID, date, grade, duration
 - [ ] Detail page: back navigation and "not found" handling
 
-### 2.6 Portfolio (`/portfolio`, `/portfolio/[id]`)
+### 2.8 Portfolio (`/portfolio`, `/portfolio/[id]`)
 
 - [ ] Hero with stats
 - [ ] Category filter tabs
@@ -135,7 +135,7 @@
 - [ ] Detail page: Problem / Objective / Methodology / Results
 - [ ] Detail page: tools chips and back navigation
 
-### 2.8 Contact (`/contact`) — UI only
+### 2.9 Contact (`/contact`) — UI only
 
 - [ ] Hero with social links
 - [ ] Form: name, email, subject, message
@@ -188,9 +188,9 @@
 ### 3.5 eBooks (`/ebooks`, `/ebooks/[id]`)
 
 - [ ] Hero with stats (titles, pages, categories, downloads)
-- [ ] Filterable grid: cover, category, pages, price, description
+- [ ] Filterable grid: cover, category, pages, description
 - [ ] Detail page: title, subtitle, author, description, ISBN, pages, year, category
-- [ ] Download/Get button (placeholder link)
+- [ ] In-site PDF viewer (_Read online_) + _Download_ button (placeholder PDF until uploads exist); mobile fallback that opens the PDF when inline viewing is unsupported
 - [ ] Back navigation
 
 **✅ Definition of Done**
@@ -224,6 +224,7 @@
 
 ### 4.3 PDF Export
 
+- [ ] Headless-Chromium export route (`app/api/resume/export`) rendering the resume route to PDF (package chosen with the hosting target, owner-approved)
 - [ ] Print stylesheet (A4, margins, page breaks)
 - [ ] Download PDF for each of the 4 variants
 - [ ] Test fonts, colours, and multi-page overflow
@@ -243,16 +244,16 @@
 
 ### 5.1 Backend Setup
 
-- [ ] Configure the Supabase platform stack (Postgres, Storage, Auth); install `@supabase/supabase-js` and set up server-only client in `lib/db/`
-- [ ] Design database schema for all entities (see PRD §7) in Supabase Postgres
-- [ ] Create migrations and a seed script from `lib/data/index.ts`
+- [ ] Configure the Supabase platform stack (Postgres, Storage, Auth); install `@supabase/supabase-js`, `@supabase/ssr`, `zod`, and set up server-only clients in `lib/db/` (no Prisma, no TanStack)
+- [ ] Design database schema for all entities (see PRD §7) as Supabase CLI SQL migrations; generate TypeScript types; enable RLS on every table (public read-only policies for public content)
+- [ ] Create migrations and an idempotent seed script from `lib/data/index.ts` (placeholder data also seeds production; re-runs must never overwrite owner-edited records)
 - [ ] Configure Supabase Storage buckets for images and documents
-- [ ] Build Route Handlers and Server Actions (public reads, protected writes)
+- [ ] Build server-only selectors (public reads), Server Actions (admin CRUD), and Route Handlers (auth, contact, media, resume export, download counter)
 - [ ] Add validation, error handling, and logging
 
 ### 5.2 Authentication
 
-- [ ] Configure Supabase Auth admin user with email/password
+- [x] Idempotent admin seed script (`npm run seed:admin`, `scripts/seed-admin.mts`; run 2026-09-23): create the single Supabase Auth user via the Admin API from `ADMIN_EMAIL`/`ADMIN_PASSWORD` env vars (never committed)
 - [ ] Login endpoint + server-side session handling (Supabase Auth sessions via cookies)
 - [ ] Login page (`/admin/login`) with error states
 - [ ] Protected route wrapper (redirect to login)
@@ -270,7 +271,8 @@
 ### 5.4 Dashboard (`/admin`)
 
 - [ ] 9 stat cards wired to real content/message counts (Visitors removed — no analytics)
-- [ ] Dashboard overview charts: bar chart (top pages) and area chart (downloads)
+- [ ] Anonymous download counter (`DownloadStat` daily aggregates for resume PDFs and eBooks; no IP/cookies)
+- [ ] Dashboard overview charts: bar chart (content items per section) and area chart (downloads over time)
 - [ ] Recent Activity feed (5 items with icons)
 - [ ] Quick Actions panel (6 links)
 
@@ -287,7 +289,7 @@
 - [ ] `/admin/projects` — CRUD with problem/objective/methodology/results
 - [ ] `/admin/publications` — CRUD
 - [ ] `/admin/research/papers` — CRUD
-- [ ] `/admin/ebooks` — CRUD with cover upload
+- [ ] `/admin/ebooks` — CRUD with cover image and PDF file upload
 
 ### 5.6 Connect Public Site to API
 
@@ -320,9 +322,9 @@
 - [ ] Contact form POST endpoint storing to database
 - [ ] Spam protection (honeypot + rate limit; optional CAPTCHA)
 - [ ] `/admin/messages` — read/unread list, mark-read
-- [ ] Reply action (mailto or email send)
+- [ ] Reply action (mailto or send via Resend)
 - [ ] Delete with confirmation
-- [ ] Email notification to owner on new message
+- [ ] Email notification to owner on new message via Resend (`lib/email/`)
 - [ ] Unread count in dashboard and sidebar badge
 
 ### 6.3 Resume Editors
@@ -411,18 +413,18 @@
 - [ ] Input validation and sanitisation on all endpoints
 - [ ] CSRF/XSS protections, secure headers
 - [ ] File upload validation
-- [ ] Optional: two-factor authentication (TOTP)
 
 ### 7.5 Content & SEO
 
-- [ ] Replace seed data with real content
+- [ ] Owner replaces placeholder seed data with real content via the admin
 - [ ] Fill SEO metadata for every page
 - [ ] Submit sitemap to Google Search Console
 - [ ] Verify Open Graph previews
 
 ### 7.6 Deployment
 
-- [ ] Production hosting, domain, and SSL
+- [ ] Vercel project (Node runtime, env vars) + Namecheap domain DNS pointed to Vercel; SSL via Vercel
+- [ ] Verify the Namecheap domain in Resend (SPF/DKIM/DMARC records) and switch the sender off the test address
 - [ ] CI/CD pipeline
 - [ ] Automated backups (database + media)
 - [ ] Error monitoring and uptime alerts
@@ -445,6 +447,7 @@
 - [ ] Testimonials
 - [ ] Google Scholar auto-sync / ORCID import
 - [ ] Light/dark theme toggle
+- [ ] Cookieless hosted analytics (Plausible / Umami / Vercel Web Analytics) — only with owner approval
 
 ---
 

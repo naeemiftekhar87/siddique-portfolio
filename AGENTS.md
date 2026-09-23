@@ -27,7 +27,7 @@ Then read the relevant documentation. For a new feature or phase, read all six f
 5. `docs/architecture.md` — architecture decisions and constraints.
 6. `docs/rules.md` — repository rules and agent constraints.
 
-Read `docs/memory.md` first, then the remaining files in the order listed when beginning a new feature or phase. Do not skip a file because it is currently empty. `docs/architecture.md` now documents the target architecture; keep `docs/memory.md` updated as work completes or plans change, including completed work, pending work, decisions, and blockers. `docs/rules.md` remains intentionally empty.
+Read `docs/memory.md` first, then the remaining files in the order listed when beginning a new feature or phase. `docs/architecture.md` documents the target architecture and `docs/rules.md` holds the owner's behavioural rules for agents (scope, approvals, no fabricated personal/research data). Keep `docs/memory.md` updated after every work session and whenever plans change, including completed work, pending work, decisions, and blockers.
 
 When documentation conflicts with the checked-in repository, inspect the repository first and report the conflict before changing the architecture. In particular, adapt the design guide to the actual Next.js App Router structure instead of copying its Vite/React Router paths.
 
@@ -39,10 +39,11 @@ Before writing code, also read the relevant Next.js guide under `node_modules/ne
 - React `19.2.8` and TypeScript.
 - Tailwind CSS v4 with `@tailwindcss/postcss`; styling is rooted in `app/globals.css`.
 - The application code is currently under `app/`; there is no `src/` directory.
-- The repository is a minimal scaffold: it currently contains `app/page.tsx`, `app/layout.tsx`, and `app/globals.css`, plus the standard Next.js configuration files.
+- Phase 1 setup is in place: the design.md theme is in `app/globals.css`, the design.md fonts are loaded in `app/layout.tsx`, `app/(public)` and `app/(admin)/admin` route groups hold placeholder pages for every PRD route, and there is a root `app/not-found.tsx`. See `docs/memory.md` §2 for the exact state.
 - The target is a full-stack Next.js application. The Phase 5 backend must be implemented inside this application with Route Handlers, Server Actions where appropriate, and server-only data/auth modules; do not introduce a separate Express or Vite backend.
-- There is no backend implementation, database, authentication layer, API client, shadcn component library, or configured test framework yet.
-- The PRD mentions a static seed-data source at `src/data/index.ts`, but that file does not currently exist. Do not import it until it has been created or the data layer has been deliberately established.
+- shadcn/ui is initialized (`components.json`: Radix base, Nova preset, Lucide icons) with the design.md component set in `components/ui/`. In this shadcn version `form` is replaced by `field`. There is no backend implementation, database client, authentication layer, or configured test framework yet.
+- The PRD's seed-data source is `lib/data/index.ts`, which is created in Phase 1 and does not exist yet. Do not import it until it has been created.
+- Supabase is the chosen Phase 5 platform (Postgres, Storage, Auth). Credentials exist in the gitignored `.env`, but no Supabase client, schema, or dependency has been added yet.
 - The PRD's long-term goal is to replace static content with persistent data in Phase 5. Do not pretend that admin edits persist before that work exists.
 
 ## Product scope
@@ -50,7 +51,7 @@ Before writing code, also read the relevant Next.js guide under `node_modules/ne
 The product has two surfaces:
 
 - A responsive public portfolio for recruiters, researchers, institutions, readers, and collaborators.
-- A protected single-owner admin panel for content, resume configuration, media, messages, SEO, analytics, and site settings.
+- A protected single-owner admin panel for content, resume configuration, media, messages, SEO, and site settings. There is no analytics module or visitor tracking.
 
 Treat `P0` requirements as launch-critical, `P1` as required after the core flow, and `P2` as future work unless the user explicitly changes the priority. Do not implement non-goals from the PRD, including multi-tenant hosting, checkout/payments, a blog/newsletter, native mobile apps, or automatic Scholar/ORCID sync, unless they are moved into the active scope.
 
@@ -82,9 +83,7 @@ app/
     auth/login/route.ts
     auth/logout/route.ts
     contact/route.ts
-    admin/.../route.ts
     media/route.ts
-    analytics/route.ts
     resume/export/route.ts
   (public)/
     page.tsx
@@ -126,7 +125,6 @@ app/
     admin/research/working/page.tsx
     admin/ebooks/page.tsx
     admin/messages/page.tsx
-    admin/analytics/page.tsx
     admin/resume/professional/page.tsx
     admin/resume/academic/page.tsx
     admin/resume/research/page.tsx
@@ -150,8 +148,8 @@ lib/
   auth/
   db/
   storage/
+  email/
   resume/
-  analytics/
 public/
 docs/
 ```
@@ -179,22 +177,22 @@ The visual target is defined by `docs/design.md`: deep navy heroes, cyan accents
 - Do not hard-code repeated hex colors in components when a token or semantic utility exists.
 - Use the public light theme for portfolio pages and dark navy hero sections. Use the admin dark theme for `/admin` and its layouts.
 - The design guide refers to `src/index.css`, `index.html`, and Vite conventions. Adapt those instructions to `app/globals.css` and the Next.js root layout; do not create Vite files.
-- The design guide proposes several web fonts. The current scaffold uses `next/font/google` with Geist. Do not silently replace the font system or add external font links without resolving the brand-font decision in the PRD. When fonts are chosen, use Next.js font optimization and keep the public/admin typography rules from the design guide.
+- Fonts follow `docs/design.md` (owner decision, 2026-09-23): DM Serif Display (headings), Plus Jakarta Sans (body, Inter fallback), and JetBrains Mono (data). They replace the scaffold's Geist fonts. Load them with `next/font/google` in `app/layout.tsx`, not `<link>` tags, and keep the public/admin typography rules from the design guide.
 - Use semantic HTML, keyboard-accessible controls, visible focus states, ARIA only where native semantics are insufficient, and `prefers-reduced-motion` support.
 - Make every page usable at 360 px width without horizontal scrolling.
-- Use shadcn/ui only when it is actually installed. The current repository does not contain `components/ui/` or a shadcn configuration. If a feature needs a missing component, either use the existing project primitives and theme tokens or deliberately initialize/install it and follow the installed component conventions. Do not claim a component exists before checking.
+- shadcn/ui is installed (Radix base, Nova preset). Check `components/ui/` before using a component; add missing ones with `npx shadcn@latest add <name>` and follow the installed conventions. `components/ui/sonner.tsx` takes an explicit `theme` prop (no `next-themes`), and `hooks/use-mobile.ts` was rewritten with `useSyncExternalStore` to satisfy the React hooks lint rule; keep both changes if you re-add those components.
 - Reuse components for heroes, cards, badges, chips, tabs, accordions, filters, dialogs, tables, navigation, and resume sections. Keep route-specific markup in route components.
 
 ## Data, backend, and admin conventions
 
 - Define TypeScript types for every PRD entity before creating forms or API contracts.
 - During Phases 1–4, a typed in-memory or seed-data layer is acceptable only if it is clearly identified as temporary and drives the public UI consistently.
-- In Phase 5, choose and document the database/storage approach before implementing endpoints. The backend is part of this Next.js application: use Route Handlers for explicit APIs and Server Actions where appropriate, with server-only `lib/db/` and `lib/auth/` modules. The PRD permits PostgreSQL or a BaaS; do not mix incompatible persistence systems without a documented reason.
+- In Phase 5, choose and document the database/storage approach before implementing endpoints. The backend is part of this Next.js application: use Route Handlers for explicit APIs and Server Actions where appropriate, with server-only `lib/db/` and `lib/auth/` modules. Supabase (Postgres, Storage, Auth) is the chosen platform, accessed with the plain Supabase client (`@supabase/supabase-js` + `@supabase/ssr`). Do not add Prisma or TanStack Query/Form. Admin CRUD uses Server Actions with zod validation, and schema changes are Supabase CLI SQL migrations with generated types and RLS on every table. Do not mix incompatible persistence systems without a documented reason.
 - Keep public reads separate from protected writes. Validate and sanitize all admin input, authorize every mutation, and never expose credentials or private environment variables to the client.
 - Use the existing typed data as the seed/migration source only after confirming the file and schema actually exist.
 - Admin routes under `/admin/*` must be protected. Implement login, session expiry, logout, password hashing, brute-force protection, and two-step confirmation for destructive actions before exposing CRUD workflows.
 - Public pages must reflect admin changes after a refresh or within the documented cache TTL.
-- Treat media uploads, contact messages, resume exports, SEO records, and analytics as separate bounded areas with explicit validation and failure states.
+- Treat media uploads, contact messages, resume exports, and SEO records as separate bounded areas with explicit validation and failure states.
 
 ## Required product areas
 
@@ -208,7 +206,7 @@ Follow the PRD sitemap and requirements rather than inventing alternate routes. 
 - Professional, Academic, and Research resume views, plus the infographic resume and PDF export.
 - Contact and the catch-all 404 page.
 
-The admin surface includes authentication, dashboard, content CRUD, research management, messages, resume editors, portfolio management, website editors, SEO, media, analytics, and settings as listed in `docs/PRD.md`.
+The admin surface includes authentication, dashboard, content CRUD, research management, messages, resume editors, portfolio management, website editors, SEO, media, and settings as listed in `docs/PRD.md`.
 
 ## Quality and completion checklist
 
