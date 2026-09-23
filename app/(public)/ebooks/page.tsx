@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { PagePlaceholder } from "@/components/portfolio/page-placeholder";
+import EBooks from "@/components/portfolio/pages/EBooks";
 
 export const metadata: Metadata = { title: "eBooks" };
 
-export default function EbooksPage() {
-  return <PagePlaceholder title="eBooks" phase={3} />;
+export default function Page() {
+  return <EBooks />;
 }

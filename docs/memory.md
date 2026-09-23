@@ -18,30 +18,48 @@ A personal **academic + professional portfolio** for a single owner (Siddique), 
 
 ## 2. Tech stack and repo state
 
-| Item         | Value                                                                                              |
-| ------------ | -------------------------------------------------------------------------------------------------- |
-| Framework    | Next.js **16.3.5**, App Router, root-level `app/` (no `src/`)                                      |
-| UI           | React 19.2.8, TypeScript 5, Tailwind CSS v4 (`@tailwindcss/postcss`, tokens in `app/globals.css`)  |
-| Fonts        | Scaffold still has Geist; **decided:** switch to design.md fonts via `next/font/google` in Phase 1 |
-| Lint         | ESLint 9 + `eslint-config-next`                                                                    |
-| Tests        | **None configured.** Do not claim tests pass.                                                      |
-| Commands     | `npm run dev` · `npm run build` · `npm run lint` · `npx tsc --noEmit`                              |
-| Path alias   | `@/*` → repo root                                                                                  |
-| Next.js docs | `node_modules/next/dist/docs/` (read before coding; v16 differs from older examples)               |
+| Item         | Value                                                                                                |
+| ------------ | ---------------------------------------------------------------------------------------------------- |
+| Framework    | Next.js **16.3.5**, App Router, root-level `app/` (no `src/`)                                        |
+| UI           | React 19.2.8, TypeScript 5, Tailwind CSS v4 (`@tailwindcss/postcss`, tokens in `app/globals.css`)    |
+| Fonts        | DM Serif Display, Plus Jakarta Sans, Inter, JetBrains Mono via `next/font/google` (`app/layout.tsx`) |
+| Lint         | ESLint 9 + `eslint-config-next`                                                                      |
+| Tests        | **None configured.** Do not claim tests pass.                                                        |
+| Commands     | `npm run dev` · `npm run build` · `npm run lint` · `npx tsc --noEmit`                                |
+| Path alias   | `@/*` → repo root                                                                                    |
+| Next.js docs | `node_modules/next/dist/docs/` (read before coding; v16 differs from older examples)                 |
 
-**Current code (as of 2026-09-23, after the Phase 1 setup session):**
+**Current code (as of 2026-09-23, after porting the owner's design source):**
 
-- `app/layout.tsx`: the single root layout. Loads DM Serif Display, Plus Jakarta Sans, Inter, and JetBrains Mono via `next/font/google` (CSS variables `--font-dm-serif`, `--font-plus-jakarta`, `--font-inter`, `--font-jetbrains-mono`). Wraps children in `TooltipProvider`. Default metadata is neutral ("Academic & Professional Portfolio"); the owner's name comes later from Profile/SEO data.
-- `app/globals.css`: the full design.md theme, adapted: brand `@theme` tokens, font stacks in `@theme inline`, light `:root`, `.admin-theme` dark overrides, shadcn mapping, Nova radius scale, and base plus glass/hero/navbar classes. It imports `tw-animate-css` and `shadcn/tailwind.css`.
-- `app/(public)/layout.tsx`: a `<main>` wrapper (Navbar/Footer are still Phase 1 tasks). There are placeholder pages for all 19 public routes (`components/portfolio/page-placeholder.tsx`). Dynamic `[id]` pages use `PageProps` and await `params`.
-- `app/(admin)/admin/layout.tsx`: a dark `admin-theme dark` wrapper (dark on the server render) plus `components/admin/admin-html-theme.tsx` (client), which adds the classes to `<html>` for portals. Metadata is noindex. There are placeholder pages for all 31 admin routes (`components/admin/admin-placeholder.tsx`). **None of them are protected yet** (auth comes in Phase 5).
-- `app/not-found.tsx`: a minimal 404 (the full design is a Phase 1 task).
-- **shadcn:** `components.json` (Radix base, **Nova** preset, Lucide, `cn` package from shadcn). `components/ui/` has the design.md §1.2 set, with `field` in place of `form` (which no longer exists in shadcn 4.x). Local edits: `sonner.tsx` takes an explicit `theme` prop (`next-themes` was removed), and `hooks/use-mobile.ts` uses `useSyncExternalStore` (lint fix). The design.md §3 variant edits (button `glass`, badge category/status variants, `font-mono` tabs) are **not applied yet**.
-- **Admin seeded early (2026-09-23, at the owner's request, to verify the Supabase connection):** `scripts/seed-admin.mts` (`npm run seed:admin`, which runs Node 24 native TS with `--env-file=.env`) creates the single Supabase Auth user from `ADMIN_EMAIL`/`ADMIN_PASSWORD`, sets `email_confirm: true` and `app_metadata.role = "admin"`, and warns if other auth users exist. It is idempotent: re-runs change nothing unless `-- --reset-password` is passed. It ran successfully; the admin user exists (1 auth user total). **Concern raised with the owner:** `ADMIN_EMAIL` is `admin@gmail.com`, which is probably not an inbox the owner controls, so password-reset or security email would go to a stranger. Suggested switching to a real address and re-seeding (no database schema exists yet; only Auth was touched).
-- **Dependencies added:** `@supabase/supabase-js` (2.117), `radix-ui`, `class-variance-authority`, `cn`, `lucide-react`, `shadcn`, `tw-animate-css`, `sonner`, `recharts`.
-- **Empty folders (`.gitkeep`):** `lib/{data,api,auth,db,storage,email,resume}/` and `public/{images,documents,icons}/`. The Create Next App SVGs were removed.
-- **Checks:** `npm run lint`, `npm run build`, and `npx tsc --noEmit` pass. The routes were smoke-tested on `next start` (200s, 404 for unknown paths, admin noindex and dark). **Not yet checked visually** at 360 px or on desktop.
-- `.env` (gitignored via `.env*`) holds `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY`. `@supabase/supabase-js` is installed; there are no `lib/db` clients yet.
+- **Design source:** the owner's Vite + React Router prototype at `/mnt/FR-project/Build Website from Shard File/` (Figma Make export; its data and spec described a _different person_, "Mohammad Iftekhar Ayub"). **Owner instruction: keep the design exactly as the source.** Do not restyle the ported components.
+- **Ported UI:**
+  - `components/portfolio/pages/*.tsx`: 19 public pages plus `NotFound`.
+  - `components/portfolio/Navbar.tsx` and `Footer.tsx`.
+  - `components/admin/pages/*.tsx`: 29 admin screens, with `AdminAnalytics` dropped.
+  - Routing moved from React Router to `next/link`/`next/navigation`. Detail pages (`CertificateDetail`, `ProjectDetail`, `ResearchDetail`, `BookDetail`) are server components that take an `id` prop. Pages with hooks, handlers or Recharts are `"use client"`.
+- **Routes:**
+  - `app/(public)/layout.tsx` (Navbar + page + Footer) with thin `page.tsx` wrappers that export metadata. `app/not-found.tsx` renders Navbar + `NotFound` + Footer. `NotFound` reads the path via `useSyncExternalStore`, which fixes a hydration mismatch on the prerendered 404.
+  - `app/(admin)/admin/layout.tsx` sets noindex metadata only.
+  - `app/(admin)/admin/(shell)/layout.tsx` wraps every module in the ported `AdminLayout` (sidebar and top bar).
+  - `/admin/login` sits outside the shell.
+  - `(shell)/[...slug]` renders `AdminGeneric` for unknown admin paths, as in the source.
+  - Added `/admin/certificates/training` and `/awards` (owner decision).
+- **Data:** `lib/data/index.ts` is **obviously fake placeholder data** with the source's exact shape and item counts ("Your Name", "Sample Company A", "Example Paper Title 1", "Sample Category A"–E, "Research Area A"–F, scholar metrics 0). Real values: LinkedIn, Scholar and ResearchGate URLs. `github` is `https://github.com/` until the owner provides theirs. All hard-coded prose about the source person (bios, employer, degrees, research topics, SEO entries, editor defaults, working papers, gallery, media names, eBook chapters) was replaced with placeholders. A final grep for his name, employers, institutions and fields is clean. Stock Unsplash images, including a stock portrait as the profile photo, are kept as design placeholders.
+- **Scope edits vs. source:** the Analytics admin page, sidebar link, dashboard "Visitors" card and "View Analytics" quick action are removed (no-analytics decision); the quick action became "Edit Resume". Gallery/Categories sidebar links point to the PRD URLs `/admin/portfolio/...`. The admin avatar initial is "A".
+- **`app/globals.css`:** brand and shadcn tokens from design.md, but the base layer and unlayered rules **mirror the source `index.css`** so the ported pages render identically:
+  - No global link colour, no forced heading weight, `html`-level thin scrollbar at 6 px.
+  - The unlayered `a, button { transition: all .2s }` rule, and the source's `.glass-card`/`.glass`.
+  - `--font-serif` maps to DM Serif, and Tailwind's **default** radius scale is kept (Nova's overrides were removed).
+  - shadcn's border/outline defaults are scoped to `[data-slot]`.
+  - The design.md `.admin-theme` class remains in CSS but is **not applied**: the admin HTML-class toggle was removed because the ported admin uses its own slate classes.
+- **Root layout:** design.md fonts via `next/font` (DM Serif Display, Plus Jakarta Sans, Inter, JetBrains Mono) and `TooltipProvider`. Body has no layout classes, matching the source.
+- **shadcn:** installed (Radix base, Nova preset) in `components/ui/`, but **not used by the ported pages**. `sonner.tsx` has no `next-themes`; `hooks/use-mobile.ts` uses `useSyncExternalStore`.
+- **Other:** `scripts/seed-admin.mts` (`npm run seed:admin`, idempotent; `-- --reset-password` updates the password) created the single Supabase Auth admin (`app_metadata.role = "admin"`). **Open concern:** it was created as `admin@gmail.com`, which is probably not the owner's inbox. The owner was advised to set a real `ADMIN_EMAIL` and a longer password, delete that user in Supabase, and re-run the seed. `@supabase/supabase-js` is installed; no `lib/db` clients yet.
+- **Empty folders (`.gitkeep`):** `lib/{api,auth,db,storage,email,resume}/` and `public/{images,documents,icons}/`.
+- **Checks (2026-09-23):**
+  - `npx tsc --noEmit` is clean. `npm run lint` has 0 errors and 29 warnings, all `@next/next/no-img-element`, kept on purpose because switching to `next/image` changes layout. `npm run build` passes (51 pages).
+  - Playwright screenshots of 26 routes compared at 1440 px and 360 px against the running source app: layouts match, with no horizontal overflow at 360 px and no console errors.
+- `.env` (gitignored) holds all Phase 5 vars (see §7).
 - `.kilo/` (untracked) holds Kilo Code agent state (see §6).
 
 ---
@@ -128,6 +146,7 @@ These are link targets only: use them for social icons, the footer, and research
     - **Hosting: Vercel** (2026-09-23). Use the Node.js runtime for routes that use the service-role client, Resend, or Chromium. The resume PDF uses `puppeteer-core` + `@sparticuz/chromium` (needs approval in Phase 4; watch Vercel's function size and duration limits). Rate limits for login and contact must be stored in Supabase, not in memory. Env vars live in Vercel project settings.
     - **Domain:** a custom domain is registered at **Namecheap**, with **no mailbox**. It points to Vercel via DNS, and Resend sends from it after SPF/DKIM/DMARC records are added at Namecheap (no mailbox needed to send). Contact notifications go to the owner's personal address, with Reply-To set to the visitor.
     - **Env vars still to add** (to the gitignored `.env`): `RESEND_API_KEY` (Phase 6), plus `ADMIN_EMAIL` and `ADMIN_PASSWORD` (Phase 5).
+13. **Design source ported; design must stay identical** (2026-09-23). The owner's Vite prototype is the visual source of truth for all pages; where it differs from `docs/design.md` (hard-coded hex classes, `<img>` tags, admin styling), the **ported design wins**. Its person-specific content was replaced with obvious placeholders (owner's choice). Training/Awards certificate admin pages were kept (owner's choice).
 
 ---
 
@@ -152,12 +171,19 @@ These are link targets only: use them for social icons, the footer, and research
 - Decisions recorded: Supabase platform, no analytics, no 2FA.
 - 2026-09-23 doc consistency pass (see the session log).
 
-**Phase 1: 5 of 24 tasks done** (project init, tokens and fonts, ESLint and folders, route placeholders, colour tokens). Git branching and `.env` handling are not done yet.
+**Phase 1: 5 of 24 tasks ticked** (project init, tokens and fonts, ESLint and folders, route placeholders, colour tokens). Git branching and `.env` handling are not done yet.
 
 ## 9. Pending work and next steps
 
-- **Next (Phase 1):** apply the design.md §3 shadcn variant edits (button `glass`, badge variants, mono filter tabs), then build the shared components (Hero, StatCounter, SectionHeading, CTA band, filters), Navbar, Footer, the full 404, scroll-to-top, entity types, and `lib/data/index.ts` placeholder seed data. Visually check at 360 px and on desktop.
-- Update root `metadata` in `app/layout.tsx` (still "Create Next App") during Phase 1.
+- **Ported UI vs. the PRD:** the ported pages cover most Phase 1–4 page UIs and the Phase 5–6 admin screens _visually_, but `docs/phases.md` tasks have **not** been ticked. Each needs checking against its PRD requirement first. Known gaps:
+  - `/research` tabs are local state, not the P0 `?tab=` deep link.
+  - The contact form is UI only (Phase 6).
+  - Resume PDF export is not implemented (Phase 4: headless Chromium).
+  - The eBook "Read online" PDF viewer is not built yet.
+  - Admin screens are local-state mocks: **nothing persists**, and the login accepts any non-empty email/password (**no real auth** until Phase 5).
+  - The GitHub link is a placeholder.
+  - Navbar/Footer/Home content is not yet admin-driven (P1).
+- **Next:** review the ported pages against the phases 1–4 checklists and tick what genuinely passes. Then continue with the remaining gaps, and Phase 5 (Supabase schema, auth, CRUD wiring that replaces the local-state mocks).
 
 ## 10. Blockers
 
@@ -203,3 +229,4 @@ Newest last. Add one entry per work session.
 - **2026-09-23 (Claude Code), Supabase keys:** the owner switched to the new publishable key. Env names are now `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` (docs updated; legacy anon/service_role keys unused). `SUPABASE_SECRET_KEY` is still missing from `.env`.
 - **2026-09-23 (Claude Code):** verified that `.env` has all six Phase 5 vars with the correct key types (no values read); `.env` is gitignored.
 - **2026-09-23 (Claude Code), admin seed:** installed `@supabase/supabase-js` and added `scripts/seed-admin.mts` plus the `seed:admin` npm script. Ran it: connected, admin user created. Re-ran it: idempotent. Ticked phases 5.2 (the admin seed task; Phase 5 now 1/40). Flagged that `admin@gmail.com` is likely not the owner's inbox.
+- **2026-09-23 (Claude Code), design port:** ported the owner's Vite design source into Next.js (see §2): router conversion, route wiring with `(shell)` admin group and Training/Awards routes, placeholder data plus a prose sweep (the source described another person), globals.css aligned to the source `index.css` (radius, links, headings, transitions, glass), Analytics/Visitors removed, lint errors fixed (types, escaping, lucide `Image` → `ImageIcon`, unused imports, `Math.random` in render), and a 404 hydration fix. Verified by tsc, lint, build, and side-by-side Playwright screenshots against the source (tooling in the session scratchpad only). PRD/AGENTS/architecture updated for Training/Awards and the port.

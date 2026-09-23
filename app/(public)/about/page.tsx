@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { PagePlaceholder } from "@/components/portfolio/page-placeholder";
+import About from "@/components/portfolio/pages/About";
 
 export const metadata: Metadata = { title: "About" };
 
-export default function AboutPage() {
-  return <PagePlaceholder title="About" phase={2} />;
+export default function Page() {
+  return <About />;
 }

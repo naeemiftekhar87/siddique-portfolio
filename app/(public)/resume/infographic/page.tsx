@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { PagePlaceholder } from "@/components/portfolio/page-placeholder";
+import InfographicResume from "@/components/portfolio/pages/InfographicResume";
 
 export const metadata: Metadata = { title: "Infographic Resume" };
 
-export default function InfographicResumePage() {
-  return <PagePlaceholder title="Infographic Resume" phase={4} />;
+export default function Page() {
+  return <InfographicResume />;
 }

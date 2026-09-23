@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { PagePlaceholder } from "@/components/portfolio/page-placeholder";
+import Certificates from "@/components/portfolio/pages/Certificates";
 
 export const metadata: Metadata = { title: "Certificates" };
 
-export default function CertificatesPage() {
-  return <PagePlaceholder title="Certificates" phase={2} />;
+export default function Page() {
+  return <Certificates />;
 }

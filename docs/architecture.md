@@ -221,6 +221,8 @@ app/
     ├── admin/achievements/page.tsx
     ├── admin/certificates/professional/page.tsx
     ├── admin/certificates/academic/page.tsx
+    ├── admin/certificates/training/page.tsx
+    ├── admin/certificates/awards/page.tsx
     ├── admin/projects/page.tsx
     ├── admin/publications/page.tsx
     ├── admin/research/papers/page.tsx

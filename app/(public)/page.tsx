@@ -1,5 +1,5 @@
-import { PagePlaceholder } from "@/components/portfolio/page-placeholder";
+import Home from "@/components/portfolio/pages/Home";
 
-export default function HomePage() {
-  return <PagePlaceholder title="Home" phase={2} />;
+export default function Page() {
+  return <Home />;
 }

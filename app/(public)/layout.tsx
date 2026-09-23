@@ -1,12 +1,13 @@
-// Public site shell (light theme). The Navbar and Footer are added in Phase 1.
-export default function PublicLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import Navbar from "@/components/portfolio/Navbar";
+import Footer from "@/components/portfolio/Footer";
+
+// Public site shell, ported from the source PublicLayout.
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main id="main" className="flex-1">
+    <>
+      <Navbar />
       {children}
-    </main>
+      <Footer />
+    </>
   );
 }

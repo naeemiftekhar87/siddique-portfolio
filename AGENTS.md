@@ -39,10 +39,10 @@ Before writing code, also read the relevant Next.js guide under `node_modules/ne
 - React `19.2.8` and TypeScript.
 - Tailwind CSS v4 with `@tailwindcss/postcss`; styling is rooted in `app/globals.css`.
 - The application code is currently under `app/`; there is no `src/` directory.
-- Phase 1 setup is in place: the design.md theme is in `app/globals.css`, the design.md fonts are loaded in `app/layout.tsx`, `app/(public)` and `app/(admin)/admin` route groups hold placeholder pages for every PRD route, and there is a root `app/not-found.tsx`. See `docs/memory.md` §2 for the exact state.
+- **The owner's design source has been ported** (2026-09-23) from the Vite project at `/mnt/FR-project/Build Website from Shard File/`. Public page UIs live in `components/portfolio/pages/` (plus `Navbar.tsx`, `Footer.tsx`), admin UIs in `components/admin/pages/`, and route files in `app/(public)/` and `app/(admin)/admin/` are thin wrappers. Admin modules sit under the `(shell)` group (sidebar layout); `/admin/login` is outside it. **The owner requires the ported design to stay exactly as the source**: do not restyle these components, and keep `app/globals.css`'s base layer mirroring the source `index.css`. See `docs/memory.md` §2.
 - The target is a full-stack Next.js application. The Phase 5 backend must be implemented inside this application with Route Handlers, Server Actions where appropriate, and server-only data/auth modules; do not introduce a separate Express or Vite backend.
 - shadcn/ui is initialized (`components.json`: Radix base, Nova preset, Lucide icons) with the design.md component set in `components/ui/`. In this shadcn version `form` is replaced by `field`. There is no backend implementation, database client, authentication layer, or configured test framework yet.
-- The PRD's seed-data source is `lib/data/index.ts`, which is created in Phase 1 and does not exist yet. Do not import it until it has been created.
+- `lib/data/index.ts` holds TEMPORARY, obviously fake placeholder data with the source design's shape and item counts. Never put real-looking personal or research data there; the owner enters real content via the admin once Phase 5 exists.
 - Supabase is the chosen Phase 5 platform (Postgres, Storage, Auth). Credentials exist in the gitignored `.env`, but no Supabase client, schema, or dependency has been added yet.
 - The PRD's long-term goal is to replace static content with persistent data in Phase 5. Do not pretend that admin edits persist before that work exists.
 
@@ -116,6 +116,8 @@ app/
     admin/achievements/page.tsx
     admin/certificates/professional/page.tsx
     admin/certificates/academic/page.tsx
+    admin/certificates/training/page.tsx
+    admin/certificates/awards/page.tsx
     admin/projects/page.tsx
     admin/publications/page.tsx
     admin/research/papers/page.tsx

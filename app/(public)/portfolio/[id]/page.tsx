@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { PagePlaceholder } from "@/components/portfolio/page-placeholder";
+import ProjectDetail from "@/components/portfolio/pages/ProjectDetail";
 
 export const metadata: Metadata = { title: "Project" };
 
-export default async function ProjectPage(props: PageProps<"/portfolio/[id]">) {
+export default async function Page(props: PageProps<"/portfolio/[id]">) {
   const { id } = await props.params;
-  return <PagePlaceholder title="Project" phase={2} detail={`ID: ${id}`} />;
+  return <ProjectDetail id={id} />;
 }

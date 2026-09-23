@@ -1,10 +1,12 @@
 /*
- * Design system — see docs/design.md §2 (adapted from its Vite src/index.css).
- * Next.js adaptations:
+ * Global styles.
+ *   - Ported pages (components/portfolio, components/admin) were built against the
+ *     source app's index.css; the base layer and unlayered rules below mirror it so
+ *     they render identically (link colour, heading weight, borders, scrollbars,
+ *     transitions, glass classes, Tailwind default radii).
+ *   - Brand tokens and shadcn variables follow docs/design.md; shadcn's base border
+ *     and outline defaults are scoped to [data-slot] elements.
  *   - Fonts come from next/font CSS variables set on <html> in app/layout.tsx.
- *   - The admin theme selector is `.admin-theme` (not only `html.admin-theme`) so
- *     the server-rendered admin wrapper is dark immediately; the admin layout also
- *     adds the class to <html> so shadcn portals (Dialog, Select, Sonner) are dark.
  */
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -45,6 +47,7 @@
     var(--font-plus-jakarta), var(--font-inter), system-ui, -apple-system,
     "Segoe UI", sans-serif;
   --font-display: var(--font-dm-serif), Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-dm-serif), Georgia, serif; /* ported pages use font-serif */
   --font-heading: var(--font-dm-serif), Georgia, "Times New Roman", serif;
   --font-mono:
     var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Consolas,
@@ -203,14 +206,8 @@
    4. MAP SHADCN VARIABLES INTO TAILWIND UTILITIES
    ========================================================================== */
 @theme inline {
-  /* Radius scale from the shadcn Nova preset (components use up to rounded-4xl) */
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /* No radius overrides: the ported pages rely on Tailwind's default
+     rounded-* scale, so shadcn components use it too. */
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -251,58 +248,37 @@
    5. BASE LAYER  (typography, body, scrollbar, selection)
    ========================================================================== */
 @layer base {
-  * {
+  /* shadcn defaults, scoped to shadcn components so the ported pages keep
+     Tailwind's own border/outline defaults (as in the source index.css). */
+  :where([data-slot], [data-slot] *) {
     @apply border-border outline-ring/50;
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) transparent; /* Firefox */
   }
 
+  /* Global rules mirror the source app's index.css. */
   html {
     scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    line-height: 1.6;
-    min-height: 100vh;
-    background-image: var(--gradient-body);
+    font-family: var(--font-sans);
+    background: var(--gradient-body);
     background-attachment: fixed; /* gradient does not scroll */
-    text-rendering: optimizeLegibility;
+    color: var(--foreground);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
   html.admin-theme body {
-    background-image: none;
+    background: var(--background);
   }
 
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 400; /* DM Serif Display ships Regular + Italic only */
     line-height: 1.2;
-  }
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-sans);
-    font-weight: 600;
-    line-height: 1.2;
-  }
-
-  a {
-    color: var(--color-electric);
-    text-decoration: none;
-  }
-  a:hover {
-    color: var(--color-electric-bright);
-  }
-  .admin-theme a {
-    color: inherit;
-  }
-
-  img {
-    max-width: 100%;
-    display: block;
   }
 
   ::selection {
@@ -311,15 +287,15 @@
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
     background: var(--scrollbar-thumb);
-    border-radius: 9999px;
+    border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
@@ -382,18 +358,19 @@
 
 /* ---- Glassmorphism ---- */
 .glass-card {
-  background: var(--glass-card-bg);
-  -webkit-backdrop-filter: blur(var(--glass-card-blur));
-  backdrop-filter: blur(var(--glass-card-blur));
-  border: var(--glass-card-border);
-  box-shadow: var(--glass-card-shadow);
-  transition:
-    background 0.25s ease,
-    box-shadow 0.25s ease;
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 4px 24px rgba(37, 99, 235, 0.06),
+    0 1px 4px rgba(37, 99, 235, 0.04);
 }
 .glass-card:hover {
-  background: var(--glass-card-bg-hover);
-  box-shadow: var(--glass-card-shadow-hover);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 8px 40px rgba(37, 99, 235, 0.12),
+    0 2px 8px rgba(37, 99, 235, 0.06);
 }
 
 .glass-dark {
@@ -401,6 +378,18 @@
   -webkit-backdrop-filter: blur(var(--glass-dark-blur));
   backdrop-filter: blur(var(--glass-dark-blur));
   border: var(--glass-dark-border);
+}
+
+/* ---- From the source index.css (unlayered, so it overrides utilities) ---- */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+a,
+button {
+  transition: all 0.2s ease;
 }
 
 /* ---- Public navbar (toggle .is-scrolled from a scroll listener) ---- */
