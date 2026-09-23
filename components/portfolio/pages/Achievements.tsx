@@ -1,5 +1,7 @@
 import { achievements } from "@/lib/data";
 import { Trophy, Calendar, Building, Star, Award, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 const categoryConfig: Record<string, { color: string; bg: string; dot: string; icon: React.ReactNode }> = {
   Academic:     { color: "text-blue-700",   bg: "bg-blue-50 border-blue-100",    dot: "bg-blue-500",    icon: <Star size={14} className="text-blue-500" /> },
@@ -46,10 +48,10 @@ export default function Achievements() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12">
             {statItems.map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -91,9 +93,9 @@ export default function Achievements() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 {items.map((ach) => (
-                  <div
+                  <Card variant="site-glass-card"
                     key={ach.id}
-                    className="glass-card rounded-2xl p-6 hover:shadow-lg hover:scale-[1.01] transition-all duration-200 group"
+                    className="p-6 hover:shadow-lg hover:scale-[1.01] transition-all duration-200 group"
                   >
                     <div className="flex items-start gap-4">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border ${cfg.bg}`}>
@@ -110,7 +112,7 @@ export default function Achievements() {
                         <p className="text-slate-500 text-sm leading-relaxed">{ach.description}</p>
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -139,7 +141,7 @@ export default function Achievements() {
                     <div className={`flex-1 glass-card rounded-2xl p-4 shadow-sm`}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-mono text-xs text-slate-400">{ach.date}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full border ${cfg.bg} ${cfg.color}`}>{ach.category}</span>
+                        <Badge variant="unstyled" className={`text-xs px-2 py-0.5 rounded-full border ${cfg.bg} ${cfg.color}`}>{ach.category}</Badge>
                       </div>
                       <p className="text-[#040d1f] font-medium text-sm">{ach.title}</p>
                       <p className="text-slate-400 text-xs mt-0.5">{ach.organization}</p>

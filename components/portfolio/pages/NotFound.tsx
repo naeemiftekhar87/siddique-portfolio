@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { ArrowLeft, Home, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const suggestions = [
   { label: "Home",         to: "/" },
@@ -40,18 +41,18 @@ export default function NotFound() {
           </p>
 
           <div className="flex flex-wrap gap-3 justify-center mb-12">
-            <Link
+            <Button asChild variant="site-primary" className="flex items-center gap-2 px-6 py-3 transition-all"><Link
               href="/"
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all"
+             
             >
               <Home size={16} /> Go Home
-            </Link>
-            <button
+            </Link></Button>
+            <Button variant="site-glass"
               onClick={() => window.history.back()}
-              className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white font-medium rounded-xl border border-white/20 hover:bg-white/20 transition-all"
+              className="flex items-center gap-2 px-6 py-3 font-medium transition-all"
             >
               <ArrowLeft size={16} /> Go Back
-            </button>
+            </Button>
           </div>
 
           {/* Quick links */}

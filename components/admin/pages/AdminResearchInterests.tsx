@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Save, Plus, X, GripVertical, Tag } from "lucide-react";
 import { emptyProfile as profile } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export default function AdminResearchInterests() {
   const [interests, setInterests] = useState<string[]>([...profile.researchInterests]);
@@ -43,30 +46,30 @@ export default function AdminResearchInterests() {
       )}
 
       {/* Add new */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white flex items-center gap-2">
           <Tag size={16} className="text-blue-400" /> Add Interest
         </h2>
         <div className="flex gap-3">
-          <input
+          <Input variant="admin-field"
             value={newInterest}
             onChange={e => setNewInterest(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="e.g. Research Interest"
-            className="flex-1 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="flex-1"
           />
-          <button
+          <Button variant="admin-primary"
             onClick={add}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5"
           >
             <Plus size={14} /> Add
-          </button>
+          </Button>
         </div>
         <p className="text-slate-600 text-xs">Press Enter or click Add. Duplicates are ignored.</p>
-      </div>
+      </Card>
 
       {/* Current interests */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-serif text-lg text-white">Current Interests</h2>
           <span className="text-slate-500 text-xs font-mono">{interests.length} items</span>
@@ -80,13 +83,13 @@ export default function AdminResearchInterests() {
             >
               <GripVertical size={12} className="text-slate-600 cursor-grab" />
               <span className="text-slate-300 text-sm">{interest}</span>
-              <button
+              <Button variant="unstyled"
                 onClick={() => remove(interest)}
                 className="text-slate-600 hover:text-red-400 transition-colors"
                 title="Remove"
               >
                 <X size={13} />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
@@ -94,10 +97,10 @@ export default function AdminResearchInterests() {
         {interests.length === 0 && (
           <p className="text-slate-600 text-sm text-center py-6">No interests added yet.</p>
         )}
-      </div>
+      </Card>
 
       {/* Preview */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-3">
+      <Card variant="admin-panel" className="p-6 space-y-3">
         <h2 className="font-serif text-lg text-white">Preview (as shown on site)</h2>
         <div className="flex flex-wrap gap-2">
           {interests.map(interest => (
@@ -109,16 +112,16 @@ export default function AdminResearchInterests() {
             </span>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <button
+      <Button variant="unstyled"
         onClick={handleSave}
         className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${
           saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"
         }`}
       >
         <Save size={15} /> {saved ? "Saved!" : "Save Interests"}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -3,6 +3,9 @@
 import { MapPin, Calendar, Briefcase, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { experiences, profile } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function Experience() {
   const [expanded, setExpanded] = useState<number | null>(1);
@@ -33,10 +36,10 @@ export default function Experience() {
               { value: profile.stats.experience, label: "Years Exp." },
               { value: profile.stats.skills, label: "Skills" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -72,9 +75,9 @@ export default function Experience() {
                           <h3 className="font-semibold text-slate-900 text-lg">{exp.position}</h3>
                           <div className="flex flex-wrap items-center gap-3 mt-1">
                             <span className="text-blue-600 font-medium text-sm">{exp.company}</span>
-                            <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md font-mono">
+                            <Badge variant="unstyled" className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md font-mono">
                               {exp.type}
-                            </span>
+                            </Badge>
                           </div>
                           <div className="flex flex-wrap gap-4 mt-2">
                             <span className="flex items-center gap-1 text-slate-400 text-xs">
@@ -86,9 +89,9 @@ export default function Experience() {
                           </div>
                         </div>
                       </div>
-                      <button className="text-slate-400 hover:text-slate-600 flex-shrink-0 mt-1">
+                      <Button variant="unstyled" className="text-slate-400 hover:text-slate-600 flex-shrink-0 mt-1">
                         {expanded === exp.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
@@ -123,9 +126,9 @@ export default function Experience() {
 
                       <div className="mt-5 flex flex-wrap gap-2">
                         {exp.skills.map((skill) => (
-                          <span key={skill} className="px-3 py-1 bg-slate-50 text-slate-600 text-xs rounded-lg border border-slate-100">
+                          <Badge variant="unstyled" key={skill} className="px-3 py-1 bg-slate-50 text-slate-600 text-xs rounded-lg border border-slate-100">
                             {skill}
-                          </span>
+                          </Badge>
                         ))}
                       </div>
                     </div>

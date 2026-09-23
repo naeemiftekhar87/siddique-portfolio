@@ -1,5 +1,7 @@
 import { Calendar, Star, BookOpen, GraduationCap } from "lucide-react";
 import { education, profile } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 export default function Education() {
   return (
@@ -26,10 +28,10 @@ export default function Education() {
               { value: education.filter((e) => e.status === "Completed").length, label: "Completed" },
               { value: profile.stats.certificates, label: "Certificates" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -38,7 +40,7 @@ export default function Education() {
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="space-y-8">
           {education.map((edu) => (
-            <div key={edu.id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-lg hover:border-slate-200 transition-all">
+            <Card variant="site-white-card" key={edu.id} className="overflow-hidden hover:shadow-lg hover:border-slate-200 transition-all">
               {/* Header gradient bar */}
               <div className={`h-1.5 ${edu.status === "In Progress" ? "bg-gradient-to-r from-blue-500 to-teal-500" : "bg-gradient-to-r from-slate-400 to-slate-500"}`} />
 
@@ -56,13 +58,13 @@ export default function Education() {
                         <p className="text-blue-600 font-medium mt-1">{edu.degree}</p>
                         <p className="text-slate-600 text-sm mt-0.5">{edu.major}</p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium font-mono ${
+                      <Badge variant="unstyled" className={`px-3 py-1 rounded-full text-xs font-medium font-mono ${
                         edu.status === "In Progress"
                           ? "bg-blue-50 text-blue-600 border border-blue-100"
                           : "bg-green-50 text-green-600 border border-green-100"
                       }`}>
                         {edu.status}
-                      </span>
+                      </Badge>
                     </div>
 
                     <div className="flex flex-wrap gap-4 mb-4 text-slate-400 text-sm">
@@ -83,9 +85,9 @@ export default function Education() {
                         </h4>
                         <div className="flex flex-wrap gap-2">
                           {edu.coursework.map((c) => (
-                            <span key={c} className="px-3 py-1.5 bg-slate-50 text-slate-600 text-xs rounded-lg border border-slate-100">
+                            <Badge variant="unstyled" key={c} className="px-3 py-1.5 bg-slate-50 text-slate-600 text-xs rounded-lg border border-slate-100">
                               {c}
-                            </span>
+                            </Badge>
                           ))}
                         </div>
                       </div>
@@ -95,9 +97,9 @@ export default function Education() {
                         </h4>
                         <div className="flex flex-wrap gap-2">
                           {edu.skills.map((s) => (
-                            <span key={s} className="px-3 py-1.5 bg-teal-50 text-teal-700 text-xs rounded-lg border border-teal-100">
+                            <Badge variant="unstyled" key={s} className="px-3 py-1.5 bg-teal-50 text-teal-700 text-xs rounded-lg border border-teal-100">
                               {s}
-                            </span>
+                            </Badge>
                           ))}
                         </div>
                       </div>
@@ -105,7 +107,7 @@ export default function Education() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>

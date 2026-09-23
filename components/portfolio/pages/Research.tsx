@@ -8,6 +8,10 @@ import {
   Calendar, Tag, ArrowRight,
 } from "lucide-react";
 import { researchPapers, publications, profile } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 // ── Section IDs for internal navigation ──────────────────────────────────────
 const SECTIONS = [
@@ -145,17 +149,17 @@ export default function Research() {
               { value: profile.scholarMetrics.hIndex, label: "h-Index" },
               { value: upcomingTopics.length, label: "Pipeline Topics" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
 
           {/* Internal section navigation */}
           <div className="flex flex-wrap gap-2">
             {SECTIONS.map(s => (
-              <button
+              <Button variant="unstyled"
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 className={`px-5 py-2 rounded-xl text-sm font-medium transition-all border ${
@@ -165,7 +169,7 @@ export default function Research() {
                 }`}
               >
                 {s.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -183,9 +187,9 @@ export default function Research() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14">
             {profile.researchInterests.map((interest, i) => (
-              <div
+              <Card variant="site-glass-card"
                 key={interest}
-                className="glass-card rounded-2xl p-5 hover:border-blue-200 hover:shadow-sm transition-all flex items-start gap-4"
+                className="p-5 hover:border-blue-200 hover:shadow-sm transition-all flex items-start gap-4"
               >
                 <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
                   <BookOpen size={15} className="text-blue-600" />
@@ -194,7 +198,7 @@ export default function Research() {
                   <p className="text-[#040d1f] font-medium text-sm">{interest}</p>
                   <p className="text-slate-400 text-xs mt-1 font-mono">#{String(i + 1).padStart(2, "0")}</p>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
@@ -229,12 +233,12 @@ export default function Research() {
           </div>
 
           <div className="flex justify-end mt-8">
-            <button
+            <Button variant="unstyled"
               onClick={() => setActiveSection("published")}
               className="flex items-center gap-2 text-sm text-blue-600 font-medium hover:gap-3 transition-all"
             >
               Browse Published Research <ArrowRight size={15} />
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -253,16 +257,16 @@ export default function Research() {
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <div className="relative max-w-xs flex-1">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
+              <Input variant="site-search"
                 value={paperSearch}
                 onChange={e => setPaperSearch(e.target.value)}
                 placeholder="Search title or author…"
-                className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-violet-100"
+                className="w-full focus:ring-violet-100"
               />
             </div>
             <div className="flex flex-wrap gap-2">
               {allPaperStatuses.map(s => (
-                <button
+                <Button variant="unstyled"
                   key={s}
                   onClick={() => setPaperStatus(s)}
                   className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${
@@ -270,7 +274,7 @@ export default function Research() {
                   }`}
                 >
                   {s}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -279,9 +283,9 @@ export default function Research() {
 
           <div className="space-y-5">
             {filteredPublished.map((paper, idx) => (
-              <div
+              <Card variant="site-white-card"
                 key={`${paper.source}-${paper.id}`}
-                className="bg-white rounded-2xl border border-slate-100 p-7 hover:shadow-md hover:border-slate-200 transition-all group"
+                className="p-7 hover:shadow-md hover:border-slate-200 transition-all group"
               >
                 <div className="flex items-start gap-5">
                   <span className="font-mono text-2xl text-slate-200 font-bold select-none flex-shrink-0 w-8 pt-1">
@@ -289,13 +293,13 @@ export default function Research() {
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${paperStatusColor[paper.status] ?? "bg-slate-50 text-slate-600 border-slate-100"}`}>
+                      <Badge variant="unstyled" className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${paperStatusColor[paper.status] ?? "bg-slate-50 text-slate-600 border-slate-100"}`}>
                         {paper.status}
-                      </span>
+                      </Badge>
                       {"area" in paper && paper.area && (
-                        <span className="px-2.5 py-0.5 bg-slate-50 text-slate-500 text-xs rounded-full border border-slate-100">
+                        <Badge variant="unstyled" className="px-2.5 py-0.5 bg-slate-50 text-slate-500 text-xs rounded-full border border-slate-100">
                           {paper.area}
-                        </span>
+                        </Badge>
                       )}
                       <span className="text-slate-400 text-xs font-mono">{paper.year}</span>
                     </div>
@@ -320,31 +324,31 @@ export default function Research() {
                       <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
                         <Hash size={11} />
                         <code className="text-teal-600">{paper.doi}</code>
-                        <button
+                        <Button variant="unstyled"
                           onClick={() => navigator.clipboard?.writeText(paper.doi)}
                           className="hover:text-slate-600 transition-colors"
                           title="Copy DOI"
                         >
                           <Copy size={11} />
-                        </button>
+                        </Button>
                       </div>
                     )}
 
                     {"keywords" in paper && paper.keywords?.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {paper.keywords.slice(0, 5).map((k: string) => (
-                          <span key={k} className="px-2.5 py-1 bg-slate-50 text-slate-500 text-xs rounded-lg border border-slate-100">{k}</span>
+                          <Badge variant="unstyled" key={k} className="px-2.5 py-1 bg-slate-50 text-slate-500 text-xs rounded-lg border border-slate-100">{k}</Badge>
                         ))}
                       </div>
                     )}
 
                     <div className="flex flex-wrap gap-2 pt-1">
-                      <button className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700 transition-colors">
+                      <Button variant="site-primary" className="flex items-center gap-1.5 px-3.5 py-2 text-xs transition-colors">
                         <ExternalLink size={12} /> Read Paper
-                      </button>
-                      <button className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-xl hover:border-slate-300 transition-colors">
+                      </Button>
+                      <Button variant="site-outline" className="flex items-center gap-1.5 px-3.5 py-2 text-slate-600 text-xs font-medium hover:border-slate-300 transition-colors">
                         <Download size={12} /> PDF
-                      </button>
+                      </Button>
                       <Link
                         href={`/research/${paper.id}`}
                         className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 border border-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-100 transition-colors"
@@ -354,7 +358,7 @@ export default function Research() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
@@ -366,12 +370,12 @@ export default function Research() {
           )}
 
           <div className="flex justify-end mt-8">
-            <button
+            <Button variant="unstyled"
               onClick={() => setActiveSection("upcoming")}
               className="flex items-center gap-2 text-sm text-blue-600 font-medium hover:gap-3 transition-all"
             >
               See Upcoming Research <ArrowRight size={15} />
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -389,7 +393,7 @@ export default function Research() {
           {/* Area filter */}
           <div className="flex flex-wrap gap-2 mb-8">
             {allAreas.map(a => (
-              <button
+              <Button variant="unstyled"
                 key={a}
                 onClick={() => setTopicArea(a)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -397,7 +401,7 @@ export default function Research() {
                 }`}
               >
                 {a}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -407,16 +411,16 @@ export default function Research() {
               const isOpen = topicExpanded === topic.id;
               return (
                 <div key={topic.id} className="border border-gray-200 rounded-2xl overflow-hidden hover:border-blue-200 transition-colors">
-                  <button
+                  <Button variant="unstyled"
                     onClick={() => setTopicExpanded(isOpen ? null : topic.id)}
                     className="w-full flex items-start gap-5 p-6 text-left hover:bg-gray-50/60 transition-colors"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-3">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border font-medium ${sc.color}`}>
+                        <Badge variant="unstyled" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border font-medium ${sc.color}`}>
                           {sc.icon} {topic.status}
-                        </span>
-                        <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs">{topic.area}</span>
+                        </Badge>
+                        <Badge variant="unstyled" className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs">{topic.area}</Badge>
                         {topic.expectedYear && (
                           <span className="flex items-center gap-1 text-gray-400 text-xs">
                             <Calendar size={11} /> Est. {topic.expectedYear}
@@ -429,7 +433,7 @@ export default function Research() {
                     <div className="flex-shrink-0 mt-1 text-gray-400">
                       {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </div>
-                  </button>
+                  </Button>
 
                   {isOpen && (
                     <div className="border-t border-gray-100 bg-gray-50/40 px-6 py-6 space-y-5">
@@ -453,7 +457,7 @@ export default function Research() {
                         </h4>
                         <div className="flex flex-wrap gap-2">
                           {topic.keywords.map(kw => (
-                            <span key={kw} className="px-3 py-1 bg-white border border-gray-200 text-gray-600 text-xs rounded-lg">{kw}</span>
+                            <Badge variant="unstyled" key={kw} className="px-3 py-1 bg-white border border-gray-200 text-gray-600 text-xs rounded-lg">{kw}</Badge>
                           ))}
                         </div>
                       </div>
@@ -477,12 +481,12 @@ export default function Research() {
             <p className="text-slate-400 text-sm max-w-lg mx-auto mb-6">
               If any of these research directions align with your expertise or organisational needs, I welcome conversations about potential research collaboration or industry partnerships.
             </p>
-            <Link
+            <Button asChild variant="site-primary" className="inline-flex items-center gap-2 px-6 py-3 text-sm transition-colors"><Link
               href="/contact"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+             
             >
               Get in Touch <ArrowRight size={14} />
-            </Link>
+            </Link></Button>
           </div>
         </div>
       )}

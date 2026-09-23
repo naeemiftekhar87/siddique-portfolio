@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Microscope, Tag, ChevronDown, ChevronUp, Calendar, Lightbulb, BookOpen, FlaskConical } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 type ResearchTopic = {
   id: number;
@@ -120,10 +123,10 @@ export default function UpcomingResearch() {
               { value: topics.filter((t) => t.status === "Literature Review").length, label: "Under Review" },
               { value: Array.from(new Set(topics.map((t) => t.area))).length, label: "Research Areas" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -135,25 +138,25 @@ export default function UpcomingResearch() {
           <div className="flex flex-wrap gap-2">
             <span className="text-gray-400 text-xs self-center mr-1">Area:</span>
             {areas.map((a) => (
-              <button
+              <Button variant="unstyled"
                 key={a}
                 onClick={() => setAreaFilter(a)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${areaFilter === a ? "bg-[#040d1f] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
               >
                 {a}
-              </button>
+              </Button>
             ))}
           </div>
           <div className="sm:border-l sm:border-gray-200 sm:pl-4 flex flex-wrap gap-2">
             <span className="text-gray-400 text-xs self-center mr-1">Status:</span>
             {statuses.map((s) => (
-              <button
+              <Button variant="unstyled"
                 key={s}
                 onClick={() => setStatusFilter(s)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${statusFilter === s ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
               >
                 {s}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -167,16 +170,16 @@ export default function UpcomingResearch() {
             const isOpen = expanded === topic.id;
             return (
               <div key={topic.id} className="border border-gray-200 rounded-2xl overflow-hidden hover:border-blue-200 transition-colors">
-                <button
+                <Button variant="unstyled"
                   onClick={() => setExpanded(isOpen ? null : topic.id)}
                   className="w-full flex items-start gap-5 p-6 text-left hover:bg-gray-50/60 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border font-medium ${status.color}`}>
+                      <Badge variant="unstyled" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border font-medium ${status.color}`}>
                         {status.icon} {status.label}
-                      </span>
-                      <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs">{topic.area}</span>
+                      </Badge>
+                      <Badge variant="unstyled" className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs">{topic.area}</Badge>
                       {topic.expectedYear && (
                         <span className="flex items-center gap-1 text-gray-400 text-xs">
                           <Calendar size={11} /> Est. {topic.expectedYear}
@@ -189,7 +192,7 @@ export default function UpcomingResearch() {
                   <div className="flex-shrink-0 mt-1 text-gray-400">
                     {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </div>
-                </button>
+                </Button>
 
                 {isOpen && (
                   <div className="border-t border-gray-100 bg-gray-50/40 px-6 py-6 space-y-5">
@@ -213,7 +216,7 @@ export default function UpcomingResearch() {
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {topic.keywords.map((kw) => (
-                          <span key={kw} className="px-3 py-1 bg-white border border-gray-200 text-gray-600 text-xs rounded-lg">{kw}</span>
+                          <Badge variant="unstyled" key={kw} className="px-3 py-1 bg-white border border-gray-200 text-gray-600 text-xs rounded-lg">{kw}</Badge>
                         ))}
                       </div>
                     </div>
@@ -237,12 +240,12 @@ export default function UpcomingResearch() {
           <p className="text-slate-400 text-sm max-w-lg mx-auto mb-6">
             If any of these research directions align with your expertise or organizational needs, I welcome conversations about potential research collaboration or industry partnerships.
           </p>
-          <a
+          <Button asChild variant="site-primary" className="inline-flex items-center gap-2 px-6 py-3 text-sm transition-colors"><a
             href="/contact"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+           
           >
             Get in Touch
-          </a>
+          </a></Button>
         </div>
       </section>
     </div>

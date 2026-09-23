@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { Save, Globe, Lock, Eye, EyeOff, Link2, GitFork, GraduationCap } from "lucide-react";
 import { emptyProfile as profile } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function AdminSettings() {
   // Personal information is edited on the Profile page; only links live here.
@@ -45,7 +49,7 @@ export default function AdminSettings() {
       </div>
 
       {/* ─── Social Links ─────────────────────────────────────────── */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white flex items-center gap-2">
           <Globe size={18} className="text-teal-400" /> Social & Academic Links
         </h2>
@@ -55,23 +59,23 @@ export default function AdminSettings() {
           { key: "scholar", label: "Google Scholar", Icon: GraduationCap },
         ].map(({ key, label, Icon }) => (
           <div key={key}>
-            <label className="block text-xs text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <Label variant="unstyled" className="block text-xs text-slate-400 mb-1.5 flex items-center gap-1.5">
               <Icon size={12} /> {label} URL
-            </label>
-            <input
+            </Label>
+            <Input variant="admin-field"
               value={profile_[key as keyof typeof profile_]}
               onChange={(e) => setProfile({ ...profile_, [key]: e.target.value })}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 font-mono"
+              className="w-full font-mono"
             />
           </div>
         ))}
-        <button
+        <Button variant="unstyled"
           onClick={handleProfileSave}
           className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 border border-slate-700 transition-all"
         >
           <Save size={15} /> {profileSaved ? "Saved!" : "Save Links"}
-        </button>
-      </div>
+        </Button>
+      </Card>
 
       {/* ─── Change Password ──────────────────────────────────────── */}
       <form onSubmit={handlePasswordSave} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
@@ -82,41 +86,41 @@ export default function AdminSettings() {
           <p className="text-red-400 text-xs bg-red-950/30 border border-red-800/50 rounded-xl px-4 py-2.5">{passError}</p>
         )}
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Current Password</label>
+          <Label variant="admin-label" className="mb-1.5">Current Password</Label>
           <div className="relative">
-            <input
+            <Input variant="admin-field"
               type={showCurrent ? "text" : "password"}
               value={password.current}
               onChange={(e) => setPassword({ ...password, current: e.target.value })}
-              className="w-full px-3 pr-10 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+              className="w-full pr-10"
             />
-            <button type="button" onClick={() => setShowCurrent((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+            <Button variant="unstyled" type="button" onClick={() => setShowCurrent((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
               {showCurrent ? <EyeOff size={15} /> : <Eye size={15} />}
-            </button>
+            </Button>
           </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">New Password</label>
+            <Label variant="admin-label" className="mb-1.5">New Password</Label>
             <div className="relative">
-              <input
+              <Input variant="admin-field"
                 type={showNew ? "text" : "password"}
                 value={password.next}
                 onChange={(e) => setPassword({ ...password, next: e.target.value })}
-                className="w-full px-3 pr-10 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+                className="w-full pr-10"
               />
-              <button type="button" onClick={() => setShowNew((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+              <Button variant="unstyled" type="button" onClick={() => setShowNew((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
                 {showNew ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
+              </Button>
             </div>
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Confirm New Password</label>
-            <input
+            <Label variant="admin-label" className="mb-1.5">Confirm New Password</Label>
+            <Input variant="admin-field"
               type="password"
               value={password.confirm}
               onChange={(e) => setPassword({ ...password, confirm: e.target.value })}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+              className="w-full"
             />
           </div>
         </div>
@@ -134,12 +138,12 @@ export default function AdminSettings() {
             </span>
           </div>
         )}
-        <button
+        <Button variant="unstyled"
           type="submit"
           className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${passSaved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}
         >
           <Lock size={15} /> {passSaved ? "Password Updated!" : "Update Password"}
-        </button>
+        </Button>
       </form>
 
     </div>

@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft, Download, BookOpen, User, Hash, Star, ArrowRight, Share2 } from "lucide-react";
 import { ebooks } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const tableOfContents: Record<number, string[]> = {
   1: [
@@ -65,9 +68,9 @@ export default function BookDetail({ id }: { id: string }) {
             </div>
             {/* Info */}
             <div className="flex-1">
-              <span className="inline-block px-3 py-1 bg-blue-600/30 text-cyan-300 text-xs rounded-full border border-blue-500/30 mb-4">
+              <Badge variant="unstyled" className="inline-block px-3 py-1 bg-blue-600/30 text-cyan-300 text-xs rounded-full border border-blue-500/30 mb-4">
                 {book.category}
-              </span>
+              </Badge>
               <h1 className="font-serif text-3xl sm:text-4xl text-white mb-2">{book.title}</h1>
               <p className="text-slate-300 text-lg mb-5">{book.subtitle}</p>
               <div className="flex flex-wrap gap-5 text-sm text-slate-400 mb-6">
@@ -88,13 +91,13 @@ export default function BookDetail({ id }: { id: string }) {
                 <span className="text-slate-400 text-sm">4.0 · 48 readers</span>
               </div>
               <div className="flex gap-3">
-                <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+                <Button variant="site-primary" className="flex items-center gap-2 px-6 py-3 text-sm transition-colors shadow-sm">
                   <Download size={15} />
                   {book.price === "Free" ? "Free Download" : "Purchase & Download"}
-                </button>
-                <button className="flex items-center gap-2 px-4 py-3 bg-white/10 text-white text-sm font-medium rounded-xl hover:bg-white/20 transition-colors border border-white/20">
+                </Button>
+                <Button variant="site-glass" className="flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors">
                   <Share2 size={15} /> Share
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -129,7 +132,7 @@ export default function BookDetail({ id }: { id: string }) {
           {/* Sidebar */}
           <div className="space-y-5">
             {/* Book details */}
-            <div className="bg-slate-50 rounded-2xl border border-slate-100 p-5 space-y-3">
+            <Card variant="site-panel" className="p-5 space-y-3">
               <h4 className="text-xs text-slate-400 uppercase tracking-wider">Book Details</h4>
               {[
                 { label: "Author", value: book.author },
@@ -144,10 +147,10 @@ export default function BookDetail({ id }: { id: string }) {
                   <span className="text-sm text-slate-700 font-medium">{value}</span>
                 </div>
               ))}
-            </div>
+            </Card>
 
             {/* Author card */}
-            <div className="glass-card rounded-2xl p-5">
+            <Card variant="site-glass-card" className="p-5">
               <h4 className="text-xs text-slate-400 uppercase tracking-wider mb-4">About the Author</h4>
               <div className="flex items-center gap-3 mb-3">
                 <img
@@ -166,7 +169,7 @@ export default function BookDetail({ id }: { id: string }) {
               <Link href="/about" className="flex items-center gap-1 text-xs text-blue-600 hover:underline mt-3">
                 View full profile <ArrowRight size={11} />
               </Link>
-            </div>
+            </Card>
           </div>
         </div>
 

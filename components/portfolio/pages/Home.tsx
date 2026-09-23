@@ -4,6 +4,9 @@ import Link from "next/link";
 import { ArrowRight, Download, Link2, GitFork, GraduationCap, Mail, SquareArrowOutUpRight, Briefcase, BarChart2, Trophy } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { profile, experiences, education, skills, achievements, researchPapers, certificates, projects } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const sparkData = [
   { v: 10 }, { v: 22 }, { v: 18 }, { v: 35 }, { v: 28 }, { v: 42 },
@@ -42,9 +45,9 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left */}
             <div>
-              <span className="inline-block font-mono text-xs text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full mb-6 tracking-widest">
+              <Badge variant="unstyled" className="inline-block font-mono text-xs text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full mb-6 tracking-widest">
                 {profile.badge}
-              </span>
+              </Badge>
               <h1 className="font-serif text-5xl md:text-6xl text-slate-900 mb-5 leading-tight">
                 {profile.name}
               </h1>
@@ -56,18 +59,18 @@ export default function Home() {
               </p>
 
               <div className="flex flex-wrap gap-3 mb-8">
-                <Link
+                <Button asChild variant="site-primary" className="flex items-center gap-2 px-6 py-3 transition-all shadow-sm hover:shadow-md"><Link
                   href="/portfolio"
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all shadow-sm hover:shadow-md"
+                 
                 >
                   Explore My Work <ArrowRight size={16} />
-                </Link>
-                <Link
+                </Link></Button>
+                <Button asChild variant="site-outline" className="flex items-center gap-2 px-6 py-3 text-slate-700 font-medium hover:border-slate-300 hover:bg-slate-50 transition-all"><Link
                   href="/resume"
-                  className="flex items-center gap-2 px-6 py-3 bg-white text-slate-700 font-medium rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
+                 
                 >
                   <Download size={16} /> View Resume
-                </Link>
+                </Link></Button>
               </div>
 
               <div className="flex items-center gap-4">
@@ -105,7 +108,7 @@ export default function Home() {
                 <div className="absolute -bottom-4 -left-4 w-32 h-32 rounded-2xl bg-teal-50 border border-teal-100 z-0" />
 
                 {/* Floating analytics card */}
-                <div className="absolute bottom-4 -left-10 bg-white rounded-2xl shadow-lg px-4 py-3 z-20 border border-slate-100 w-40">
+                <Card variant="site-white-card" className="absolute bottom-4 -left-10 shadow-lg px-4 py-3 z-20 w-40">
                   <div className="font-mono text-xs text-teal-600 font-medium mb-2">Analytics Growth</div>
                   <ResponsiveContainer width="100%" height={36}>
                     <AreaChart data={sparkData}>
@@ -118,11 +121,11 @@ export default function Home() {
                       <Area type="monotone" dataKey="v" stroke="#0d9488" fill="url(#spark)" strokeWidth={2} dot={false} />
                     </AreaChart>
                   </ResponsiveContainer>
-                </div>
-                <div className="absolute -top-6 right-4 bg-white rounded-2xl shadow-lg px-4 py-3 z-20 border border-slate-100">
+                </Card>
+                <Card variant="site-white-card" className="absolute -top-6 right-4 shadow-lg px-4 py-3 z-20">
                   <div className="font-mono text-xs text-blue-600 font-medium">Your Field</div>
                   <div className="text-xs text-slate-500 mt-0.5">{profile.stats.experience} Yrs Experience</div>
-                </div>
+                </Card>
               </div>
             </div>
           </div>
@@ -230,7 +233,7 @@ export default function Home() {
       <section className="py-20 max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-8">
           {/* Research */}
-          <div className="glass-card rounded-2xl p-7 hover:shadow-xl hover:scale-[1.01] transition-all duration-200 group">
+          <Card variant="site-glass-card" className="p-7 hover:shadow-xl hover:scale-[1.01] transition-all duration-200 group">
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
               <GraduationCap size={20} className="text-blue-600" />
             </div>
@@ -241,10 +244,10 @@ export default function Home() {
             <Link href="/research" className="flex items-center gap-1 text-sm text-blue-600 font-medium group-hover:gap-2 transition-all">
               Explore Research <ArrowRight size={15} />
             </Link>
-          </div>
+          </Card>
 
           {/* Portfolio */}
-          <div className="glass-card rounded-2xl p-7 hover:shadow-xl hover:scale-[1.01] transition-all duration-200 group">
+          <Card variant="site-glass-card" className="p-7 hover:shadow-xl hover:scale-[1.01] transition-all duration-200 group">
             <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center mb-5">
               <SquareArrowOutUpRight size={20} className="text-teal-600" />
             </div>
@@ -255,10 +258,10 @@ export default function Home() {
             <Link href="/portfolio" className="flex items-center gap-1 text-sm text-teal-600 font-medium group-hover:gap-2 transition-all">
               View Projects <ArrowRight size={15} />
             </Link>
-          </div>
+          </Card>
 
           {/* Certificates */}
-          <div className="glass-card rounded-2xl p-7 hover:shadow-xl hover:scale-[1.01] transition-all duration-200 group">
+          <Card variant="site-glass-card" className="p-7 hover:shadow-xl hover:scale-[1.01] transition-all duration-200 group">
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
               <Download size={20} className="text-blue-600" />
             </div>
@@ -269,7 +272,7 @@ export default function Home() {
             <Link href="/certificates" className="flex items-center gap-1 text-sm text-blue-600 font-medium group-hover:gap-2 transition-all">
               View Certificates <ArrowRight size={15} />
             </Link>
-          </div>
+          </Card>
         </div>
       </section>
 
@@ -287,7 +290,7 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 gap-5">
             {experiences.slice(0, 2).map((exp) => (
-              <div key={exp.id} className="glass-card rounded-2xl p-6 hover:shadow-md transition-all">
+              <Card variant="site-glass-card" key={exp.id} className="p-6 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
                   <img src={exp.logo} alt={exp.company} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
                   <div>
@@ -297,7 +300,7 @@ export default function Home() {
                     <p className="text-slate-500 text-sm mt-3 line-clamp-2">{exp.description}</p>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -326,11 +329,11 @@ export default function Home() {
               </span>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                  <Badge variant="unstyled" className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                     paper.status === "Published" ? "bg-green-50 text-green-700 border-green-100" :
                     paper.status === "Under Review" ? "bg-yellow-50 text-yellow-700 border-yellow-100" :
                     "bg-blue-50 text-blue-700 border-blue-100"
-                  }`}>{paper.status}</span>
+                  }`}>{paper.status}</Badge>
                   <span className="text-slate-400 text-xs font-mono">{paper.year}</span>
                 </div>
                 <h3 className="font-serif text-lg text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mb-1">
@@ -355,14 +358,14 @@ export default function Home() {
             Open to research collaborations, consulting, academic discussions, and professional inquiries.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/contact"
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all shadow-sm">
+            <Button asChild variant="site-primary" className="flex items-center gap-2 px-6 py-3 transition-all shadow-sm"><Link href="/contact"
+             >
               Get in Touch <ArrowRight size={16} />
-            </Link>
-            <Link href="/research"
-              className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white font-medium rounded-xl border border-white/20 hover:bg-white/20 transition-all">
+            </Link></Button>
+            <Button asChild variant="site-glass" className="flex items-center gap-2 px-6 py-3 font-medium transition-all"><Link href="/research"
+             >
               Explore Research
-            </Link>
+            </Link></Button>
           </div>
         </div>
       </section>

@@ -11,6 +11,7 @@
 
 export const profile = {
   name: "Your Name",
+  photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&auto=format",
   headline: "Your Headline | Field One | Field Two | Field Three",
   badge: "FIELD ONE • FIELD TWO • FIELD THREE",
   summary:
@@ -60,6 +61,7 @@ export const profile = {
  */
 export const emptyProfile: typeof profile = {
   name: "",
+  photo: "",
   headline: "",
   badge: "",
   summary: "",

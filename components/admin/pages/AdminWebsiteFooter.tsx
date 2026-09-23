@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { Save, Plus, X, LayoutTemplate } from "lucide-react";
 import { emptyProfile as profile } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 type FooterLink = { id: number; label: string; to: string };
 
@@ -54,21 +59,21 @@ export default function AdminWebsiteFooter() {
       )}
 
       {/* Text content */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white">Text Content</h2>
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Tagline / About Blurb</label>
-          <textarea rows={3} value={tagline} onChange={e => setTagline(e.target.value)}
+          <Label variant="admin-label" className="mb-1.5">Tagline / About Blurb</Label>
+          <Textarea variant="unstyled" rows={3} value={tagline} onChange={e => setTagline(e.target.value)}
             className={`${inputClass} resize-none`} />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Copyright Notice</label>
-          <input value={copyright} onChange={e => setCopyright(e.target.value)} className={inputClass} />
+          <Label variant="admin-label" className="mb-1.5">Copyright Notice</Label>
+          <Input variant="unstyled" value={copyright} onChange={e => setCopyright(e.target.value)} className={inputClass} />
         </div>
-      </div>
+      </Card>
 
       {/* Social links */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white">Social Links</h2>
         {[
           { label: "LinkedIn URL", value: linkedin, set: setLinkedin },
@@ -76,14 +81,14 @@ export default function AdminWebsiteFooter() {
           { label: "Google Scholar URL", value: scholar, set: setScholar },
         ].map(({ label, value, set }) => (
           <div key={label}>
-            <label className="block text-xs text-slate-400 mb-1.5">{label}</label>
-            <input value={value} onChange={e => set(e.target.value)} className={`${inputClass} font-mono`} />
+            <Label variant="admin-label" className="mb-1.5">{label}</Label>
+            <Input variant="unstyled" value={value} onChange={e => set(e.target.value)} className={`${inputClass} font-mono`} />
           </div>
         ))}
-      </div>
+      </Card>
 
       {/* Quick links */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-serif text-lg text-white">Quick Links</h2>
           <span className="text-slate-500 text-xs font-mono">{quickLinks.length} links</span>
@@ -93,22 +98,22 @@ export default function AdminWebsiteFooter() {
             <div key={link.id} className="flex items-center gap-3 p-2.5 bg-slate-800 rounded-xl border border-slate-700">
               <span className="text-slate-300 text-sm flex-1">{link.label}</span>
               <code className="text-slate-500 text-xs flex-1">{link.to}</code>
-              <button onClick={() => removeLink(link.id)} className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors">
+              <Button variant="unstyled" onClick={() => removeLink(link.id)} className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors">
                 <X size={13} />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
         <div className="flex gap-3 pt-1">
-          <input value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label"
-            className="flex-1 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
-          <input value={newTo} onChange={e => setNewTo(e.target.value)} placeholder="/path"
-            className="flex-1 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 font-mono" />
-          <button onClick={addLink} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-700 text-white text-sm font-medium rounded-xl hover:bg-slate-600 transition-colors border border-slate-600">
+          <Input variant="admin-field" value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label"
+            className="flex-1" />
+          <Input variant="admin-field" value={newTo} onChange={e => setNewTo(e.target.value)} placeholder="/path"
+            className="flex-1 font-mono" />
+          <Button variant="unstyled" onClick={addLink} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-700 text-white text-sm font-medium rounded-xl hover:bg-slate-600 transition-colors border border-slate-600">
             <Plus size={14} /> Add
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
 
       {/* Preview */}
       <div className="bg-[#0f1f3d] rounded-2xl p-6 text-white space-y-4">
@@ -121,10 +126,10 @@ export default function AdminWebsiteFooter() {
         <p className="text-slate-600 text-xs border-t border-white/10 pt-4">{copyright}</p>
       </div>
 
-      <button onClick={handleSave}
+      <Button variant="unstyled" onClick={handleSave}
         className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
         <Save size={15} /> {saved ? "Saved!" : "Save Footer"}
-      </button>
+      </Button>
     </div>
   );
 }

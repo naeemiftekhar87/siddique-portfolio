@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Save, GripVertical, Plus, X, Eye, EyeOff, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 type NavLink = {
   id: number;
@@ -79,7 +82,7 @@ export default function AdminWebsiteNavigation() {
       )}
 
       {/* Visible links */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-3">
+      <Card variant="admin-panel" className="p-6 space-y-3">
         <div className="flex items-center justify-between mb-1">
           <h2 className="font-serif text-lg text-white">Visible in Navbar</h2>
           <span className="text-slate-500 text-xs font-mono">{visible.length} links</span>
@@ -96,20 +99,20 @@ export default function AdminWebsiteNavigation() {
             <GripVertical size={14} className="text-slate-600 flex-shrink-0" />
             <span className="text-slate-200 text-sm font-medium flex-1">{link.label}</span>
             <code className="text-slate-500 text-xs flex-1">{link.to}</code>
-            <button onClick={() => toggle(link.id)} className="p-1.5 text-green-400 hover:bg-slate-700 rounded-lg transition-colors" title="Hide from navbar">
+            <Button variant="unstyled" onClick={() => toggle(link.id)} className="p-1.5 text-green-400 hover:bg-slate-700 rounded-lg transition-colors" title="Hide from navbar">
               <Eye size={14} />
-            </button>
-            <button onClick={() => remove(link.id)} className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors">
+            </Button>
+            <Button variant="unstyled" onClick={() => remove(link.id)} className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors">
               <X size={14} />
-            </button>
+            </Button>
           </div>
         ))}
         {visible.length === 0 && <p className="text-slate-600 text-sm text-center py-4">No visible links.</p>}
-      </div>
+      </Card>
 
       {/* Hidden links */}
       {hidden.length > 0 && (
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-3">
+        <Card variant="admin-panel" className="p-6 space-y-3">
           <h2 className="font-serif text-lg text-white text-opacity-60 flex items-center gap-2">
             <EyeOff size={15} className="text-slate-500" /> Hidden Pages
             <span className="text-slate-600 text-xs font-mono font-normal">(accessible via direct URL)</span>
@@ -118,42 +121,42 @@ export default function AdminWebsiteNavigation() {
             <div key={link.id} className="flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-800/40">
               <span className="text-slate-500 text-sm flex-1">{link.label}</span>
               <code className="text-slate-600 text-xs flex-1">{link.to}</code>
-              <button onClick={() => toggle(link.id)} className="p-1.5 text-slate-500 hover:text-green-400 hover:bg-slate-700 rounded-lg transition-colors" title="Show in navbar">
+              <Button variant="unstyled" onClick={() => toggle(link.id)} className="p-1.5 text-slate-500 hover:text-green-400 hover:bg-slate-700 rounded-lg transition-colors" title="Show in navbar">
                 <EyeOff size={14} />
-              </button>
+              </Button>
             </div>
           ))}
-        </div>
+        </Card>
       )}
 
       {/* Add link */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-3">
+      <Card variant="admin-panel" className="p-6 space-y-3">
         <h2 className="font-serif text-lg text-white">Add Custom Link</h2>
         <div className="flex gap-3">
-          <input value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label"
-            className="flex-1 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
-          <input value={newTo} onChange={e => setNewTo(e.target.value)} placeholder="/path-or-url"
-            className="flex-1 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 font-mono" />
-          <button onClick={addLink} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+          <Input variant="admin-field" value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label"
+            className="flex-1" />
+          <Input variant="admin-field" value={newTo} onChange={e => setNewTo(e.target.value)} placeholder="/path-or-url"
+            className="flex-1 font-mono" />
+          <Button variant="admin-primary" onClick={addLink} className="flex items-center gap-2 px-4 py-2.5">
             <Plus size={14} /> Add
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
 
       {/* Preview */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5">
+      <Card variant="admin-panel" className="p-5">
         <p className="text-slate-500 text-xs uppercase tracking-wider font-semibold mb-3">Navbar Preview</p>
         <div className="flex flex-wrap gap-1">
           {visible.map(link => (
             <span key={link.id} className="px-3 py-1.5 bg-slate-800 text-slate-300 text-sm rounded-md border border-slate-700">{link.label}</span>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <button onClick={handleSave}
+      <Button variant="unstyled" onClick={handleSave}
         className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
         <Save size={15} /> {saved ? "Saved!" : "Save Navigation"}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   BarChart2, MessageSquare, TrendingUp, ArrowUpRight, Clock,
   Plus, CheckCircle, Eye
 } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 function StatCard({ label, value, icon: Icon, color, to }: {
   label: string; value: string | number; icon: React.ElementType; color: string; to: string;
@@ -55,7 +56,7 @@ export default function AdminDashboard() {
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Recent activity */}
-        <div className="lg:col-span-2 bg-slate-900 rounded-2xl border border-slate-800 p-6">
+        <Card variant="admin-panel" className="lg:col-span-2 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-serif text-lg text-white">Recent Activity</h2>
             <span className="text-xs text-slate-500">Last 7 days</span>
@@ -87,10 +88,10 @@ export default function AdminDashboard() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Quick actions */}
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+        <Card variant="admin-panel" className="p-6">
           <h2 className="font-serif text-lg text-white mb-6">Quick Actions</h2>
           <div className="space-y-3">
             {[
@@ -112,7 +113,7 @@ export default function AdminDashboard() {
               </Link>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

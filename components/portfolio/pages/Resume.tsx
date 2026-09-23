@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Download, FileText, User, Briefcase, GraduationCap, Award, BarChart2, LayoutTemplate, Languages } from "lucide-react";
 import { profile, experiences, education, skills, certificates, languages } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const tabs = ["Professional Resume"];
 
@@ -31,12 +33,12 @@ export default function Resume() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
-              <Link href="/resume/infographic" className="flex items-center gap-2 px-5 py-3 bg-white/10 text-white text-sm font-medium rounded-xl border border-white/20 hover:bg-white/20 transition-colors">
+              <Button asChild variant="site-glass" className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors"><Link href="/resume/infographic">
                 <LayoutTemplate size={16} /> Infographic View
-              </Link>
-              <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium text-sm rounded-xl hover:bg-blue-700 transition-colors">
+              </Link></Button>
+              <Button variant="site-primary" className="flex items-center gap-2 px-6 py-3 text-sm transition-colors">
                 <Download size={16} /> Download PDF
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -46,7 +48,7 @@ export default function Resume() {
       <div className="sticky top-[72px] z-10 bg-white/90 backdrop-blur-md border-b border-blue-100/40 shadow-sm">
         <div className="max-w-5xl mx-auto px-6 py-4 flex flex-wrap gap-2">
           {tabs.map((tab) => (
-            <button
+            <Button variant="unstyled"
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
@@ -56,14 +58,14 @@ export default function Resume() {
               }`}
             >
               {tab}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         {/* Resume document */}
-        <div className="glass-card rounded-2xl overflow-hidden shadow-lg">
+        <Card variant="site-glass-card" className="overflow-hidden shadow-lg">
           {/* Header */}
           <div className="bg-gradient-to-r from-[#040d1f] to-[#071428] px-10 py-10 text-white">
             <h2 className="font-serif text-3xl mb-2">{profile.name}</h2>
@@ -187,7 +189,7 @@ export default function Resume() {
             </section>
 
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

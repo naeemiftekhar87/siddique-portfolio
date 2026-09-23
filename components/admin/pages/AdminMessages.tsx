@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Mail, Clock, User, Trash2, Inbox } from "lucide-react";
 import type { messages as initialMessages } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function AdminMessages() {
   const [msgs, setMsgs] = useState<(typeof initialMessages)[number][]>([]);
@@ -31,7 +33,7 @@ export default function AdminMessages() {
             </div>
           )}
           {msgs.map((msg) => (
-            <button
+            <Button variant="unstyled"
               key={msg.id}
               onClick={() => { setSelected(msg.id); markRead(msg.id); }}
               className={`w-full text-left p-4 rounded-2xl border transition-all ${
@@ -50,14 +52,14 @@ export default function AdminMessages() {
               </div>
               <p className="text-slate-400 text-xs truncate mb-1">{msg.subject}</p>
               <span className="text-slate-600 text-xs font-mono">{msg.date}</span>
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Message detail */}
         <div className="md:col-span-3">
           {selectedMsg ? (
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+            <Card variant="admin-panel" className="p-6">
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h3 className="text-white font-semibold">{selectedMsg.subject}</h3>
@@ -69,24 +71,24 @@ export default function AdminMessages() {
                     <Clock size={11} /> {selectedMsg.date}
                   </span>
                 </div>
-                <button className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-950/30 transition-all">
+                <Button variant="unstyled" className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-950/30 transition-all">
                   <Trash2 size={15} />
-                </button>
+                </Button>
               </div>
               <div className="bg-slate-800/50 rounded-xl p-4">
                 <p className="text-slate-300 leading-relaxed text-sm">{selectedMsg.message}</p>
               </div>
               <div className="mt-4">
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+                <Button variant="admin-primary" className="flex items-center gap-2 px-4 py-2.5">
                   <Mail size={14} /> Reply
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           ) : (
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-10 text-center text-slate-500">
+            <Card variant="admin-panel" className="p-10 text-center text-slate-500">
               <Mail size={32} className="mx-auto mb-3 opacity-30" />
               Select a message to read
-            </div>
+            </Card>
           )}
         </div>
       </div>

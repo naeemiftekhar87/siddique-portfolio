@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Search, BarChart2 } from "lucide-react";
 import { skills, skillCategories } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export default function Skills() {
   const [activeCategory, setActiveCategory] = useState("ALL");
@@ -40,10 +43,10 @@ export default function Skills() {
               { value: skills.filter((s) => s.level >= 80).length, label: "Expert Level" },
               { value: `${avgLevel}%`, label: "Avg. Proficiency" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -55,18 +58,18 @@ export default function Skills() {
           {/* Search */}
           <div className="relative max-w-sm">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
+            <Input variant="site-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search skills..."
-              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-blue-100"
+              className="w-full focus:ring-blue-100"
             />
           </div>
 
           {/* Category tabs */}
           <div className="flex flex-wrap gap-2">
             {skillCategories.map((cat) => (
-              <button
+              <Button variant="unstyled"
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
@@ -76,7 +79,7 @@ export default function Skills() {
                 }`}
               >
                 {cat}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -84,9 +87,9 @@ export default function Skills() {
         {/* Skills grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map((skill) => (
-            <div
+            <Card variant="site-glass-card"
               key={skill.id}
-              className="glass-card rounded-2xl p-5 hover:border-blue-200 hover:shadow-sm transition-all group"
+              className="p-5 hover:border-blue-200 hover:shadow-sm transition-all group"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -109,7 +112,7 @@ export default function Skills() {
                   style={{ width: `${skill.level}%` }}
                 />
               </div>
-            </div>
+            </Card>
           ))}
         </div>
 

@@ -248,9 +248,10 @@
    5. BASE LAYER  (typography, body, scrollbar, selection)
    ========================================================================== */
 @layer base {
-  /* shadcn defaults, scoped to shadcn components so the ported pages keep
+  /* shadcn defaults, scoped to stock shadcn components (design variants carry
+     data-design and are excluded) so the ported pages keep
      Tailwind's own border/outline defaults (as in the source index.css). */
-  :where([data-slot], [data-slot] *) {
+  :where([data-slot]:not([data-design]), [data-slot]:not([data-design]) *) {
     @apply border-border outline-ring/50;
   }
 

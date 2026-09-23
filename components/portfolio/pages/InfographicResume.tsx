@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Download, BarChart2, GraduationCap, Briefcase, Award, LayoutTemplate, ArrowLeft } from "lucide-react";
 import { profile, experiences, education, skills, certificates, researchPapers } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 function SkillBar({ name, level }: { name: string; level: number }) {
   return (
@@ -43,13 +45,13 @@ export default function InfographicResume() {
               </p>
             </div>
             <div className="flex gap-3 flex-shrink-0">
-              <Link href="/resume"
-                className="flex items-center gap-2 px-4 py-3 bg-white/10 text-white text-sm font-medium rounded-xl border border-white/20 hover:bg-white/20 transition-colors">
+              <Button asChild variant="site-glass" className="flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors"><Link href="/resume"
+               >
                 <ArrowLeft size={15} /> Resume Center
-              </Link>
-              <button className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-medium text-sm rounded-xl hover:bg-blue-700 transition-colors">
+              </Link></Button>
+              <Button variant="site-primary" className="flex items-center gap-2 px-5 py-3 text-sm transition-colors">
                 <Download size={15} /> Download PDF
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -115,9 +117,9 @@ export default function InfographicResume() {
                 <h3 className="font-serif text-lg text-slate-900 mb-4">Research Areas</h3>
                 <div className="flex flex-wrap gap-2">
                   {profile.researchInterests.slice(0, 8).map((r) => (
-                    <span key={r} className="px-2.5 py-1.5 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-100">
+                    <Badge variant="unstyled" key={r} className="px-2.5 py-1.5 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-100">
                       {r}
-                    </span>
+                    </Badge>
                   ))}
                 </div>
               </section>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, GraduationCap, GitFork, Link2 } from "lucide-react";
 import { profile } from "@/lib/data";
+import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -102,13 +103,13 @@ export default function Navbar() {
           </div>
 
           {/* Mobile toggle */}
-          <button
+          <Button variant="unstyled"
             className="lg:hidden p-2 text-white/70 hover:text-white"
             onClick={() => setOpen((v) => !v)}
             aria-label="Toggle menu"
           >
             {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
+          </Button>
         </div>
       </div>
 

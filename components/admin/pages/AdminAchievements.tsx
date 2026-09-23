@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { Trophy, Plus, Edit2, Trash2, Save, X, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
 type Achievement = {
   id: number;
@@ -70,12 +76,12 @@ export default function AdminAchievements() {
           <h1 className="font-serif text-3xl text-white mb-1">Achievements</h1>
           <p className="text-slate-400 text-sm">Manage awards, recognitions, and competition results</p>
         </div>
-        <button
+        <Button variant="admin-primary"
           onClick={startNew}
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5"
         >
           <Plus size={15} /> Add Achievement
-        </button>
+        </Button>
       </div>
 
       {saved && (
@@ -87,7 +93,7 @@ export default function AdminAchievements() {
       {/* Filter tabs */}
       <div className="flex flex-wrap gap-2">
         {["All", ...CATEGORIES].map(c => (
-          <button
+          <Button variant="unstyled"
             key={c}
             onClick={() => setFilterCat(c)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -95,7 +101,7 @@ export default function AdminAchievements() {
             }`}
           >
             {c}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -106,67 +112,67 @@ export default function AdminAchievements() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">Title</label>
-              <input
+              <Label variant="admin-label" className="mb-1.5">Title</Label>
+              <Input variant="admin-field"
                 value={editing.title}
                 onChange={e => setEditing({ ...editing, title: e.target.value })}
                 placeholder="Award or recognition title"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+                className="w-full"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Organisation</label>
-              <input
+              <Label variant="admin-label" className="mb-1.5">Organisation</Label>
+              <Input variant="admin-field"
                 value={editing.organization}
                 onChange={e => setEditing({ ...editing, organization: e.target.value })}
                 placeholder="Issuing body"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+                className="w-full"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Year / Date</label>
-              <input
+              <Label variant="admin-label" className="mb-1.5">Year / Date</Label>
+              <Input variant="admin-field"
                 value={editing.date}
                 onChange={e => setEditing({ ...editing, date: e.target.value })}
                 placeholder="2026"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+                className="w-full"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Category</label>
-              <select
+              <Label variant="admin-label" className="mb-1.5">Category</Label>
+              <NativeSelect variant="admin-field"
                 value={editing.category}
                 onChange={e => setEditing({ ...editing, category: e.target.value })}
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+                className="w-full"
               >
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              </NativeSelect>
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">Description</label>
-              <textarea
+              <Label variant="admin-label" className="mb-1.5">Description</Label>
+              <Textarea variant="admin-field"
                 rows={3}
                 value={editing.description}
                 onChange={e => setEditing({ ...editing, description: e.target.value })}
                 placeholder="Brief description of the achievement…"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full resize-none"
               />
             </div>
           </div>
 
           <div className="flex gap-3 pt-1">
-            <button
+            <Button variant="admin-primary"
               onClick={saveEdit}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5"
             >
               <Save size={14} /> Save
-            </button>
-            <button
+            </Button>
+            <Button variant="admin-outline"
               onClick={cancelEdit}
-              className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl border border-slate-700 hover:border-slate-600 transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5"
             >
               <X size={14} /> Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -174,7 +180,7 @@ export default function AdminAchievements() {
       {/* List */}
       <div className="space-y-3">
         {filtered.map(a => (
-          <div key={a.id} className="bg-slate-900 rounded-2xl border border-slate-800 p-5 hover:border-slate-700 transition-all">
+          <Card variant="admin-panel" key={a.id} className="p-5 hover:border-slate-700 transition-all">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-1 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0">
@@ -193,38 +199,38 @@ export default function AdminAchievements() {
                 </div>
               </div>
               <div className="flex gap-2 flex-shrink-0">
-                <button
+                <Button variant="admin-ghost"
                   onClick={() => startEdit(a)}
-                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
-                >
+                  
+>
                   <Edit2 size={14} />
-                </button>
+                </Button>
                 {deleteConfirm === a.id ? (
                   <div className="flex gap-1.5">
-                    <button
+                    <Button variant="admin-danger-sm"
                       onClick={() => deleteItem(a.id)}
-                      className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                      className="transition-colors"
                     >
                       Confirm
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="unstyled"
                       onClick={() => setDeleteConfirm(null)}
                       className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors"
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 ) : (
-                  <button
+                  <Button variant="admin-ghost-danger"
                     onClick={() => setDeleteConfirm(a.id)}
-                    className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all"
-                  >
+                    
+>
                     <Trash2 size={14} />
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 

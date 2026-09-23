@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, BarChart2, AlertCircle } from "lucide-react";
 import { profile } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -104,41 +107,41 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm text-slate-400 mb-2">Email address</label>
+              <Label variant="unstyled" className="block text-sm text-slate-400 mb-2">Email address</Label>
               <div className="relative">
                 <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input
+                <Input variant="admin-field-dark"
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="admin@example.com"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  className="w-full pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500/20 transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm text-slate-400 mb-2">Password</label>
+              <Label variant="unstyled" className="block text-sm text-slate-400 mb-2">Password</Label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input
+                <Input variant="admin-field-dark"
                   type={showPass ? "text" : "password"}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="Enter your password"
-                  className="w-full pl-10 pr-11 py-3 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  className="w-full pl-10 pr-11 py-3 focus:ring-2 focus:ring-blue-500/20 transition-all"
                 />
-                <button
+                <Button variant="unstyled"
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                </Button>
               </div>
             </div>
 
-            <button
+            <Button variant="unstyled"
               type="submit"
               disabled={loading}
               className="w-full py-3.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
@@ -151,7 +154,7 @@ export default function AdminLogin() {
               ) : (
                 "Sign in to Dashboard"
               )}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-6 p-4 bg-slate-900 rounded-xl border border-slate-800">

@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, FolderOpen } from "lucide-react";
 import { projects } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const categories = ["All", "Sample Category A", "Sample Category B", "Sample Category C", "Sample Category D"];
 
@@ -39,10 +42,10 @@ export default function Portfolio() {
               { value: areas, label: "Focus Areas" },
               { value: techCount, label: "Technologies" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -53,7 +56,7 @@ export default function Portfolio() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
-              <button
+              <Button variant="unstyled"
                 key={cat}
                 onClick={() => setActive(cat)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
@@ -63,7 +66,7 @@ export default function Portfolio() {
                 }`}
               >
                 {cat}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -87,18 +90,18 @@ export default function Portfolio() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 <div className="absolute top-3 left-3">
-                  <span className="bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 px-3 py-1.5 rounded-full">
+                  <Badge variant="unstyled" className="bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 px-3 py-1.5 rounded-full">
                     {project.category}
-                  </span>
+                  </Badge>
                 </div>
                 <div className="absolute top-3 right-3">
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full border backdrop-blur-sm ${
+                  <Badge variant="unstyled" className={`text-xs font-medium px-2.5 py-1 rounded-full border backdrop-blur-sm ${
                     project.status === "Completed"
                       ? "bg-green-900/60 text-green-300 border-green-700/40"
                       : "bg-blue-900/60 text-cyan-300 border-blue-700/40"
                   }`}>
                     {project.status}
-                  </span>
+                  </Badge>
                 </div>
               </div>
               <div className="p-6">
@@ -108,14 +111,14 @@ export default function Portfolio() {
                 <p className="text-slate-500 text-sm mb-5 line-clamp-2 leading-relaxed">{project.shortDescription}</p>
                 <div className="flex flex-wrap gap-1.5 mb-5">
                   {project.technologies.slice(0, 5).map((t) => (
-                    <span key={t} className="px-2.5 py-1 bg-slate-50 text-slate-600 text-xs rounded-lg border border-slate-100">
+                    <Badge variant="unstyled" key={t} className="px-2.5 py-1 bg-slate-50 text-slate-600 text-xs rounded-lg border border-slate-100">
                       {t}
-                    </span>
+                    </Badge>
                   ))}
                   {project.technologies.length > 5 && (
-                    <span className="px-2.5 py-1 bg-slate-50 text-slate-400 text-xs rounded-lg border border-slate-100">
+                    <Badge variant="unstyled" className="px-2.5 py-1 bg-slate-50 text-slate-400 text-xs rounded-lg border border-slate-100">
                       +{project.technologies.length - 5}
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <span className="flex items-center gap-1.5 text-sm text-blue-600 font-medium group-hover:gap-2.5 transition-all">

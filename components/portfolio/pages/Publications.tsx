@@ -4,6 +4,10 @@ import { useState } from "react";
 import { Search, ExternalLink, Download, Copy, BookOpen, Hash } from "lucide-react";
 import Link from "next/link";
 import { publications, profile } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 const statusConfig: Record<string, { color: string }> = {
   Published:       { color: "bg-green-50 text-green-700 border-green-200" },
@@ -52,10 +56,10 @@ export default function Publications() {
               { value: profile.scholarMetrics.hIndex, label: "h-Index" },
               { value: profile.scholarMetrics.i10Index, label: "i10-Index" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -66,22 +70,22 @@ export default function Publications() {
         <div className="max-w-5xl mx-auto px-6 py-4 flex flex-col sm:flex-row gap-4">
           <div className="relative max-w-xs flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
+            <Input variant="site-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title, area, journal…"
-              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-blue-100"
+              className="w-full focus:ring-blue-100"
             />
           </div>
           <div className="flex flex-wrap gap-2">
             {allStatuses.map((s) => (
-              <button
+              <Button variant="unstyled"
                 key={s}
                 onClick={() => setStatusFilter(s)}
                 className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${statusFilter === s ? "bg-blue-600 text-white" : "bg-white text-slate-600 border border-slate-200 hover:border-cyan-300"}`}
               >
                 {s}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -95,19 +99,19 @@ export default function Publications() {
           {filtered.map((pub, idx) => {
             const status = statusConfig[pub.status] ?? { color: "bg-slate-100 text-slate-600 border-slate-200" };
             return (
-              <div key={pub.id} className="bg-white rounded-2xl border border-slate-100 p-7 hover:shadow-md hover:border-slate-200 transition-all group">
+              <Card variant="site-white-card" key={pub.id} className="p-7 hover:shadow-md hover:border-slate-200 transition-all group">
                 <div className="flex items-start gap-5">
                   <span className="font-mono text-2xl text-slate-200 font-bold select-none flex-shrink-0 w-8 pt-1">
                     {String(idx + 1).padStart(2, "0")}
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${status.color}`}>
+                      <Badge variant="unstyled" className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${status.color}`}>
                         {pub.status}
-                      </span>
-                      <span className="text-xs text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-100">
+                      </Badge>
+                      <Badge variant="unstyled" className="text-xs text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-100">
                         {pub.area}
-                      </span>
+                      </Badge>
                       <span className="text-xs text-slate-400 font-mono">{pub.year}</span>
                     </div>
 
@@ -131,19 +135,19 @@ export default function Publications() {
                       <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
                         <Hash size={11} />
                         <code className="text-teal-600">{pub.doi}</code>
-                        <button className="hover:text-slate-600 transition-colors">
+                        <Button variant="unstyled" className="hover:text-slate-600 transition-colors">
                           <Copy size={11} />
-                        </button>
+                        </Button>
                       </div>
                     )}
 
                     <div className="flex flex-wrap gap-2 pt-1">
-                      <button className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700 transition-colors">
+                      <Button variant="site-primary" className="flex items-center gap-1.5 px-3.5 py-2 text-xs transition-colors">
                         <ExternalLink size={12} /> Read Paper
-                      </button>
-                      <button className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-xl hover:border-slate-300 transition-colors">
+                      </Button>
+                      <Button variant="site-outline" className="flex items-center gap-1.5 px-3.5 py-2 text-slate-600 text-xs font-medium hover:border-slate-300 transition-colors">
                         <Download size={12} /> PDF
-                      </button>
+                      </Button>
                       <Link
                         href={`/research/${pub.id}`}
                         className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 border border-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-100 transition-colors"
@@ -153,7 +157,7 @@ export default function Publications() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

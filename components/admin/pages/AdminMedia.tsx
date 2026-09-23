@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { Upload, FileText, Search, Grid, List, Trash2, Copy, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type MediaItem = { id: number; name: string; type: string; size: string; url: string; date: string };
 
@@ -35,10 +40,10 @@ export default function AdminMedia() {
           <h1 className="font-serif text-3xl text-white mb-1">Media Library</h1>
           <p className="text-slate-400 text-sm">{items.length} files</p>
         </div>
-        <label className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors cursor-pointer">
+        <Label variant="unstyled" className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors cursor-pointer">
           <Upload size={16} /> Upload Files
-          <input type="file" multiple className="hidden" />
-        </label>
+          <Input variant="unstyled" type="file" multiple className="hidden" />
+        </Label>
       </div>
 
       {/* Upload zone */}
@@ -52,23 +57,23 @@ export default function AdminMedia() {
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative max-w-sm flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search files..."
-            className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+          <Input variant="admin-field-dark" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search files..."
+            className="w-full pl-9 pr-4 py-2.5" />
         </div>
         <div className="flex gap-2">
           {(["all", "image", "document"] as FilterType[]).map((t) => (
-            <button key={t} onClick={() => setFilter(t)}
+            <Button variant="unstyled" key={t} onClick={() => setFilter(t)}
               className={`px-4 py-2 rounded-xl text-xs font-medium capitalize transition-all ${filter === t ? "bg-blue-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"}`}>
               {t}
-            </button>
+            </Button>
           ))}
           <div className="flex border border-slate-800 rounded-xl overflow-hidden">
-            <button onClick={() => setViewMode("grid")} className={`p-2 ${viewMode === "grid" ? "bg-slate-700 text-white" : "text-slate-500 hover:text-slate-300"} transition-colors`}>
+            <Button variant="unstyled" onClick={() => setViewMode("grid")} className={`p-2 ${viewMode === "grid" ? "bg-slate-700 text-white" : "text-slate-500 hover:text-slate-300"} transition-colors`}>
               <Grid size={15} />
-            </button>
-            <button onClick={() => setViewMode("list")} className={`p-2 ${viewMode === "list" ? "bg-slate-700 text-white" : "text-slate-500 hover:text-slate-300"} transition-colors`}>
+            </Button>
+            <Button variant="unstyled" onClick={() => setViewMode("list")} className={`p-2 ${viewMode === "list" ? "bg-slate-700 text-white" : "text-slate-500 hover:text-slate-300"} transition-colors`}>
               <List size={15} />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -101,28 +106,28 @@ export default function AdminMedia() {
           ))}
         </div>
       ) : (
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-800">
-                <th className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Name</th>
-                <th className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden sm:table-cell">Type</th>
-                <th className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden md:table-cell">Size</th>
-                <th className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Date</th>
-                <th className="text-right px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800">
+        <Card variant="admin-panel" className="overflow-hidden">
+          <Table variant="unstyled" className="w-full">
+            <TableHeader variant="unstyled">
+              <TableRow variant="unstyled" className="border-b border-slate-800">
+                <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Name</TableHead>
+                <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden sm:table-cell">Type</TableHead>
+                <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden md:table-cell">Size</TableHead>
+                <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Date</TableHead>
+                <TableHead variant="unstyled" className="text-right px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody variant="unstyled" className="divide-y divide-slate-800">
 {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center py-16 text-slate-500 text-sm">
+                <TableRow variant="unstyled">
+                  <TableCell variant="unstyled" colSpan={6} className="text-center py-16 text-slate-500 text-sm">
                     {items.length === 0 ? "No media yet." : "No media match your filters."}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
               {filtered.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-800/50 transition-colors">
-                  <td className="px-5 py-3.5">
+                <TableRow variant="unstyled" key={item.id} className="hover:bg-slate-800/50 transition-colors">
+                  <TableCell variant="unstyled" className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       {item.type === "image" && item.url ? (
                         <img src={item.url} alt="" className="w-8 h-8 rounded-lg object-cover" />
@@ -133,37 +138,37 @@ export default function AdminMedia() {
                       )}
                       <span className="text-slate-200 text-sm">{item.name}</span>
                     </div>
-                  </td>
-                  <td className="px-5 py-3.5 hidden sm:table-cell">
+                  </TableCell>
+                  <TableCell variant="unstyled" className="px-5 py-3.5 hidden sm:table-cell">
                     <span className="capitalize text-slate-500 text-xs">{item.type}</span>
-                  </td>
-                  <td className="px-5 py-3.5 hidden md:table-cell">
+                  </TableCell>
+                  <TableCell variant="unstyled" className="px-5 py-3.5 hidden md:table-cell">
                     <span className="text-slate-500 text-xs font-mono">{item.size}</span>
-                  </td>
-                  <td className="px-5 py-3.5 hidden lg:table-cell">
+                  </TableCell>
+                  <TableCell variant="unstyled" className="px-5 py-3.5 hidden lg:table-cell">
                     <span className="text-slate-500 text-xs">{item.date}</span>
-                  </td>
-                  <td className="px-5 py-3.5">
+                  </TableCell>
+                  <TableCell variant="unstyled" className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-2">
                       {item.type === "image" && (
-                        <button className="p-1.5 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-blue-950/30 transition-all">
+                        <Button variant="admin-icon-info">
                           <Eye size={14} />
-                        </button>
+                        </Button>
                       )}
-                      <button className="p-1.5 rounded-lg text-slate-500 hover:text-teal-400 hover:bg-teal-950/30 transition-all">
+                      <Button variant="admin-icon-teal">
                         <Copy size={14} />
-                      </button>
-                      <button onClick={() => setItems((prev) => prev.filter((x) => x.id !== item.id))}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-950/30 transition-all">
+                      </Button>
+                      <Button variant="admin-icon-danger" onClick={() => setItems((prev) => prev.filter((x) => x.id !== item.id))}
+>
                         <Trash2 size={14} />
-                      </button>
+                      </Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </Card>
       )}
     </div>
   );

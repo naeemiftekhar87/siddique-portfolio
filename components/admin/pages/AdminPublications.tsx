@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, ExternalLink, Download, Copy, BookOpen } from "lucide-react";
 import type { publications as initialPubs } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
 type Pub = typeof initialPubs[0];
 
@@ -27,66 +33,66 @@ function PubForm({ initial, onSave, onCancel }: { initial?: Partial<Pub>; onSave
     <div className="bg-slate-900 rounded-2xl border border-blue-800/40 p-6 mb-6 space-y-4">
       <h3 className="font-serif text-lg text-white">{initial?.title ? "Edit Publication" : "Add Publication"}</h3>
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Title *</label>
-        <input value={f.title ?? ""} onChange={(e) => set("title", e.target.value)}
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+        <Label variant="admin-label" className="mb-1">Title *</Label>
+        <Input variant="admin-field" value={f.title ?? ""} onChange={(e) => set("title", e.target.value)}
+          className="w-full" />
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Journal / Conference</label>
-          <input value={f.journal ?? ""} onChange={(e) => set("journal", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+          <Label variant="admin-label" className="mb-1">Journal / Conference</Label>
+          <Input variant="admin-field" value={f.journal ?? ""} onChange={(e) => set("journal", e.target.value)}
+            className="w-full" />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Year</label>
-          <input type="number" value={f.year ?? 2026} onChange={(e) => set("year", Number(e.target.value))}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+          <Label variant="admin-label" className="mb-1">Year</Label>
+          <Input variant="admin-field" type="number" value={f.year ?? 2026} onChange={(e) => set("year", Number(e.target.value))}
+            className="w-full" />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Status</label>
-          <select value={f.status ?? "Published"} onChange={(e) => set("status", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500">
+          <Label variant="admin-label" className="mb-1">Status</Label>
+          <NativeSelect variant="admin-field" value={f.status ?? "Published"} onChange={(e) => set("status", e.target.value)}
+            className="w-full">
             {statuses.map((s) => <option key={s}>{s}</option>)}
-          </select>
+          </NativeSelect>
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Research Area</label>
-          <select value={f.area ?? ""} onChange={(e) => set("area", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500">
+          <Label variant="admin-label" className="mb-1">Research Area</Label>
+          <NativeSelect variant="admin-field" value={f.area ?? ""} onChange={(e) => set("area", e.target.value)}
+            className="w-full">
             {areas.map((a) => <option key={a}>{a}</option>)}
-          </select>
+          </NativeSelect>
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">DOI</label>
-          <input value={f.doi ?? ""} onChange={(e) => set("doi", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" placeholder="10.xxxx/..." />
+          <Label variant="admin-label" className="mb-1">DOI</Label>
+          <Input variant="admin-field" value={f.doi ?? ""} onChange={(e) => set("doi", e.target.value)}
+            className="w-full" placeholder="10.xxxx/..." />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Keywords (comma-separated)</label>
-          <input
+          <Label variant="admin-label" className="mb-1">Keywords (comma-separated)</Label>
+          <Input variant="admin-field"
             value={Array.isArray(f.keywords) ? f.keywords.join(", ") : ""}
             onChange={(e) => set("keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full"
           />
         </div>
       </div>
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Abstract</label>
-        <textarea rows={4} value={f.abstract ?? ""} onChange={(e) => set("abstract", e.target.value)}
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none" />
+        <Label variant="admin-label" className="mb-1">Abstract</Label>
+        <Textarea variant="admin-field" rows={4} value={f.abstract ?? ""} onChange={(e) => set("abstract", e.target.value)}
+          className="w-full resize-none" />
       </div>
 
       {/* PDF upload */}
       <div>
-        <label className="block text-xs text-slate-400 mb-1">PDF Upload</label>
+        <Label variant="admin-label" className="mb-1">PDF Upload</Label>
         <div className="border-2 border-dashed border-slate-700 rounded-xl p-4 text-center text-slate-500 text-sm hover:border-blue-600 hover:text-blue-400 transition-colors cursor-pointer">
           Drag & drop PDF or click to upload
         </div>
       </div>
 
       <div className="flex gap-3">
-        <button type="button" onClick={() => onSave(f)} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">Save Publication</button>
-        <button type="button" onClick={onCancel} className="px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">Cancel</button>
+        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} className="px-5 py-2.5">Save Publication</Button>
+        <Button variant="admin-secondary" type="button" onClick={onCancel} className="px-5 py-2.5">Cancel</Button>
       </div>
     </div>
   );
@@ -122,12 +128,12 @@ export default function AdminPublications() {
           <h1 className="font-serif text-3xl text-white mb-1">Publications</h1>
           <p className="text-slate-400 text-sm">{pubs.length} publications</p>
         </div>
-        <button
+        <Button variant="admin-primary"
           onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5"
         >
           <Plus size={16} /> Add Publication
-        </button>
+        </Button>
       </div>
 
       {showAdd && <PubForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
@@ -135,15 +141,15 @@ export default function AdminPublications() {
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative max-w-sm flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search publications..."
-            className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+          <Input variant="admin-field-dark" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search publications..."
+            className="w-full pl-9 pr-4 py-2.5" />
         </div>
         <div className="flex flex-wrap gap-2">
           {["All", ...statuses].map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)}
+            <Button variant="unstyled" key={s} onClick={() => setStatusFilter(s)}
               className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${statusFilter === s ? "bg-blue-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"}`}>
               {s}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -156,7 +162,7 @@ export default function AdminPublications() {
           </div>
         )}
         {filtered.map((pub, idx) => (
-          <div key={pub.id} className="bg-slate-900 rounded-2xl border border-slate-800">
+          <Card variant="admin-panel" key={pub.id}>
             {editing === pub.id ? (
               <div className="p-6">
                 <PubForm initial={pub} onSave={(d) => handleEdit(pub.id, d)} onCancel={() => setEditing(null)} />
@@ -180,29 +186,29 @@ export default function AdminPublications() {
                     <div className="flex items-center gap-1.5 mt-1.5">
                       <span className="text-slate-600 text-xs font-mono">DOI:</span>
                       <span className="text-teal-500 text-xs font-mono">{pub.doi}</span>
-                      <button className="text-slate-600 hover:text-slate-400 transition-colors"><Copy size={11} /></button>
+                      <Button variant="unstyled" className="text-slate-600 hover:text-slate-400 transition-colors"><Copy size={11} /></Button>
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button className="p-1.5 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-blue-950/30 transition-all" title="View">
+                  <Button variant="admin-icon-info"  title="View">
                     <ExternalLink size={14} />
-                  </button>
-                  <button className="p-1.5 rounded-lg text-slate-500 hover:text-teal-400 hover:bg-teal-950/30 transition-all" title="Download PDF">
+                  </Button>
+                  <Button variant="admin-icon-teal"  title="Download PDF">
                     <Download size={14} />
-                  </button>
-                  <button onClick={() => setEditing(pub.id)}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-amber-950/30 transition-all">
+                  </Button>
+                  <Button variant="admin-icon-edit" onClick={() => setEditing(pub.id)}
+>
                     <Pencil size={14} />
-                  </button>
-                  <button onClick={() => setPubs((prev) => prev.filter((x) => x.id !== pub.id))}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-950/30 transition-all">
+                  </Button>
+                  <Button variant="admin-icon-danger" onClick={() => setPubs((prev) => prev.filter((x) => x.id !== pub.id))}
+>
                     <Trash2 size={14} />
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         ))}
       </div>
     </div>

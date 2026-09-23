@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { Plus, Edit2, Trash2, Save, X, Microscope, ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
 type Topic = {
   id: number;
@@ -62,9 +68,9 @@ export default function AdminResearchUpcoming() {
           <h1 className="font-serif text-3xl text-white mb-1">Upcoming Research</h1>
           <p className="text-slate-400 text-sm">Manage research topics in the pipeline</p>
         </div>
-        <button onClick={startNew} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+        <Button variant="admin-primary" onClick={startNew} className="flex items-center gap-2 px-5 py-2.5">
           <Plus size={15} /> Add Topic
-        </button>
+        </Button>
       </div>
 
       {saved && (
@@ -79,63 +85,63 @@ export default function AdminResearchUpcoming() {
           <h2 className="font-serif text-lg text-white">{isNew ? "Add Research Topic" : "Edit Topic"}</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">Title</label>
-              <input value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })}
+              <Label variant="admin-label" className="mb-1.5">Title</Label>
+              <Input variant="admin-field" value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })}
                 placeholder="Research topic title"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+                className="w-full" />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Research Area</label>
-              <select value={editing.area} onChange={e => setEditing({ ...editing, area: e.target.value })}
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500">
+              <Label variant="admin-label" className="mb-1.5">Research Area</Label>
+              <NativeSelect variant="admin-field" value={editing.area} onChange={e => setEditing({ ...editing, area: e.target.value })}
+                className="w-full">
                 {AREAS.map(a => <option key={a}>{a}</option>)}
-              </select>
+              </NativeSelect>
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Status</label>
-              <select value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value })}
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500">
+              <Label variant="admin-label" className="mb-1.5">Status</Label>
+              <NativeSelect variant="admin-field" value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value })}
+                className="w-full">
                 {STATUSES.map(s => <option key={s}>{s}</option>)}
-              </select>
+              </NativeSelect>
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Expected Year</label>
-              <input value={editing.expectedYear} onChange={e => setEditing({ ...editing, expectedYear: e.target.value })}
+              <Label variant="admin-label" className="mb-1.5">Expected Year</Label>
+              <Input variant="admin-field" value={editing.expectedYear} onChange={e => setEditing({ ...editing, expectedYear: e.target.value })}
                 placeholder="2027"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+                className="w-full" />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">Research Question</label>
-              <textarea rows={2} value={editing.question} onChange={e => setEditing({ ...editing, question: e.target.value })}
+              <Label variant="admin-label" className="mb-1.5">Research Question</Label>
+              <Textarea variant="admin-field" rows={2} value={editing.question} onChange={e => setEditing({ ...editing, question: e.target.value })}
                 placeholder="Core research question…"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none" />
+                className="w-full resize-none" />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Expected Contribution</label>
-              <textarea rows={3} value={editing.contribution} onChange={e => setEditing({ ...editing, contribution: e.target.value })}
+              <Label variant="admin-label" className="mb-1.5">Expected Contribution</Label>
+              <Textarea variant="admin-field" rows={3} value={editing.contribution} onChange={e => setEditing({ ...editing, contribution: e.target.value })}
                 placeholder="What this research will contribute…"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none" />
+                className="w-full resize-none" />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Methodology</label>
-              <textarea rows={3} value={editing.methodology} onChange={e => setEditing({ ...editing, methodology: e.target.value })}
+              <Label variant="admin-label" className="mb-1.5">Methodology</Label>
+              <Textarea variant="admin-field" rows={3} value={editing.methodology} onChange={e => setEditing({ ...editing, methodology: e.target.value })}
                 placeholder="Research methods and approach…"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none" />
+                className="w-full resize-none" />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">Keywords (comma-separated)</label>
-              <input value={editing.keywords} onChange={e => setEditing({ ...editing, keywords: e.target.value })}
+              <Label variant="admin-label" className="mb-1.5">Keywords (comma-separated)</Label>
+              <Input variant="admin-field" value={editing.keywords} onChange={e => setEditing({ ...editing, keywords: e.target.value })}
                 placeholder="Keyword 1, Keyword 2, Keyword 3"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+                className="w-full" />
             </div>
           </div>
           <div className="flex gap-3 pt-1">
-            <button onClick={saveEdit} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+            <Button variant="admin-primary" onClick={saveEdit} className="flex items-center gap-2 px-5 py-2.5">
               <Save size={14} /> Save
-            </button>
-            <button onClick={cancelEdit} className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
+            </Button>
+            <Button variant="admin-outline" onClick={cancelEdit} className="flex items-center gap-2 px-5 py-2.5">
               <X size={14} /> Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -145,7 +151,7 @@ export default function AdminResearchUpcoming() {
         {topics.map(t => {
           const isOpen = expanded === t.id;
           return (
-            <div key={t.id} className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden hover:border-slate-700 transition-all">
+            <Card variant="admin-panel" key={t.id} className="overflow-hidden hover:border-slate-700 transition-all">
               <div className="flex items-start gap-4 p-5">
                 <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Microscope size={15} className="text-violet-400" />
@@ -162,22 +168,22 @@ export default function AdminResearchUpcoming() {
                   {!isOpen && <p className="text-slate-500 text-xs mt-1 line-clamp-1">{t.question}</p>}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button onClick={() => startEdit(t)} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                  <Button variant="admin-ghost" onClick={() => startEdit(t)}>
                     <Edit2 size={13} />
-                  </button>
+                  </Button>
                   {deleteConfirm === t.id ? (
                     <div className="flex gap-1.5">
-                      <button onClick={() => deleteTopic(t.id)} className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700">Confirm</button>
-                      <button onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700">Cancel</button>
+                      <Button variant="admin-danger-sm" onClick={() => deleteTopic(t.id)}>Confirm</Button>
+                      <Button variant="unstyled" onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700">Cancel</Button>
                     </div>
                   ) : (
-                    <button onClick={() => setDeleteConfirm(t.id)} className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all">
+                    <Button variant="admin-ghost-danger" onClick={() => setDeleteConfirm(t.id)}>
                       <Trash2 size={13} />
-                    </button>
+                    </Button>
                   )}
-                  <button onClick={() => setExpanded(isOpen ? null : t.id)} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                  <Button variant="admin-ghost" onClick={() => setExpanded(isOpen ? null : t.id)}>
                     {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  </button>
+                  </Button>
                 </div>
               </div>
               {isOpen && (
@@ -196,7 +202,7 @@ export default function AdminResearchUpcoming() {
                   )}
                 </div>
               )}
-            </div>
+            </Card>
           );
         })}
       </div>

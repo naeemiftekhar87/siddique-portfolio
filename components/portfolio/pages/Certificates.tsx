@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle, Clock, Award } from "lucide-react";
 import { certificates } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const tabs = ["All", "Academic Certificates", "Professional Certificates", "Training", "Awards"];
 
@@ -43,10 +46,10 @@ export default function Certificates() {
               { value: categories, label: "Categories" },
               { value: issuers, label: "Issuing Bodies" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -56,7 +59,7 @@ export default function Certificates() {
       <div className="sticky top-[72px] z-10 bg-white/90 backdrop-blur-md border-b border-blue-100/40 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap gap-2">
           {tabs.map((tab) => (
-            <button
+            <Button variant="unstyled"
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
@@ -66,7 +69,7 @@ export default function Certificates() {
               }`}
             >
               {tab}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -93,9 +96,9 @@ export default function Certificates() {
                   </div>
                 )}
                 <div className="absolute bottom-3 left-3">
-                  <span className="bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-600 px-2.5 py-1 rounded-full border border-slate-100">
+                  <Badge variant="unstyled" className="bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-600 px-2.5 py-1 rounded-full border border-slate-100">
                     {cert.category}
-                  </span>
+                  </Badge>
                 </div>
               </div>
 
@@ -119,14 +122,14 @@ export default function Certificates() {
 
                 <div className="flex flex-wrap gap-1.5">
                   {cert.skills.slice(0, 4).map((s) => (
-                    <span key={s} className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded-md border border-slate-100">
+                    <Badge variant="unstyled" key={s} className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded-md border border-slate-100">
                       {s}
-                    </span>
+                    </Badge>
                   ))}
                   {cert.skills.length > 4 && (
-                    <span className="px-2 py-1 bg-slate-50 text-slate-400 text-xs rounded-md border border-slate-100">
+                    <Badge variant="unstyled" className="px-2 py-1 bg-slate-50 text-slate-400 text-xs rounded-md border border-slate-100">
                       +{cert.skills.length - 4}
-                    </span>
+                    </Badge>
                   )}
                 </div>
               </div>

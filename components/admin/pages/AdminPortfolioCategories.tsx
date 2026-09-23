@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { Save, Plus, Edit2, Trash2, X, FolderOpen, GripVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type Category = {
   id: number;
@@ -66,10 +70,10 @@ export default function AdminPortfolioCategories() {
           </h1>
           <p className="text-slate-400 text-sm">Manage project categories and their display settings</p>
         </div>
-        <button onClick={startNew}
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+        <Button variant="admin-primary" onClick={startNew}
+          className="flex items-center gap-2 px-5 py-2.5">
           <Plus size={15} /> Add Category
-        </button>
+        </Button>
       </div>
 
       {saved && (
@@ -84,50 +88,50 @@ export default function AdminPortfolioCategories() {
           <h2 className="font-serif text-lg text-white">{isNew ? "Add Category" : "Edit Category"}</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Name</label>
-              <input value={editing.name}
+              <Label variant="admin-label" className="mb-1.5">Name</Label>
+              <Input variant="admin-field" value={editing.name}
                 onChange={e => setEditing({ ...editing, name: e.target.value, slug: toSlug(e.target.value) })}
                 placeholder="Sample Category"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+                className="w-full" />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Slug</label>
-              <input value={editing.slug}
+              <Label variant="admin-label" className="mb-1.5">Slug</Label>
+              <Input variant="admin-field" value={editing.slug}
                 onChange={e => setEditing({ ...editing, slug: e.target.value })}
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 font-mono" />
+                className="w-full font-mono" />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">Description</label>
-              <input value={editing.description}
+              <Label variant="admin-label" className="mb-1.5">Description</Label>
+              <Input variant="admin-field" value={editing.description}
                 onChange={e => setEditing({ ...editing, description: e.target.value })}
                 placeholder="Brief description of this category"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500" />
+                className="w-full" />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-2">Colour</label>
+              <Label variant="admin-label" className="mb-2">Colour</Label>
               <div className="flex flex-wrap gap-2">
                 {COLORS.map(c => (
-                  <button key={c} onClick={() => setEditing({ ...editing, color: c })}
+                  <Button variant="unstyled" key={c} onClick={() => setEditing({ ...editing, color: c })}
                     className={`w-8 h-8 rounded-lg border-2 transition-all ${editing.color === c ? "border-white scale-110" : "border-transparent"} ${colorMap[c]}`} />
                 ))}
               </div>
             </div>
           </div>
           <div className="flex gap-3 pt-1">
-            <button onClick={saveEdit}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+            <Button variant="admin-primary" onClick={saveEdit}
+              className="flex items-center gap-2 px-5 py-2.5">
               <Save size={14} /> Save
-            </button>
-            <button onClick={cancelEdit}
-              className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
+            </Button>
+            <Button variant="admin-outline" onClick={cancelEdit}
+              className="flex items-center gap-2 px-5 py-2.5">
               <X size={14} /> Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
       {/* Categories list */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 divide-y divide-slate-800">
+      <Card variant="admin-panel" className="divide-y divide-slate-800">
         {categories.length === 0 && (
           <div className="text-center py-16">
             <FolderOpen size={36} className="text-slate-700 mx-auto mb-3" />
@@ -151,25 +155,25 @@ export default function AdminPortfolioCategories() {
               <p className="text-slate-600 text-xs">projects</p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
-              <button onClick={() => startEdit(cat)}
-                className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+              <Button variant="admin-ghost" onClick={() => startEdit(cat)}
+>
                 <Edit2 size={13} />
-              </button>
+              </Button>
               {deleteConfirm === cat.id ? (
                 <div className="flex gap-1.5">
-                  <button onClick={() => deleteCategory(cat.id)} className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700">Confirm</button>
-                  <button onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700">Cancel</button>
+                  <Button variant="admin-danger-sm" onClick={() => deleteCategory(cat.id)}>Confirm</Button>
+                  <Button variant="unstyled" onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700">Cancel</Button>
                 </div>
               ) : (
-                <button onClick={() => setDeleteConfirm(cat.id)}
-                  className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all">
+                <Button variant="admin-ghost-danger" onClick={() => setDeleteConfirm(cat.id)}
+>
                   <Trash2 size={13} />
-                </button>
+                </Button>
               )}
             </div>
           </div>
         ))}
-      </div>
+      </Card>
     </div>
   );
 }

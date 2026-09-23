@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
 import type { education as initialEdu } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
 type Edu = typeof initialEdu[0];
 
@@ -16,7 +22,7 @@ function EduForm({ initial, onSave, onCancel }: { initial?: Partial<Edu>; onSave
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 mb-4 space-y-4">
+    <Card variant="admin-panel" className="p-6 mb-4 space-y-4">
       <h3 className="font-serif text-lg text-white">{initial?.university ? "Edit Education" : "Add Education"}</h3>
       <div className="grid sm:grid-cols-2 gap-4">
         {([
@@ -28,61 +34,61 @@ function EduForm({ initial, onSave, onCancel }: { initial?: Partial<Edu>; onSave
           ["endDate", "End Date"],
         ] as [keyof Edu, string][]).map(([key, label]) => (
           <div key={key}>
-            <label className="block text-xs text-slate-400 mb-1">{label}</label>
-            <input
+            <Label variant="admin-label" className="mb-1">{label}</Label>
+            <Input variant="admin-field"
               value={(f[key] as string) ?? ""}
               onChange={(e) => set(key, e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+              className="w-full"
             />
           </div>
         ))}
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Status</label>
-          <select
+          <Label variant="admin-label" className="mb-1">Status</Label>
+          <NativeSelect variant="admin-field"
             value={f.status ?? "In Progress"}
             onChange={(e) => set("status", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full"
           >
             <option>In Progress</option>
             <option>Completed</option>
             <option>On Hold</option>
-          </select>
+          </NativeSelect>
         </div>
       </div>
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Description</label>
-        <textarea
+        <Label variant="admin-label" className="mb-1">Description</Label>
+        <Textarea variant="admin-field"
           rows={3}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+          className="w-full resize-none"
         />
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Coursework (comma-separated)</label>
-          <input
+          <Label variant="admin-label" className="mb-1">Coursework (comma-separated)</Label>
+          <Input variant="admin-field"
             value={Array.isArray(f.coursework) ? f.coursework.join(", ") : ""}
             onChange={(e) => set("coursework", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full"
             placeholder="Course 1, Course 2, Course 3"
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Skills Gained (comma-separated)</label>
-          <input
+          <Label variant="admin-label" className="mb-1">Skills Gained (comma-separated)</Label>
+          <Input variant="admin-field"
             value={Array.isArray(f.skills) ? f.skills.join(", ") : ""}
             onChange={(e) => set("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full"
             placeholder="Skill 1, Skill 2"
           />
         </div>
       </div>
       <div className="flex gap-3 pt-2">
-        <button type="button" onClick={() => onSave(f)} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">Save</button>
-        <button type="button" onClick={onCancel} className="px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">Cancel</button>
+        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} className="px-5 py-2.5">Save</Button>
+        <Button variant="admin-secondary" type="button" onClick={onCancel} className="px-5 py-2.5">Cancel</Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -116,23 +122,23 @@ export default function AdminEducation() {
           <h1 className="font-serif text-3xl text-white mb-1">Education Manager</h1>
           <p className="text-slate-400 text-sm">{list.length} education entries</p>
         </div>
-        <button
+        <Button variant="admin-primary"
           onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5"
         >
           <Plus size={16} /> Add Education
-        </button>
+        </Button>
       </div>
 
       {showAdd && <EduForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
 
       <div className="relative max-w-sm mb-6">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-        <input
+        <Input variant="admin-field-dark"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search education..."
-          className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+          className="w-full pl-9 pr-4 py-2.5"
         />
       </div>
 
@@ -144,7 +150,7 @@ export default function AdminEducation() {
           </div>
         )}
         {filtered.map((edu) => (
-          <div key={edu.id} className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+          <Card variant="admin-panel" key={edu.id} className="overflow-hidden">
             {editing === edu.id ? (
               <div className="p-6">
                 <EduForm initial={edu} onSave={(d) => handleEdit(edu.id, d)} onCancel={() => setEditing(null)} />
@@ -167,18 +173,18 @@ export default function AdminEducation() {
                     <span className={`px-2.5 py-1 rounded-full text-xs border font-medium ${edu.status === "In Progress" ? "bg-blue-900/40 text-blue-400 border-blue-800" : "bg-green-900/40 text-green-400 border-green-800"}`}>
                       {edu.status}
                     </span>
-                    <button
+                    <Button variant="admin-icon-edit"
                       onClick={(e) => { e.stopPropagation(); setEditing(edu.id); }}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-amber-950/30 transition-all"
-                    >
+                      
+>
                       <Pencil size={14} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="admin-icon-danger"
                       onClick={(e) => { e.stopPropagation(); setList((prev) => prev.filter((x) => x.id !== edu.id)); }}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-950/30 transition-all"
-                    >
+                      
+>
                       <Trash2 size={14} />
-                    </button>
+                    </Button>
                     {expanded === edu.id ? <ChevronUp size={15} className="text-slate-500" /> : <ChevronDown size={15} className="text-slate-500" />}
                   </div>
                 </div>
@@ -209,7 +215,7 @@ export default function AdminEducation() {
                 )}
               </>
             )}
-          </div>
+          </Card>
         ))}
       </div>
     </div>

@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, ExternalLink, ChevronDown, ChevronUp, Tag } from "lucide-react";
 import type { projects as initialProjects } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
+import { ImageSourceField } from "@/components/admin/image-source-field";
 
 type Project = typeof initialProjects[0];
 
@@ -58,145 +65,140 @@ function ProjectForm({
 
       {/* Basic info */}
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Project Title *</label>
-        <input
+        <Label variant="admin-label" className="mb-1">Project Title *</Label>
+        <Input variant="admin-field"
           value={f.title ?? ""}
           onChange={(e) => set("title", e.target.value)}
           placeholder="e.g. Sample Project Title"
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+          className="w-full"
         />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Category</label>
-          <select
+          <Label variant="admin-label" className="mb-1">Category</Label>
+          <NativeSelect variant="admin-field"
             value={f.category ?? "Sample Category A"}
             onChange={(e) => set("category", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full"
           >
             {categories.map((c) => <option key={c}>{c}</option>)}
-          </select>
+          </NativeSelect>
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Status</label>
-          <select
+          <Label variant="admin-label" className="mb-1">Status</Label>
+          <NativeSelect variant="admin-field"
             value={f.status ?? "Completed"}
             onChange={(e) => set("status", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full"
           >
             {statuses.map((s) => <option key={s}>{s}</option>)}
-          </select>
+          </NativeSelect>
         </div>
       </div>
 
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Short Description</label>
-        <textarea
+        <Label variant="admin-label" className="mb-1">Short Description</Label>
+        <Textarea variant="admin-field"
           rows={2}
           value={f.shortDescription ?? ""}
           onChange={(e) => set("shortDescription", e.target.value)}
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+          className="w-full resize-none"
         />
       </div>
 
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Full Description</label>
-        <textarea
+        <Label variant="admin-label" className="mb-1">Full Description</Label>
+        <Textarea variant="admin-field"
           rows={4}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+          className="w-full resize-none"
         />
       </div>
 
       {/* Cover image */}
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Cover Image URL</label>
-        <input
-          value={f.image ?? ""}
-          onChange={(e) => set("image", e.target.value)}
-          placeholder="https://..."
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 font-mono"
-        />
+        <Label variant="admin-label" className="mb-1">Cover Image</Label>
+        <ImageSourceField value={f.image ?? ""} onChange={(v) => set("image", v)} showPreview />
       </div>
 
       {/* Research detail fields */}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Problem Statement</label>
-          <textarea
+          <Label variant="admin-label" className="mb-1">Problem Statement</Label>
+          <Textarea variant="admin-field"
             rows={2}
             value={f.problem ?? ""}
             onChange={(e) => set("problem", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+            className="w-full resize-none"
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Objective</label>
-          <textarea
+          <Label variant="admin-label" className="mb-1">Objective</Label>
+          <Textarea variant="admin-field"
             rows={2}
             value={f.objective ?? ""}
             onChange={(e) => set("objective", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+            className="w-full resize-none"
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Methodology</label>
-          <textarea
+          <Label variant="admin-label" className="mb-1">Methodology</Label>
+          <Textarea variant="admin-field"
             rows={2}
             value={f.methodology ?? ""}
             onChange={(e) => set("methodology", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+            className="w-full resize-none"
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Results / Outcomes</label>
-          <textarea
+          <Label variant="admin-label" className="mb-1">Results / Outcomes</Label>
+          <Textarea variant="admin-field"
             rows={2}
             value={f.results ?? ""}
             onChange={(e) => set("results", e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+            className="w-full resize-none"
           />
         </div>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Technologies (comma-separated)</label>
-          <input
+          <Label variant="admin-label" className="mb-1">Technologies (comma-separated)</Label>
+          <Input variant="admin-field"
             value={Array.isArray(f.technologies) ? f.technologies.join(", ") : ""}
             onChange={(e) => set("technologies", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
             placeholder="Tool 1, Tool 2, Tool 3"
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full"
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Tools (comma-separated)</label>
-          <input
+          <Label variant="admin-label" className="mb-1">Tools (comma-separated)</Label>
+          <Input variant="admin-field"
             value={Array.isArray(f.tools) ? f.tools.join(", ") : ""}
             onChange={(e) => set("tools", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
             placeholder="VS Code, Jupyter, dbt"
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full"
           />
         </div>
       </div>
 
       <div className="flex gap-3 pt-2">
-        <button
+        <Button variant="admin-primary"
           type="button"
           onClick={() => onSave(f)}
-          className="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          className="px-5 py-2.5"
         >
           Save Project
-        </button>
-        <button
+        </Button>
+        <Button variant="admin-secondary"
           type="button"
           onClick={onCancel}
-          className="px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors"
+          className="px-5 py-2.5"
         >
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -241,12 +243,12 @@ export default function AdminProjects() {
           <h1 className="font-serif text-3xl text-white mb-1">Portfolio Projects</h1>
           <p className="text-slate-400 text-sm">{projects.length} projects</p>
         </div>
-        <button
+        <Button variant="admin-primary"
           onClick={() => { setShowAdd((v) => !v); setEditing(null); }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5"
         >
           <Plus size={16} /> Add Project
-        </button>
+        </Button>
       </div>
 
       {showAdd && <ProjectForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
@@ -255,33 +257,33 @@ export default function AdminProjects() {
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative max-w-xs flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input
+          <Input variant="admin-field-dark"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search projects..."
-            className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full pl-9 pr-4 py-2.5"
           />
         </div>
         <div className="flex flex-wrap gap-2">
           {["All", ...allCats].map((c) => (
-            <button
+            <Button variant="unstyled"
               key={c}
               onClick={() => setCatFilter(c)}
               className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${catFilter === c ? "bg-blue-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"}`}
             >
               {c}
-            </button>
+            </Button>
           ))}
         </div>
         <div className="flex flex-wrap gap-2">
           {["All", ...statuses].map((s) => (
-            <button
+            <Button variant="unstyled"
               key={s}
               onClick={() => setStatusFilter(s)}
               className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${statusFilter === s ? "bg-teal-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"}`}
             >
               {s}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -294,7 +296,7 @@ export default function AdminProjects() {
           const catStyle = categoryColors[project.category] ?? "bg-slate-800 text-slate-400";
 
           return (
-            <div key={project.id} className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+            <Card variant="admin-panel" key={project.id} className="overflow-hidden">
               {editing === project.id ? (
                 <div className="p-6">
                   <ProjectForm
@@ -344,25 +346,25 @@ export default function AdminProjects() {
                     </div>
 
                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <button
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-blue-950/30 transition-all"
+                      <Button variant="admin-icon-info"
+                        
                         title="View live"
                         onClick={(e) => e.stopPropagation()}
-                      >
+>
                         <ExternalLink size={14} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button variant="admin-icon-edit"
                         onClick={(e) => { e.stopPropagation(); setEditing(project.id); setExpanded(null); }}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-amber-950/30 transition-all"
-                      >
+                        
+>
                         <Pencil size={14} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button variant="admin-icon-danger"
                         onClick={(e) => { e.stopPropagation(); setProjects((prev) => prev.filter((x) => x.id !== project.id)); }}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-950/30 transition-all"
-                      >
+                        
+>
                         <Trash2 size={14} />
-                      </button>
+                      </Button>
                       <div className="text-slate-600 ml-1">
                         {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                       </div>
@@ -398,7 +400,7 @@ export default function AdminProjects() {
                   )}
                 </>
               )}
-            </div>
+            </Card>
           );
         })}
       </div>

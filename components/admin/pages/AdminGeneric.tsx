@@ -2,6 +2,7 @@
 
 import { Construction } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function AdminGeneric() {
   const pathname = usePathname();
@@ -17,12 +18,12 @@ export default function AdminGeneric() {
         This CMS module is ready for content management. Connect it to your data layer to manage content, add entries, upload media, and publish changes to the live website.
       </p>
       <div className="flex justify-center gap-3">
-        <button className="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+        <Button variant="admin-primary" className="px-5 py-2.5">
           + Add New
-        </button>
-        <button className="px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
+        </Button>
+        <Button variant="admin-outline" className="px-5 py-2.5">
           Import
-        </button>
+        </Button>
       </div>
     </div>
   );

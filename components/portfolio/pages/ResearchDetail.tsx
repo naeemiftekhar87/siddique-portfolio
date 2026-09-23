@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft, Download, ExternalLink, Copy, BookOpen, Users, Calendar, Hash, ArrowRight } from "lucide-react";
 import { researchPapers, profile } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   Published:      { label: "Published",      color: "bg-green-50 text-green-700 border-green-200" },
@@ -29,10 +32,10 @@ export default function ResearchDetail({ id }: { id: string }) {
             <ArrowLeft size={14} /> Research
           </Link>
           <div className="flex flex-wrap items-center gap-3 mb-5">
-            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${status.color}`}>
+            <Badge variant="unstyled" className={`px-3 py-1 rounded-full text-xs font-medium border ${status.color}`}>
               {status.label}
-            </span>
-            <span className="text-slate-400 text-xs px-3 py-1 bg-white/10 rounded-full">{paper.area}</span>
+            </Badge>
+            <Badge variant="unstyled" className="text-slate-400 text-xs px-3 py-1 bg-white/10 rounded-full">{paper.area}</Badge>
             <span className="text-slate-400 text-xs font-mono">{paper.year}</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl text-white leading-snug mb-6">{paper.title}</h1>
@@ -89,27 +92,27 @@ export default function ResearchDetail({ id }: { id: string }) {
             {paper.doi && (
               <div>
                 <h2 className="font-serif text-xl text-[#040d1f] mb-4">Digital Object Identifier</h2>
-                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <Card variant="site-panel" className="flex items-center gap-3 p-4">
                   <code className="text-slate-800 text-sm font-mono flex-1">{paper.doi}</code>
-                  <button className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 transition-colors px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-cyan-300">
+                  <Button variant="unstyled" className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 transition-colors px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-cyan-300">
                     <Copy size={12} /> Copy
-                  </button>
-                </div>
+                  </Button>
+                </Card>
               </div>
             )}
 
             {/* Citation format */}
             <div>
               <h2 className="font-serif text-xl text-[#040d1f] mb-4">How to Cite</h2>
-              <div className="bg-slate-50 rounded-2xl border border-slate-100 p-5">
+              <Card variant="site-panel" className="p-5">
                 <p className="text-sm text-slate-600 font-mono leading-relaxed">
                   {paper.authors.join(", ")} ({paper.year}). {paper.title}. <em>{paper.journal}</em>
                   {paper.doi ? `. https://doi.org/${paper.doi}` : "."}
                 </p>
-                <button className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 mt-3 transition-colors">
+                <Button variant="unstyled" className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 mt-3 transition-colors">
                   <Copy size={11} /> Copy APA citation
-                </button>
-              </div>
+                </Button>
+              </Card>
             </div>
           </div>
 
@@ -117,16 +120,16 @@ export default function ResearchDetail({ id }: { id: string }) {
           <div className="space-y-5">
             {/* Actions */}
             <div className="space-y-2.5">
-              <button className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+              <Button variant="site-primary" className="w-full flex items-center justify-center gap-2 py-3 text-sm transition-colors shadow-sm">
                 <ExternalLink size={15} /> Read Full Paper
-              </button>
-              <button className="w-full flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-xl hover:border-cyan-300 hover:text-blue-600 transition-colors">
+              </Button>
+              <Button variant="site-outline" className="w-full flex items-center justify-center gap-2 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
                 <Download size={15} /> Download PDF
-              </button>
+              </Button>
             </div>
 
             {/* Details card */}
-            <div className="bg-slate-50 rounded-2xl border border-slate-100 p-5 space-y-3">
+            <Card variant="site-panel" className="p-5 space-y-3">
               <h4 className="text-xs text-slate-400 uppercase tracking-wider">Publication Details</h4>
               {[
                 { label: "Journal", value: paper.journal },
@@ -139,7 +142,7 @@ export default function ResearchDetail({ id }: { id: string }) {
                   <span className="text-sm text-slate-700 font-medium">{value}</span>
                 </div>
               ))}
-            </div>
+            </Card>
 
             {/* Scholar link */}
             <a
@@ -174,7 +177,7 @@ export default function ResearchDetail({ id }: { id: string }) {
                     className="group bg-slate-50 rounded-2xl border border-slate-100 p-5 hover:border-blue-200 hover:shadow-sm transition-all"
                   >
                     <div className="flex items-center gap-2 mb-3">
-                      <span className={`text-xs px-2.5 py-0.5 rounded-full border font-medium ${pStatus.color}`}>{pStatus.label}</span>
+                      <Badge variant="unstyled" className={`text-xs px-2.5 py-0.5 rounded-full border font-medium ${pStatus.color}`}>{pStatus.label}</Badge>
                       <span className="text-xs text-slate-400 font-mono">{p.year}</span>
                     </div>
                     <h4 className="font-serif text-base text-[#040d1f] group-hover:text-blue-600 transition-colors leading-snug mb-2">{p.title}</h4>

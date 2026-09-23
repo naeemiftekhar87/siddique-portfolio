@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { Save, Home, Type, ArrowRight, Image as ImageIcon, User } from "lucide-react";
 import { emptyProfile as profile } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ImageSourceField } from "@/components/admin/image-source-field";
 
 export default function AdminWebsiteHome() {
   const [hero, setHero] = useState({
@@ -52,32 +58,32 @@ export default function AdminWebsiteHome() {
       )}
 
       {/* Hero content */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white flex items-center gap-2">
           <Type size={16} className="text-violet-400" /> Hero Section
         </h2>
 
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Badge Text</label>
-          <input value={hero.badge} onChange={e => setHero({ ...hero, badge: e.target.value })}
+          <Label variant="admin-label" className="mb-1.5">Badge Text</Label>
+          <Input variant="unstyled" value={hero.badge} onChange={e => setHero({ ...hero, badge: e.target.value })}
             placeholder="FIELD ONE • FIELD TWO • FIELD THREE" className={inputClass} />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Main Headline (Name)</label>
-          <input value={hero.headline} onChange={e => setHero({ ...hero, headline: e.target.value })}
+          <Label variant="admin-label" className="mb-1.5">Main Headline (Name)</Label>
+          <Input variant="unstyled" value={hero.headline} onChange={e => setHero({ ...hero, headline: e.target.value })}
             className={inputClass} />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Sub-headline</label>
-          <input value={hero.subheadline} onChange={e => setHero({ ...hero, subheadline: e.target.value })}
+          <Label variant="admin-label" className="mb-1.5">Sub-headline</Label>
+          <Input variant="unstyled" value={hero.subheadline} onChange={e => setHero({ ...hero, subheadline: e.target.value })}
             className={inputClass} />
         </div>
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs text-slate-400">Summary Excerpt</label>
+            <Label variant="unstyled" className="text-xs text-slate-400">Summary Excerpt</Label>
             <span className="text-xs font-mono text-slate-600">{hero.summary.length} / 220 chars</span>
           </div>
-          <textarea rows={3} value={hero.summary} onChange={e => setHero({ ...hero, summary: e.target.value })}
+          <Textarea variant="unstyled" rows={3} value={hero.summary} onChange={e => setHero({ ...hero, summary: e.target.value })}
             className={`${inputClass} resize-none`} />
         </div>
 
@@ -89,17 +95,17 @@ export default function AdminWebsiteHome() {
             { key: "cta2Link", label: "Secondary CTA Link" },
           ].map(({ key, label }) => (
             <div key={key}>
-              <label className="block text-xs text-slate-400 mb-1.5">{label}</label>
-              <input value={hero[key as keyof typeof hero] as string}
+              <Label variant="admin-label" className="mb-1.5">{label}</Label>
+              <Input variant="unstyled" value={hero[key as keyof typeof hero] as string}
                 onChange={e => setHero({ ...hero, [key]: e.target.value })}
                 className={key.includes("Link") ? `${inputClass} font-mono` : inputClass} />
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Profile image */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white flex items-center gap-2">
           <ImageIcon size={16} className="text-teal-400" /> Profile Photo
         </h2>
@@ -110,15 +116,14 @@ export default function AdminWebsiteHome() {
           <div className="w-20 h-20 rounded-2xl border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0"><User size={20} className="text-slate-600" /></div>
         )}
           <div className="flex-1">
-            <label className="block text-xs text-slate-400 mb-1.5">Image URL</label>
-            <input value={hero.profileImage} onChange={e => setHero({ ...hero, profileImage: e.target.value })}
-              className={`${inputClass} font-mono`} />
+            <Label variant="admin-label" className="mb-1.5">Photo</Label>
+            <ImageSourceField value={hero.profileImage} onChange={(v) => setHero({ ...hero, profileImage: v })} />
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Section visibility */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+      <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white flex items-center gap-2">
           <ArrowRight size={16} className="text-amber-400" /> Section Visibility
         </h2>
@@ -135,21 +140,21 @@ export default function AdminWebsiteHome() {
                 <p className="text-slate-300 text-sm font-medium">{label}</p>
                 <p className="text-slate-500 text-xs">{desc}</p>
               </div>
-              <button
+              <Button variant="unstyled"
                 onClick={() => setSections(prev => ({ ...prev, [key]: !prev[key as keyof typeof sections] }))}
                 className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0 ${sections[key as keyof typeof sections] ? "bg-blue-600" : "bg-slate-700"}`}
               >
                 <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${sections[key as keyof typeof sections] ? "translate-x-4" : "translate-x-0.5"}`} />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <button onClick={handleSave}
+      <Button variant="unstyled" onClick={handleSave}
         className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
         <Save size={15} /> {saved ? "Saved!" : "Save Home Page"}
-      </button>
+      </Button>
     </div>
   );
 }

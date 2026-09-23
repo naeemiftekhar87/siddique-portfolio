@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { Mail, MapPin, Link2, GitFork, GraduationCap, Send, CheckCircle, MessageSquare } from "lucide-react";
 import { profile } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
@@ -56,7 +61,7 @@ export default function Contact() {
                 </div>
               </a>
 
-              <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100">
+              <Card variant="site-white-card" className="flex items-center gap-4 p-4">
                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0">
                   <MapPin size={18} className="text-slate-500" />
                 </div>
@@ -64,7 +69,7 @@ export default function Contact() {
                   <p className="text-xs text-slate-400 mb-0.5">Location</p>
                   <p className="text-slate-800 text-sm font-medium">{profile.location}</p>
                 </div>
-              </div>
+              </Card>
             </div>
 
             <div className="space-y-3">
@@ -99,57 +104,57 @@ export default function Contact() {
               <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 p-8 space-y-5">
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Your Name *</label>
-                    <input
+                    <Label variant="site-label" className="mb-2">Your Name *</Label>
+                    <Input variant="site-field"
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+                      className="w-full"
                       placeholder="John Doe"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Email Address *</label>
-                    <input
+                    <Label variant="site-label" className="mb-2">Email Address *</Label>
+                    <Input variant="site-field"
                       required
                       type="email"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+                      className="w-full"
                       placeholder="john@example.com"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Subject *</label>
-                  <input
+                  <Label variant="site-label" className="mb-2">Subject *</Label>
+                  <Input variant="site-field"
                     required
                     value={form.subject}
                     onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+                    className="w-full"
                     placeholder="Research Collaboration / Inquiry"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Message *</label>
-                  <textarea
+                  <Label variant="site-label" className="mb-2">Message *</Label>
+                  <Textarea variant="site-field"
                     required
                     rows={6}
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all resize-none"
+                    className="w-full resize-none"
                     placeholder="Write your message..."
                   />
                 </div>
 
-                <button
+                <Button variant="site-primary"
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all shadow-sm hover:shadow-md"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 transition-all shadow-sm hover:shadow-md"
                 >
                   <Send size={16} /> Send Message
-                </button>
+                </Button>
               </form>
             )}
           </div>

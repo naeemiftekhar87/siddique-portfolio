@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { BookOpen, Download, Library } from "lucide-react";
 import { ebooks } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const categories = ["All", "Sample Category A", "Sample Category B", "Sample Category C", "Sample Category D", "Sample Category E"];
 
@@ -38,10 +41,10 @@ export default function EBooks() {
               { value: totalPages.toLocaleString(), label: "Total Pages" },
               { value: new Set(ebooks.map((b) => b.category)).size, label: "Topics Covered" },
             ].map(({ value, label }) => (
-              <div key={label} className="glass-dark rounded-2xl p-4">
+              <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -52,7 +55,7 @@ export default function EBooks() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
-              <button
+              <Button variant="unstyled"
                 key={cat}
                 onClick={() => setActive(cat)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
@@ -62,7 +65,7 @@ export default function EBooks() {
                 }`}
               >
                 {cat}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -87,18 +90,18 @@ export default function EBooks() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
                 <div className="absolute bottom-4 left-4">
-                  <span className="bg-white/90 text-xs font-medium text-slate-700 px-2.5 py-1 rounded-full">
+                  <Badge variant="unstyled" className="bg-white/90 text-xs font-medium text-slate-700 px-2.5 py-1 rounded-full">
                     {book.category}
-                  </span>
+                  </Badge>
                 </div>
                 <div className="absolute top-4 right-4">
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                  <Badge variant="unstyled" className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                     book.price === "Free"
                       ? "bg-green-400 text-white"
                       : "bg-white/90 text-slate-700"
                   }`}>
                     {book.price}
-                  </span>
+                  </Badge>
                 </div>
               </div>
 
@@ -112,12 +115,12 @@ export default function EBooks() {
                 </div>
                 <p className="text-slate-500 text-sm line-clamp-2 flex-1 mb-5">{book.description}</p>
                 <div className="flex gap-2">
-                  <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700 transition-colors">
+                  <Button variant="site-primary" className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs transition-colors">
                     <Download size={13} /> Download
-                  </button>
-                  <button className="px-3 py-2.5 bg-slate-50 border border-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-100 transition-colors">
+                  </Button>
+                  <Button variant="unstyled" className="px-3 py-2.5 bg-slate-50 border border-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-100 transition-colors">
                     Preview
-                  </button>
+                  </Button>
                 </div>
               </div>
             </Link>

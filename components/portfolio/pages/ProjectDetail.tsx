@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft, GitFork, Download, CheckCircle, Tag, Wrench, ArrowRight } from "lucide-react";
 import { projects } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function ProjectDetail({ id }: { id: string }) {
   const project = projects.find((p) => p.id === Number(id));
@@ -25,16 +28,16 @@ export default function ProjectDetail({ id }: { id: string }) {
             <ArrowLeft size={14} /> Portfolio
           </Link>
           <div className="flex flex-wrap items-center gap-3 mb-3">
-            <span className="px-3 py-1 bg-blue-600/80 backdrop-blur-sm text-white text-xs font-medium rounded-full">
+            <Badge variant="unstyled" className="px-3 py-1 bg-blue-600/80 backdrop-blur-sm text-white text-xs font-medium rounded-full">
               {project.category}
-            </span>
-            <span className={`px-3 py-1 text-xs font-medium rounded-full backdrop-blur-sm border ${
+            </Badge>
+            <Badge variant="unstyled" className={`px-3 py-1 text-xs font-medium rounded-full backdrop-blur-sm border ${
               project.status === "Completed"
                 ? "bg-green-900/60 text-green-300 border-green-700/50"
                 : "bg-blue-900/60 text-cyan-300 border-blue-700/50"
             }`}>
               {project.status}
-            </span>
+            </Badge>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl text-white leading-snug">{project.title}</h1>
         </div>
@@ -84,7 +87,7 @@ export default function ProjectDetail({ id }: { id: string }) {
           {/* Sidebar */}
           <div className="space-y-5">
             {/* Status card */}
-            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+            <Card variant="site-panel" className="p-5">
               <h4 className="text-xs text-slate-400 uppercase tracking-wider mb-4">Project Details</h4>
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
@@ -105,16 +108,16 @@ export default function ProjectDetail({ id }: { id: string }) {
                   <span className="text-slate-700 font-mono">{(project.tools?.length ?? 0)} tools</span>
                 </div>
               </div>
-            </div>
+            </Card>
 
             {/* Actions */}
             <div className="space-y-2.5">
-              <button className="w-full flex items-center justify-center gap-2 py-3 bg-[#040d1f] text-white text-sm font-medium rounded-xl hover:bg-blue-900 transition-colors">
+              <Button variant="unstyled" className="w-full flex items-center justify-center gap-2 py-3 bg-[#040d1f] text-white text-sm font-medium rounded-xl hover:bg-blue-900 transition-colors">
                 <GitFork size={15} /> View on GitHub
-              </button>
-              <button className="w-full flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-xl hover:border-cyan-300 hover:text-blue-600 transition-colors">
+              </Button>
+              <Button variant="site-outline" className="w-full flex items-center justify-center gap-2 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
                 <Download size={15} /> Download Report
-              </button>
+              </Button>
             </div>
 
             {/* Key results highlight */}

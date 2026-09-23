@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft, CheckCircle, Clock, Award, ExternalLink, Download, Copy, Tag, ArrowRight } from "lucide-react";
 import { certificates } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function CertificateDetail({ id }: { id: string }) {
   const cert = certificates.find((c) => c.id === Number(id));
@@ -20,11 +23,11 @@ export default function CertificateDetail({ id }: { id: string }) {
           </Link>
           <div className="flex flex-wrap items-center gap-3 mb-5">
             {cert.verified && (
-              <span className="flex items-center gap-1.5 bg-green-900/40 text-green-400 text-xs px-3 py-1 rounded-full border border-green-800/50">
+              <Badge variant="unstyled" className="flex items-center gap-1.5 bg-green-900/40 text-green-400 text-xs px-3 py-1 rounded-full border border-green-800/50">
                 <CheckCircle size={11} /> Verified
-              </span>
+              </Badge>
             )}
-            <span className="text-slate-400 text-xs px-3 py-1 bg-white/10 rounded-full">{cert.category}</span>
+            <Badge variant="unstyled" className="text-slate-400 text-xs px-3 py-1 bg-white/10 rounded-full">{cert.category}</Badge>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl text-white mb-3 leading-snug">{cert.title}</h1>
           <p className="text-cyan-300 font-medium text-lg">{cert.issuer}</p>
@@ -36,23 +39,23 @@ export default function CertificateDetail({ id }: { id: string }) {
         <div className="grid lg:grid-cols-5 gap-12">
           {/* Certificate image */}
           <div className="lg:col-span-3 space-y-4">
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-md">
+            <Card variant="site-white-card" className="overflow-hidden shadow-md">
               <img src={cert.image} alt={cert.title} className="w-full object-cover" />
-            </div>
+            </Card>
             <div className="flex gap-3">
-              <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+              <Button variant="site-primary" className="flex-1 flex items-center justify-center gap-2 py-3 text-sm transition-colors shadow-sm">
                 <Download size={15} /> Download Certificate
-              </button>
-              <button className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-xl hover:border-cyan-300 hover:text-blue-600 transition-colors">
+              </Button>
+              <Button variant="site-outline" className="flex items-center gap-2 px-5 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
                 <ExternalLink size={15} /> Verify
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Details sidebar */}
           <div className="lg:col-span-2 space-y-6">
             {/* Quick stats */}
-            <div className="bg-slate-50 rounded-2xl border border-slate-100 p-5 space-y-3">
+            <Card variant="site-panel" className="p-5 space-y-3">
               <h4 className="text-xs text-slate-400 uppercase tracking-wider mb-4">Certificate Details</h4>
               {[
                 { label: "Completion Date", value: cert.completionDate, icon: <Clock size={13} /> },
@@ -67,7 +70,7 @@ export default function CertificateDetail({ id }: { id: string }) {
                   </div>
                 ) : null
               )}
-            </div>
+            </Card>
 
             {/* Description */}
             <div>
@@ -91,12 +94,12 @@ export default function CertificateDetail({ id }: { id: string }) {
 
             {/* Share / copy credential */}
             {cert.credentialId && (
-              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <Card variant="site-panel" className="flex items-center gap-3 p-4">
                 <code className="text-xs text-slate-600 font-mono flex-1 truncate">{cert.credentialId}</code>
-                <button className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600 transition-colors px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-cyan-300 flex-shrink-0">
+                <Button variant="unstyled" className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600 transition-colors px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-cyan-300 flex-shrink-0">
                   <Copy size={11} /> Copy ID
-                </button>
-              </div>
+                </Button>
+              </Card>
             )}
           </div>
         </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Link2, GitFork, GraduationCap, Mail, ArrowRight } from "lucide-react";
 import { profile } from "@/lib/data";
+import { Button } from "@/components/ui/button";
 
 const exploreLinks = [
   ["About",        "/about"],
@@ -54,10 +55,10 @@ export default function Footer() {
                 <Mail size={15} />
               </a>
             </div>
-            <Link href="/contact"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+            <Button asChild variant="site-primary" className="inline-flex items-center gap-2 px-4 py-2.5 text-sm transition-colors"><Link href="/contact"
+             >
               Get in Touch <ArrowRight size={13} />
-            </Link>
+            </Link></Button>
           </div>
 
           {/* Explore */}

@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Eye, Search, CheckCircle } from "lucide-react";
 import type { certificates as initialCerts } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function AdminCertificates() {
   const [certs, setCerts] = useState<(typeof initialCerts)[number][]>([]);
@@ -39,12 +46,12 @@ export default function AdminCertificates() {
           <h1 className="font-serif text-3xl text-white mb-1">Certificates</h1>
           <p className="text-slate-400 text-sm">{certs.length} total certificates</p>
         </div>
-        <button
+        <Button variant="admin-primary"
           onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5"
         >
           <Plus size={16} /> Add Certificate
-        </button>
+        </Button>
       </div>
 
       {/* Add form */}
@@ -61,49 +68,49 @@ export default function AdminCertificates() {
               ["credentialId", "Credential ID", "text"],
             ].map(([key, label, type]) => (
               <div key={key}>
-                <label className="block text-sm text-slate-400 mb-1">{label}</label>
-                <input
+                <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">{label}</Label>
+                <Input variant="admin-field"
                   type={type}
                   value={form[key as keyof typeof form]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full"
                 />
               </div>
             ))}
           </div>
           <div>
-            <label className="block text-sm text-slate-400 mb-1">Category</label>
-            <select
+            <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">Category</Label>
+            <NativeSelect variant="admin-field"
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+              className="w-full"
             >
               {["Academic Certificates", "Professional Certificates", "Training", "Awards"].map((c) => (
                 <option key={c}>{c}</option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
           <div>
-            <label className="block text-sm text-slate-400 mb-1">Skills (comma-separated)</label>
-            <input
+            <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">Skills (comma-separated)</Label>
+            <Input variant="admin-field"
               value={form.skills}
               onChange={(e) => setForm({ ...form, skills: e.target.value })}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+              className="w-full"
               placeholder="Skill 1, Skill 2, Skill 3"
             />
           </div>
           <div>
-            <label className="block text-sm text-slate-400 mb-1">Description</label>
-            <textarea
+            <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">Description</Label>
+            <Textarea variant="admin-field"
               rows={3}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full resize-none"
             />
           </div>
           <div className="flex gap-3">
-            <button type="submit" className="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">Save Certificate</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">Cancel</button>
+            <Button variant="admin-primary" type="submit" className="px-5 py-2.5">Save Certificate</Button>
+            <Button variant="admin-secondary" type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5">Cancel</Button>
           </div>
         </form>
       )}
@@ -111,37 +118,37 @@ export default function AdminCertificates() {
       {/* Search */}
       <div className="relative max-w-sm mb-6">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-        <input
+        <Input variant="admin-field-dark"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search certificates..."
-          className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+          className="w-full pl-9 pr-4 py-2.5"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-slate-800">
-              <th className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Certificate</th>
-              <th className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Issuer</th>
-              <th className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden md:table-cell">Category</th>
-              <th className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Date</th>
-              <th className="text-right px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800">
+      <Card variant="admin-panel" className="overflow-hidden">
+        <Table variant="unstyled" className="w-full">
+          <TableHeader variant="unstyled">
+            <TableRow variant="unstyled" className="border-b border-slate-800">
+              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Certificate</TableHead>
+              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Issuer</TableHead>
+              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden md:table-cell">Category</TableHead>
+              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Date</TableHead>
+              <TableHead variant="unstyled" className="text-right px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody variant="unstyled" className="divide-y divide-slate-800">
             {filtered.length === 0 && (
-              <tr>
-                <td colSpan={6} className="text-center py-16 text-slate-500 text-sm">
+              <TableRow variant="unstyled">
+                <TableCell variant="unstyled" colSpan={6} className="text-center py-16 text-slate-500 text-sm">
                   {certs.length === 0 ? "No certificates yet." : "No certificates match your filters."}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
             {filtered.map((cert) => (
-              <tr key={cert.id} className="hover:bg-slate-800/50 transition-colors">
-                <td className="px-5 py-4">
+              <TableRow variant="unstyled" key={cert.id} className="hover:bg-slate-800/50 transition-colors">
+                <TableCell variant="unstyled" className="px-5 py-4">
                   <div className="flex items-center gap-3">
                     <img src={cert.image} alt={cert.title} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
                     <div>
@@ -153,31 +160,31 @@ export default function AdminCertificates() {
                       )}
                     </div>
                   </div>
-                </td>
-                <td className="px-5 py-4 text-slate-400 text-sm">{cert.issuer}</td>
-                <td className="px-5 py-4 text-slate-500 text-xs hidden md:table-cell">{cert.category}</td>
-                <td className="px-5 py-4 text-slate-500 text-xs font-mono hidden lg:table-cell">{cert.completionDate}</td>
-                <td className="px-5 py-4">
+                </TableCell>
+                <TableCell variant="unstyled" className="px-5 py-4 text-slate-400 text-sm">{cert.issuer}</TableCell>
+                <TableCell variant="unstyled" className="px-5 py-4 text-slate-500 text-xs hidden md:table-cell">{cert.category}</TableCell>
+                <TableCell variant="unstyled" className="px-5 py-4 text-slate-500 text-xs font-mono hidden lg:table-cell">{cert.completionDate}</TableCell>
+                <TableCell variant="unstyled" className="px-5 py-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-1.5 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-blue-950/30 transition-all">
+                    <Button variant="admin-icon-info">
                       <Eye size={14} />
-                    </button>
-                    <button className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-amber-950/30 transition-all">
+                    </Button>
+                    <Button variant="admin-icon-edit">
                       <Pencil size={14} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="admin-icon-danger"
                       onClick={() => setCerts((prev) => prev.filter((c) => c.id !== cert.id))}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-950/30 transition-all"
-                    >
+                      
+>
                       <Trash2 size={14} />
-                    </button>
+                    </Button>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }

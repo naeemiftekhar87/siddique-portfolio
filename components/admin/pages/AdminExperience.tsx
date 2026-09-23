@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, Calendar, Briefcase } from "lucide-react";
 import type { experiences as initialExps } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 type Exp = typeof initialExps[0];
 
@@ -30,55 +35,55 @@ function ExpForm({
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 mb-6 space-y-4">
+    <Card variant="admin-panel" className="p-6 mb-6 space-y-4">
       <h3 className="font-serif text-lg text-white">{initial?.company ? "Edit Experience" : "Add Experience"}</h3>
       <div className="grid sm:grid-cols-2 gap-4">
         {([["position", "Job Title *"], ["company", "Company *"], ["type", "Employment Type"], ["location", "Location"], ["startDate", "Start Date"], ["endDate", "End Date"]] as [keyof Exp, string][]).map(([key, label]) => (
           <div key={key}>
-            <label className="block text-xs text-slate-400 mb-1">{label}</label>
-            <input
+            <Label variant="admin-label" className="mb-1">{label}</Label>
+            <Input variant="admin-field"
               value={(f[key] as string) ?? ""}
               onChange={(e) => set(key, e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+              className="w-full"
             />
           </div>
         ))}
       </div>
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Description</label>
-        <textarea
+        <Label variant="admin-label" className="mb-1">Description</Label>
+        <Textarea variant="admin-field"
           rows={3}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none"
+          className="w-full resize-none"
         />
       </div>
       <div>
-        <label className="block text-xs text-slate-400 mb-1">Skills (comma-separated)</label>
-        <input
+        <Label variant="admin-label" className="mb-1">Skills (comma-separated)</Label>
+        <Input variant="admin-field"
           value={Array.isArray(f.skills) ? f.skills.join(", ") : ""}
           onChange={(e) => set("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-          className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+          className="w-full"
           placeholder="Skill 1, Skill 2, Skill 3"
         />
       </div>
       <div className="flex gap-3">
-        <button
+        <Button variant="admin-primary"
           type="button"
           onClick={() => onSave(f)}
-          className="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          className="px-5 py-2.5"
         >
           Save
-        </button>
-        <button
+        </Button>
+        <Button variant="admin-secondary"
           type="button"
           onClick={onCancel}
-          className="px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors"
+          className="px-5 py-2.5"
         >
           Cancel
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -112,23 +117,23 @@ export default function AdminExperience() {
           <h1 className="font-serif text-3xl text-white mb-1">Experience Manager</h1>
           <p className="text-slate-400 text-sm">{exps.length} experience entries</p>
         </div>
-        <button
+        <Button variant="admin-primary"
           onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5"
         >
           <Plus size={16} /> Add Experience
-        </button>
+        </Button>
       </div>
 
       {showAdd && <ExpForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
 
       <div className="relative max-w-sm mb-6">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-        <input
+        <Input variant="admin-field-dark"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search experience..."
-          className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+          className="w-full pl-9 pr-4 py-2.5"
         />
       </div>
 
@@ -140,7 +145,7 @@ export default function AdminExperience() {
           </div>
         )}
         {filtered.map((exp) => (
-          <div key={exp.id} className="bg-slate-900 rounded-2xl border border-slate-800">
+          <Card variant="admin-panel" key={exp.id}>
             {editing === exp.id ? (
               <div className="p-6">
                 <ExpForm
@@ -164,18 +169,18 @@ export default function AdminExperience() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
+                    <Button variant="admin-icon-edit"
                       onClick={(e) => { e.stopPropagation(); setEditing(exp.id); }}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-amber-950/30 transition-all"
-                    >
+                      
+>
                       <Pencil size={14} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="admin-icon-danger"
                       onClick={(e) => { e.stopPropagation(); setExps((prev) => prev.filter((x) => x.id !== exp.id)); }}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-950/30 transition-all"
-                    >
+                      
+>
                       <Trash2 size={14} />
-                    </button>
+                    </Button>
                     {expanded === exp.id ? <ChevronUp size={15} className="text-slate-500" /> : <ChevronDown size={15} className="text-slate-500" />}
                   </div>
                 </div>
@@ -191,7 +196,7 @@ export default function AdminExperience() {
                 )}
               </>
             )}
-          </div>
+          </Card>
         ))}
       </div>
     </div>

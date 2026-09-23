@@ -10,6 +10,8 @@ import {
   MapPin,
 } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 export default function About() {
   const currentRole = experiences[0];
@@ -87,13 +89,13 @@ export default function About() {
               { value: profile.stats.publications, label: "Publications" },
               { value: profile.stats.skills, label: "Skills" },
             ].map(({ value, label }) => (
-              <div
+              <Card variant="site-glass-dark"
                 key={label}
-                className="glass-dark rounded-2xl p-4 text-center"
+                className="p-4 text-center"
               >
                 <div className="font-serif text-2xl text-white">{value}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -134,9 +136,9 @@ export default function About() {
               </p>
               <div className="space-y-3">
                 {education.map((edu) => (
-                  <div
+                  <Card variant="site-panel"
                     key={edu.id}
-                    className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100"
+                    className="flex items-start gap-4 p-4"
                   >
                     <div
                       className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.status === "In Progress" ? "bg-blue-100" : "bg-teal-100"}`}
@@ -158,12 +160,12 @@ export default function About() {
                         {edu.university} · {edu.startDate}–{edu.endDate}
                       </p>
                     </div>
-                    <span
+                    <Badge variant="unstyled"
                       className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 border ${edu.status === "In Progress" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-green-50 text-green-600 border-green-100"}`}
                     >
                       {edu.status}
-                    </span>
-                  </div>
+                    </Badge>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -173,7 +175,7 @@ export default function About() {
                 <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
                   Current Role
                 </h2>
-                <div className="glass-card rounded-2xl p-6 hover:shadow-md transition-all">
+                <Card variant="site-glass-card" className="p-6 hover:shadow-md transition-all">
                   <div className="flex items-start gap-4">
                     <img
                       src={currentRole.logo}
@@ -202,14 +204,14 @@ export default function About() {
                   >
                     Full experience history <ArrowRight size={14} />
                   </Link>
-                </div>
+                </Card>
               </div>
             )}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+            <Card variant="site-panel" className="p-6">
               <h3 className="font-serif text-lg text-[#040d1f] mb-4 flex items-center gap-2">
                 <BookOpen size={16} className="text-blue-500" /> Research
                 Interests
@@ -230,9 +232,9 @@ export default function About() {
               >
                 View research papers <ArrowRight size={11} />
               </Link>
-            </div>
+            </Card>
 
-            <div className="glass-card rounded-2xl p-6">
+            <Card variant="site-glass-card" className="p-6">
               <h3 className="font-serif text-lg text-[#040d1f] mb-4">
                 At a Glance
               </h3>
@@ -256,7 +258,7 @@ export default function About() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
 
             <div className="grid grid-cols-2 gap-3">
               {[

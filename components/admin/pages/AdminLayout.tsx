@@ -9,6 +9,7 @@ import {
   Library, Image,
   Search, Bell, LogOut
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type NavItem = {
   label: string;
@@ -101,7 +102,7 @@ function NavGroup({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
 
   return (
     <div>
-      <button
+      <Button variant="unstyled"
         onClick={() => setOpen((v) => !v)}
         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
           isChildActive ? "text-white" : "text-slate-400 hover:text-white hover:bg-slate-800"
@@ -114,7 +115,7 @@ function NavGroup({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
             {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </>
         )}
-      </button>
+      </Button>
       {open && !collapsed && (
         <div className="ml-8 mt-1 space-y-1">
           {item.children?.map((child) => {
@@ -171,10 +172,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Globe size={16} />
             {sidebarOpen && <span>View Website</span>}
           </Link>
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-all">
+          <Button variant="unstyled" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-all">
             <LogOut size={16} />
             {sidebarOpen && <span>Sign Out</span>}
-          </button>
+          </Button>
         </div>
       </aside>
 
@@ -182,16 +183,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
         <header className="h-16 bg-slate-950 border-b border-slate-800 flex items-center justify-between px-6 flex-shrink-0">
-          <button
+          <Button variant="unstyled"
             onClick={() => setSidebarOpen((v) => !v)}
             className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
           >
             <Menu size={18} />
-          </button>
+          </Button>
           <div className="flex items-center gap-3">
-            <button className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
+            <Button variant="unstyled" className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
               <Bell size={18} />
-            </button>
+            </Button>
             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
               A
             </div>

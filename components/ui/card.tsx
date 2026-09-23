@@ -1,11 +1,36 @@
 import * as React from "react"
 import { cn } from "cn"
 
+// Design variants: exact classes from the ported design (padding via className).
+const cardDesignVariants = {
+  "admin-panel": "bg-slate-900 rounded-2xl border border-slate-800",
+  "site-glass-card": "glass-card rounded-2xl",
+  "site-glass-dark": "glass-dark rounded-2xl",
+  "site-panel": "bg-slate-50 rounded-2xl border border-slate-100",
+  "site-white-card": "bg-white rounded-2xl border border-slate-100",
+  /** No preset styles: pass the full design via className. */
+  unstyled: "",
+} as const
+
 function Card({
   className,
   size = "default",
+  variant = "default",
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> & {
+  size?: "default" | "sm"
+  variant?: "default" | keyof typeof cardDesignVariants
+}) {
+  if (variant !== "default") {
+    return (
+      <div
+        data-slot="card"
+        data-design=""
+        className={variant === "unstyled" ? className : cn(cardDesignVariants[variant], className)}
+        {...props}
+      />
+    )
+  }
   return (
     <div
       data-slot="card"

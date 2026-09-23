@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { Plus, Edit2, Trash2, Save, X, FileText, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
 type WorkingPaper = {
   id: number;
@@ -57,8 +63,8 @@ export default function AdminResearchWorking() {
 
   const field = (key: keyof WorkingPaper, label: string, opts?: { placeholder?: string; mono?: boolean; wide?: boolean }) => (
     <div key={key} className={opts?.wide ? "sm:col-span-2" : ""}>
-      <label className="block text-xs text-slate-400 mb-1.5">{label}</label>
-      <input
+      <Label variant="admin-label" className="mb-1.5">{label}</Label>
+      <Input variant="unstyled"
         value={editing![key] as string}
         onChange={e => setEditing({ ...editing!, [key]: e.target.value })}
         placeholder={opts?.placeholder}
@@ -74,9 +80,9 @@ export default function AdminResearchWorking() {
           <h1 className="font-serif text-3xl text-white mb-1">Working Papers</h1>
           <p className="text-slate-400 text-sm">Manage papers in progress, under review, or awaiting submission</p>
         </div>
-        <button onClick={startNew} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+        <Button variant="admin-primary" onClick={startNew} className="flex items-center gap-2 px-5 py-2.5">
           <Plus size={15} /> Add Paper
-        </button>
+        </Button>
       </div>
 
       {saved && (
@@ -93,18 +99,18 @@ export default function AdminResearchWorking() {
             {field("title", "Title", { placeholder: "Paper title", wide: true })}
             {field("authors", "Authors", { placeholder: "Author names, comma-separated", wide: true })}
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">Abstract</label>
-              <textarea rows={4} value={editing.abstract} onChange={e => setEditing({ ...editing, abstract: e.target.value })}
+              <Label variant="admin-label" className="mb-1.5">Abstract</Label>
+              <Textarea variant="admin-field" rows={4} value={editing.abstract} onChange={e => setEditing({ ...editing, abstract: e.target.value })}
                 placeholder="Brief abstract…"
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 resize-none" />
+                className="w-full resize-none" />
             </div>
             {field("keywords", "Keywords (comma-separated)", { placeholder: "Keyword 1, Keyword 2, Keyword 3", wide: true })}
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Status</label>
-              <select value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value })}
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500">
+              <Label variant="admin-label" className="mb-1.5">Status</Label>
+              <NativeSelect variant="admin-field" value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value })}
+                className="w-full">
                 {STATUSES.map(s => <option key={s}>{s}</option>)}
-              </select>
+              </NativeSelect>
             </div>
             {field("version", "Version", { placeholder: "v0.1", mono: true })}
             {field("targetJournal", "Target Journal", { placeholder: "Journal name", wide: true })}
@@ -112,12 +118,12 @@ export default function AdminResearchWorking() {
             {field("ssrnUrl", "SSRN / Preprint URL", { placeholder: "https://ssrn.com/...", mono: true })}
           </div>
           <div className="flex gap-3 pt-1">
-            <button onClick={saveEdit} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+            <Button variant="admin-primary" onClick={saveEdit} className="flex items-center gap-2 px-5 py-2.5">
               <Save size={14} /> Save
-            </button>
-            <button onClick={cancelEdit} className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
+            </Button>
+            <Button variant="admin-outline" onClick={cancelEdit} className="flex items-center gap-2 px-5 py-2.5">
               <X size={14} /> Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -125,7 +131,7 @@ export default function AdminResearchWorking() {
       {/* Papers list */}
       <div className="space-y-4">
         {papers.map(p => (
-          <div key={p.id} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 hover:border-slate-700 transition-all">
+          <Card variant="admin-panel" key={p.id} className="p-6 hover:border-slate-700 transition-all">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-1 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -161,22 +167,22 @@ export default function AdminResearchWorking() {
                 </div>
               </div>
               <div className="flex gap-2 flex-shrink-0">
-                <button onClick={() => startEdit(p)} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                <Button variant="admin-ghost" onClick={() => startEdit(p)}>
                   <Edit2 size={14} />
-                </button>
+                </Button>
                 {deleteConfirm === p.id ? (
                   <div className="flex gap-1.5">
-                    <button onClick={() => deletePaper(p.id)} className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700">Confirm</button>
-                    <button onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700">Cancel</button>
+                    <Button variant="admin-danger-sm" onClick={() => deletePaper(p.id)}>Confirm</Button>
+                    <Button variant="unstyled" onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700">Cancel</Button>
                   </div>
                 ) : (
-                  <button onClick={() => setDeleteConfirm(p.id)} className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all">
+                  <Button variant="admin-ghost-danger" onClick={() => setDeleteConfirm(p.id)}>
                     <Trash2 size={14} />
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
