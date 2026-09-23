@@ -27,32 +27,7 @@ const statusColors: Record<string, string> = {
   Accepted:               "bg-green-900/40 text-green-400 border-green-800",
 };
 
-const initialPapers: WorkingPaper[] = [
-  {
-    id: 1,
-    title: "Example Working Paper Title 1",
-    authors: "Your Name",
-    abstract: "Placeholder abstract for a working paper. Replace it with the research question, method, and expected findings.",
-    keywords: "Keyword 1, Keyword 2, Keyword 3",
-    status: "Under Internal Review",
-    targetJournal: "Sample Journal Name",
-    submissionDate: "",
-    version: "v0.3",
-    ssrnUrl: "",
-  },
-  {
-    id: 2,
-    title: "Example Working Paper Title 2",
-    authors: "Your Name",
-    abstract: "Placeholder abstract for a working paper. Replace it with the research question, method, and expected findings.",
-    keywords: "Keyword 1, Keyword 2, Keyword 3",
-    status: "Draft",
-    targetJournal: "Sample Journal Name",
-    submissionDate: "",
-    version: "v0.1",
-    ssrnUrl: "",
-  },
-];
+const initialPapers: WorkingPaper[] = [];
 
 const emptyPaper: Omit<WorkingPaper, "id"> = {
   title: "", authors: "", abstract: "", keywords: "", status: "Draft",

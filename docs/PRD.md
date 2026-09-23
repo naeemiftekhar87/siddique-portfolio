@@ -18,7 +18,7 @@
 A personal website for an academic-professional that presents their career, research, portfolio, certificates, eBooks, and resume in one polished place. It has two parts:
 
 1. **Public Website** – a visitor-facing site (Home, About, Experience, Education, Skills, Achievements, Certificates, Portfolio, Research, Publications, eBooks, Resume Center, Contact).
-2. **Admin Panel** – a secure back office where the owner manages every piece of content, the resume/CV output, site appearance, SEO, media, and messages without touching code.
+2. **Admin Panel** – a secure back office where the owner manages every piece of content, the resume/CV output, site appearance, media, and messages without touching code.
 
 ### 1.2 Problem Statement
 
@@ -26,7 +26,7 @@ Academics and professionals keep their information scattered across LinkedIn, Go
 
 ### 1.3 Product Vision
 
-A single source of truth: the owner enters data once in the admin panel, and it appears consistently across the website, resume variants (Professional, Academic, Research, Infographic), and SEO metadata.
+A single source of truth: the owner enters data once in the admin panel, and it appears consistently across the website, resume variants (Professional and Infographic).
 
 ### 1.4 Goals
 
@@ -54,7 +54,7 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 | **Site Owner (Admin)**               | The academic/professional who owns the site | Fast content updates, resume generation, message inbox              |
 | **Recruiter / Hiring Manager**       | Evaluates the owner's fit for a role        | Quick view of experience, skills, certificates, downloadable resume |
 | **Researcher / Collaborator**        | Looks for research alignment                | Publications, DOI links, interests, upcoming topics, contact        |
-| **Academic Committee / Institution** | Reviews credentials                         | Education, achievements, verified certificates, academic CV         |
+| **Academic Committee / Institution** | Reviews credentials                         | Education, achievements, verified certificates, resume              |
 | **Reader / Student**                 | Interested in eBooks and knowledge          | Book catalog, details, download                                     |
 
 ---
@@ -63,7 +63,7 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 
 | Metric                                            | Target (first 6 months)                                            |
 | ------------------------------------------------- | ------------------------------------------------------------------ |
-| Lighthouse Performance / Accessibility / SEO      | ≥ 90 each                                                          |
+| Lighthouse Performance / Accessibility            | ≥ 90 each                                                          |
 | Resume downloads / month                          | Counted anonymously (no visitor tracking), growth month over month |
 | Contact form submissions / month                  | Counted from Messages, growth month over month                     |
 | Time for owner to publish a new paper/certificate | < 3 minutes                                                        |
@@ -203,9 +203,9 @@ Combined page with a 3-section toggle.
 ### 5.17 Resume Center (`/resume`)
 
 - **P0** Hero with _Download PDF_ and _Infographic View_ buttons.
-- **P0** Sticky tabs: Professional Resume / Academic CV / Research CV.
+- **P0** Professional Resume (the only document variant; the Academic and Research CVs were removed on 2026-09-23). A link/button leads to the Infographic Resume.
 - **P0** White-paper resume document with gradient navy header.
-- **P0** Sections: Summary, Experience, Education, Technical Skills, Certifications, Languages (flag, name, level, progress bar), Research & Publications (Academic/Research CV only).
+- **P0** Sections: Summary, Experience, Education, Technical Skills, Certifications, Languages (flag, name, level, progress bar).
 - **P0** PDF export that is exactly what the site shows: the server renders the same resume route in headless Chromium (A4 print CSS) and returns the PDF, so on-screen and PDF output share one source.
 - **P1** Sections, counts, accent colour, and font are controlled by the admin Resume Editor.
 
@@ -273,8 +273,6 @@ Combined page with a 3-section toggle.
 | Route                        | Requirements                                                                                                                 |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `/admin/resume/professional` | Section toggles, experience/skills count sliders, accent-colour picker, font selector, custom note, live white-paper preview |
-| `/admin/resume/academic`     | Same editor, academic context                                                                                                |
-| `/admin/resume/research`     | Same editor, research context                                                                                                |
 | `/admin/resume/infographic`  | Same editor, infographic context                                                                                             |
 
 ### 6.5 Portfolio Management
@@ -289,23 +287,16 @@ Combined page with a 3-section toggle.
 - **`/admin/website/navigation`** – drag-to-reorder links, show/hide eye toggle, hidden pages list, add custom link, live navbar preview.
 - **`/admin/website/footer`** – tagline, copyright, social URLs, quick-links manager, live dark-navy footer preview.
 
-### 6.7 SEO (`/admin/seo`)
-
-- **P0** Per-page meta title, description, keywords, OG image, canonical URL, indexing (noindex) toggle.
-- **P1** Character-count guidance and search-result preview.
-- **P1** Auto-generated `sitemap.xml` and `robots.txt`; JSON-LD structured data (Person, ScholarlyArticle, Book).
-
-### 6.8 Media Library (`/admin/media`)
+### 6.7 Media Library (`/admin/media`)
 
 - **P0** Upload zone; grid/list toggle; search; type filter (images/documents); copy URL; delete with confirmation.
 - **P1** Image optimisation (resize, WebP), file size/type limits.
 
-### 6.9 Settings (`/admin/settings`)
+### 6.8 Settings (`/admin/settings`)
 
-- **P0** Profile quick-edit.
-- **P0** Notification toggles (4 types).
+- **P0** Social & academic profile links (LinkedIn, GitHub, Google Scholar).
 - **P0** Password change with show/hide.
-- **P0** Danger zone: delete account (double confirmation).
+- Personal information is edited only on `/admin/profile` (not repeated in Settings). There are no notification preferences (contact-message emails are always sent) and no danger zone (2026-09-23).
 
 ---
 
@@ -326,15 +317,14 @@ Combined page with a 3-section toggle.
 | **Language**                            | id, name, flag, level, proficiency %                                                                                           |
 | **eBook**                               | id, title, subtitle, author, cover, category, pages, year, ISBN, description, fileUrl (uploaded PDF), downloads                |
 | **Message**                             | id, name, email, subject, body, createdAt, read, repliedAt                                                                     |
-| **ResumeConfig**                        | type, sections visibility, counts, accent colour, font, custom note                                                            |
+| **ResumeConfig**                        | type (professional / infographic), sections visibility, counts, accent colour, font, custom note                               |
 | **PortfolioCategory**                   | id, name, slug, colour, order                                                                                                  |
 | **NavItem / FooterConfig / PageConfig** | label, path, visible, order; tagline, copyright, links; home/about editable fields                                             |
-| **SEOEntry**                            | page path, title, description, keywords, ogImage, canonical, noindex                                                           |
 | **MediaAsset**                          | id, url, type, size, uploadedAt                                                                                                |
-| **AdminUser**                           | Supabase Auth user (email; password hashed by Supabase) + notification prefs; seeded by an admin seed script                   |
+| **AdminUser**                           | Supabase Auth user (email; password hashed by Supabase) ; seeded by an admin seed script (no notification prefs)               |
 | **DownloadStat**                        | date, kind (resume variant / eBook), targetId, count — daily aggregate only; no IP, cookie, user-agent, or visitor identifier  |
 
-**Supabase decision:** The Phase 5 backend uses **Supabase** as the single platform for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The typed seed data at `lib/data/index.ts` — to be created in Phase 1; it does not exist yet; **clearly marked placeholder content** for building the UI, since real content is entered by the owner through the admin — (seed data: 1 profile, 6 experiences, 2 education entries, 38 skills, 15 certificates, 4 projects, 6 research papers, 4 languages, 5 eBooks, 12 achievements, 6 messages) is the seed/migration source for Supabase Postgres and Storage. Mixing Supabase with any other persistence system is disallowed unless a separate decision record is written.
+**Supabase decision:** The Phase 5 backend uses **Supabase** as the single platform for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The typed seed data at `lib/data/index.ts` — to be created in Phase 1; it does not exist yet; **clearly marked placeholder content** for building the UI, since real content is entered by the owner through the admin — (seed data: 1 profile, 6 experiences, 2 education entries, 38 skills, 15 certificates, 4 projects, 6 research papers, 4 languages, 5 eBooks, 12 achievements, 6 messages) is a UI-only placeholder for Phases 1–4 and is **not** loaded into Supabase; the database starts empty. Mixing Supabase with any other persistence system is disallowed unless a separate decision record is written.
 
 ---
 
@@ -343,7 +333,6 @@ Combined page with a 3-section toggle.
 | Category            | Requirement                                                                                                                      |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | **Performance**     | LCP < 2.5 s on 4G; route-level code splitting; lazy-loaded images; optimised assets                                              |
-| **SEO**             | Server-side rendering or pre-rendering for public pages; clean URLs; sitemap; OG tags                                            |
 | **Accessibility**   | WCAG 2.1 AA; keyboard-friendly accordions, tabs, drag-reorder alternatives                                                       |
 | **Security**        | HTTPS, CSRF/XSS protection, input validation and sanitisation, rate limiting, secure file upload validation, role-protected APIs |
 | **Privacy**         | GDPR-friendly; contact data stored securely; no behavioural tracking of visitors                                                 |
@@ -391,7 +380,7 @@ Combined page with a 3-section toggle.
 
 ### Phase 4 – Resume System (Weeks 8–9)
 
-- Resume Center (3 variants), Infographic Resume, PDF export.
+- Resume Center (Professional Resume), Infographic Resume, PDF export.
 
 ### Phase 5 – Backend & Admin Core (Weeks 10–13)
 
@@ -404,9 +393,9 @@ Combined page with a 3-section toggle.
 
 - Research profile, interests, upcoming, working papers.
 - Messages inbox (contact form wired end-to-end, email notifications).
-- Resume editors (4), portfolio gallery/categories.
+- Resume editors (2: professional, infographic), portfolio gallery/categories.
 - Website editors (home, about, navigation, footer).
-- SEO, Media Library, Settings.
+- Media Library, Settings.
 
 ### Phase 7 – Hardening & Launch (Weeks 17–18)
 
@@ -432,7 +421,6 @@ Combined page with a 3-section toggle.
 | Navigation editor   | Reordering or hiding a link updates the public navbar and the footer links where applicable                                         |
 | Auth                | Visiting `/admin` while logged out redirects to `/admin/login`; wrong password shows an error and locks out after repeated failures |
 | Delete              | Any delete asks for confirmation and can't be triggered by a single accidental click                                                |
-| SEO                 | Each public page renders unique title/description/OG tags from the SEO module                                                       |
 | Responsive          | All pages usable at 360 px width with no horizontal scrolling                                                                       |
 
 ---
@@ -442,7 +430,6 @@ Combined page with a 3-section toggle.
 | Risk                                       | Impact               | Mitigation                                                                    |
 | ------------------------------------------ | -------------------- | ----------------------------------------------------------------------------- |
 | Static data only (no persistence)          | Admin edits are lost | Prioritise backend in Phase 5; use existing data as seed                      |
-| SEO weakness of a client-side SPA          | Poor discoverability | Use SSR/pre-rendering                                                         |
 | PDF fidelity issues across resume variants | Inconsistent output  | Server-side rendering with a single print stylesheet; visual regression tests |
 | Spam in contact form                       | Inbox noise          | Honeypot, rate limiting, optional CAPTCHA                                     |
 | Large media uploads                        | Slow site, cost      | Size limits, automatic image optimisation, CDN                                |
@@ -457,7 +444,7 @@ Combined page with a 3-section toggle.
 - Single owner/admin; no public user accounts.
 - Content is primarily in English.
 - All content, including Google Scholar metrics, is entered manually by the owner through the admin panel; nothing is fetched automatically.
-- The database (including production) is initially seeded with clearly marked placeholder data; the owner overwrites it through the admin. The seed must never overwrite owner-edited records.
+- The database (including production) **starts empty**: only the admin user is seeded. The admin panel shows only what the owner adds; `lib/data/index.ts` placeholders exist solely to build the public UI before Phase 5 and are never loaded into the database (revised 2026-09-23).
 - Owner's external profiles (link targets only, never fetched; GitHub URL to be provided by the owner): LinkedIn `https://www.linkedin.com/in/mdtarakesiddique`, Google Scholar `https://scholar.google.com/citations?user=ohf_wZIAAAAJ&hl=en`, ResearchGate `https://www.researchgate.net/profile/Md-Siddique-50`.
 
 **Open Questions**
@@ -473,7 +460,8 @@ Combined page with a 3-section toggle.
 - **Resume PDF:** server-side headless-Chromium rendering of the resume routes so the PDF matches the site exactly.
 - **Email:** Resend (contact notifications and replies), sending from the owner's Namecheap domain once its DNS records are verified. The domain has no mailbox; notifications go to the owner's personal address, with Reply-To set to the visitor.
 - **Hosting:** Vercel, with the Namecheap custom domain pointed at it.
-- **Database:** the Supabase database is empty; the schema is created from migrations, then seeded with placeholder content and the single admin user via seed scripts.
+- **Database:** the Supabase database is empty; the schema is created from migrations, and only the single admin user is seeded (no sample content).
+- **No SEO module** (owner decision, 2026-09-23): no `/admin/seo`, no `SEOEntry`, no per-page meta/OG/canonical editing, no `sitemap.xml`/`robots.txt`/JSON-LD, no SEO Lighthouse target. Pages keep plain `<title>`s, and the admin stays `noindex`.
 - There is **no analytics module**: no `/admin/analytics`, no `/api/analytics`, no visitor/page-view tracking. The dashboard shows content/message metrics plus anonymous daily download counts (`DownloadStat`). The "top pages" chart is replaced by a content-per-section chart; time-on-site and bounce-rate metrics are dropped. A cookieless hosted analytics tool (e.g. Plausible, Umami, Vercel Web Analytics) is not adopted and would need owner approval.
 - **Data layer:** plain Supabase client — no Prisma, no TanStack Query/Form (the Kilo plan was rejected on 2026-09-23). Schema changes are SQL migrations via the Supabase CLI with generated TypeScript types; RLS is enabled on every table.
 - The Phase 5 backend uses **Supabase** for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The typed seed data at `lib/data/index.ts` (created in Phase 1) is the migration source; no separate S3-compatible service or self-hosted database is in scope. Mixing Supabase with an incompatible persistence system requires a documented decision record.
@@ -486,4 +474,4 @@ Combined page with a 3-section toggle.
 `/`, `/about`, `/experience`, `/education`, `/skills`, `/achievements`, `/certificates`, `/certificates/:id`, `/portfolio`, `/portfolio/:id`, `/research`, `/research/:id`, `/research/upcoming`, `/publications`, `/ebooks`, `/ebooks/:id`, `/resume`, `/resume/infographic`, `/contact`, `/*` (404)
 
 **Admin**
-`/admin/login`, `/admin`, `/admin/profile`, `/admin/experience`, `/admin/education`, `/admin/skills`, `/admin/achievements`, `/admin/certificates/professional`, `/admin/certificates/academic`, `/admin/certificates/training`, `/admin/certificates/awards`, `/admin/projects`, `/admin/publications`, `/admin/research/papers`, `/admin/research/profile`, `/admin/research/interests`, `/admin/research/upcoming`, `/admin/research/working`, `/admin/ebooks`, `/admin/messages`, `/admin/resume/professional`, `/admin/resume/academic`, `/admin/resume/research`, `/admin/resume/infographic`, `/admin/portfolio/gallery`, `/admin/portfolio/categories`, `/admin/website/home`, `/admin/website/about`, `/admin/website/navigation`, `/admin/website/footer`, `/admin/seo`, `/admin/media`, `/admin/settings`
+`/admin/login`, `/admin`, `/admin/profile`, `/admin/experience`, `/admin/education`, `/admin/skills`, `/admin/achievements`, `/admin/certificates/professional`, `/admin/certificates/academic`, `/admin/certificates/training`, `/admin/certificates/awards`, `/admin/projects`, `/admin/publications`, `/admin/research/papers`, `/admin/research/profile`, `/admin/research/interests`, `/admin/research/upcoming`, `/admin/research/working`, `/admin/ebooks`, `/admin/messages`, `/admin/resume/professional`, `/admin/resume/infographic`, `/admin/portfolio/gallery`, `/admin/portfolio/categories`, `/admin/website/home`, `/admin/website/about`, `/admin/website/navigation`, `/admin/website/footer`, `/admin/media`, `/admin/settings`

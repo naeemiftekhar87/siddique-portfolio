@@ -27,7 +27,6 @@ const nav: NavItem[] = [
       { label: "About", to: "/admin/website/about" },
       { label: "Navigation", to: "/admin/website/navigation" },
       { label: "Footer", to: "/admin/website/footer" },
-      { label: "SEO", to: "/admin/seo" },
     ] },
   {
     label: "Profile",
@@ -73,8 +72,6 @@ const nav: NavItem[] = [
     icon: FileText,
     children: [
       { label: "Professional", to: "/admin/resume/professional" },
-      { label: "Academic CV", to: "/admin/resume/academic" },
-      { label: "Research CV", to: "/admin/resume/research" },
       { label: "Infographic", to: "/admin/resume/infographic" },
     ] },
   { label: "Media Library", icon: Image, to: "/admin/media" },

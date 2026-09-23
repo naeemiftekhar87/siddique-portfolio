@@ -8,11 +8,11 @@
 
 ## 1. What this project is
 
-A personal **academic + professional portfolio** for a single owner (Siddique), with a built-in **single-owner admin CMS**. The owner enters data once in the admin, and it drives the public site, four resume variants (Professional, Academic CV, Research CV, Infographic) with PDF export, and SEO metadata.
+A personal **academic + professional portfolio** for a single owner (Siddique), with a built-in **single-owner admin CMS**. The owner enters data once in the admin, and it drives the public site, two resume variants (Professional and Infographic) with PDF export, and SEO metadata.
 
 - **Public site:** 20 routes for recruiters, researchers, institutions, and readers.
-- **Admin panel:** `/admin/*`, a login plus about 29 management screens: content CRUD, research, messages, resume editors, portfolio, website editors, SEO, media, and settings.
-- **Out of scope for v1:** multi-tenant use, eBook payments, a blog or newsletter, native apps, any automatic import or sync from LinkedIn/Scholar/ResearchGate/ORCID, analytics or visitor tracking, and 2FA (removed from the PRD on 2026-09-23).
+- **Admin panel:** `/admin/*`, a login plus about 29 management screens: content CRUD, research, messages, resume editors, portfolio, website editors, media, and settings.
+- **Out of scope for v1:** multi-tenant use, eBook payments, a blog or newsletter, native apps, any automatic import or sync from LinkedIn/Scholar/ResearchGate/ORCID, analytics or visitor tracking, SEO tooling, and 2FA (removed from the PRD on 2026-09-23).
 
 ---
 
@@ -84,7 +84,7 @@ A personal **academic + professional portfolio** for a single owner (Siddique), 
 
 **Admin routes:** `/admin/login`, `/admin` (dashboard), profile, experience, education, skills, achievements, certificates/{professional,academic}, projects, publications, research/{papers,profile,interests,upcoming,working}, ebooks, messages, resume/{professional,academic,research,infographic}, portfolio/{gallery,categories}, website/{home,about,navigation,footer}, seo, media, settings.
 
-**Entities (PRD §7):** Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, PortfolioCategory, NavItem/FooterConfig/PageConfig, SEOEntry, MediaAsset, AdminUser, DownloadStat (anonymous daily download counts).
+**Entities (PRD §7):** Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, PortfolioCategory, NavItem/FooterConfig/PageConfig, MediaAsset, AdminUser, DownloadStat (anonymous daily download counts).
 
 **Seed data target (Phase 1, `lib/data/index.ts`):** 1 profile, 6 experiences, 2 education, 38 skills, 15 certificates, 4 projects, 6 papers, 4 languages, 5 eBooks, 12 achievements, 6 messages. All entries are **clearly marked placeholders** because the owner enters real content through the admin (decision 8). Per `docs/rules.md` §19–20, never invent realistic-looking personal or research data (jobs, degrees, DOIs, citation counts, and so on).
 
@@ -107,7 +107,7 @@ These are link targets only: use them for social icons, the footer, and research
 3. Research and eBooks.
 4. Resume system and PDF.
 5. Backend and admin core (Supabase, auth, CRUD, public site reads live data).
-6. Advanced admin (research mgmt, messages, resume editors, website editors, SEO, media, settings).
+6. Advanced admin (research mgmt, messages, resume editors, website editors, media, settings).
 7. Hardening and launch.
 
 ---
@@ -122,10 +122,7 @@ These are link targets only: use them for social icons, the footer, and research
 6. Route groups `(public)` and `(admin)` are organizational only, and URLs match PRD §14.
 7. Phases 1–4 use typed temporary seed data in `lib/data/`, clearly marked as temporary and never presented as persistent.
 8. **All content is entered manually by the owner through the admin dashboard** (decided 2026-09-23). There is no automatic fetching, scraping, API import, or sync from LinkedIn, Google Scholar, ResearchGate, ORCID, or any other source. That covers profile, experience, papers, and Scholar metrics (citations, h-index, i10-index). The seed data in `lib/data/index.ts` is therefore **clearly marked placeholder content** that exists only to build and test the UI. The only real values it may contain are the profile URLs above. Real content arrives once the Phase 5 admin CRUD exists (phases.md 7.5).
-9. **The database starts from the placeholder seed** (decided 2026-09-23). The Phase 5 seed script loads the `lib/data/index.ts` placeholders into Supabase, including production. The owner then overwrites or replaces each record through the admin. Consequences:
-   - The seed must be idempotent and must never overwrite rows the owner has already edited. For example, it runs only on an empty DB or upserts only untouched seed rows. Re-running it after launch must not clobber real content.
-   - Placeholders must be obviously fake (e.g. "Sample Company", "Example Paper Title") so nothing can be mistaken for real data before the owner replaces it.
-
+9. **The database starts empty** (revised 2026-09-23; this replaces the earlier "seed sample data" decision). Phase 5 seeds only the admin user. The admin panel and, once connected, the public site show only what the owner adds. `lib/data/index.ts` placeholders exist solely to build the public UI during Phases 1–4 and are never loaded into the database.
 10. **Design follows `docs/design.md`** (decided 2026-09-23). Fonts are DM Serif Display, Plus Jakarta Sans (Inter fallback), and JetBrains Mono, loaded via `next/font/google` and replacing Geist. Colours come from design.md tokens; the footer uses the `navy` token (`#040d1f`), not the PRD's old `#0a1628`. The PRD and phases were updated to match.
 
 11. **Data layer: plain Supabase client** (decided 2026-09-23; the Kilo Prisma + TanStack plan was rejected).
@@ -142,11 +139,16 @@ These are link targets only: use them for social icons, the footer, and research
     - **Language:** English only.
     - **Resume PDF:** must match the site exactly. The server renders the same resume route in headless Chromium (A4 print CSS) at `app/api/resume/export`. Choose the package in Phase 4 with the hosting target (Playwright, or `puppeteer-core` + `@sparticuz/chromium` on serverless), with owner approval.
     - **Email:** Resend, behind a server-only `lib/email/` adapter using `RESEND_API_KEY`. Until a custom domain is verified, Resend can only send from its test sender to the account owner's own address, which is enough for owner notifications.
-    - **Database:** the Supabase DB is **empty**. Migrations create the schema, the content seed loads placeholders (decision 9), and an **admin seed script** creates the single Supabase Auth user through the Admin API from `ADMIN_EMAIL`/`ADMIN_PASSWORD`. It is idempotent and the credentials are never committed.
+    - **Database:** the Supabase DB is **empty**. Migrations create the schema, no content is seeded (decision 9), and an **admin seed script** creates the single Supabase Auth user through the Admin API from `ADMIN_EMAIL`/`ADMIN_PASSWORD`. It is idempotent and the credentials are never committed.
     - **Hosting: Vercel** (2026-09-23). Use the Node.js runtime for routes that use the service-role client, Resend, or Chromium. The resume PDF uses `puppeteer-core` + `@sparticuz/chromium` (needs approval in Phase 4; watch Vercel's function size and duration limits). Rate limits for login and contact must be stored in Supabase, not in memory. Env vars live in Vercel project settings.
     - **Domain:** a custom domain is registered at **Namecheap**, with **no mailbox**. It points to Vercel via DNS, and Resend sends from it after SPF/DKIM/DMARC records are added at Namecheap (no mailbox needed to send). Contact notifications go to the owner's personal address, with Reply-To set to the visitor.
     - **Env vars still to add** (to the gitignored `.env`): `RESEND_API_KEY` (Phase 6), plus `ADMIN_EMAIL` and `ADMIN_PASSWORD` (Phase 5).
 13. **Design source ported; design must stay identical** (2026-09-23). The owner's Vite prototype is the visual source of truth for all pages; where it differs from `docs/design.md` (hard-coded hex classes, `<img>` tags, admin styling), the **ported design wins**. Its person-specific content was replaced with obvious placeholders (owner's choice). Training/Awards certificate admin pages were kept (owner's choice).
+14. **No SEO module** (2026-09-23, owner: "remove the SEO fully"). The `/admin/seo` page, route, and sidebar link, the `SEOEntry` entity, and all SEO scope (per-page meta/OG/canonical editing, sitemap.xml, robots.txt, JSON-LD, the Lighthouse SEO target, Search Console) are removed from the code, PRD, phases, architecture, and AGENTS.md. **Kept:** plain page `<title>`s (browser tabs) and `noindex` on `/admin`. `docs/rules.md` §18 (the owner's file) still asks for SEO-friendly pages; this was flagged to the owner rather than edited.
+15. **Admin changes (2026-09-23):**
+    - **Resume variants:** only **Professional** and **Infographic**. The Academic CV and Research CV were removed from the public `/resume` tabs, the Research & Publications block on those CVs, the admin editor tabs, the sidebar, the routes, and the PRD/phases.
+    - **Settings:** only Social & Academic Links plus Change Password. Removed: Personal Information (it duplicated `/admin/profile`), Notification Preferences (contact emails are always sent), and Danger Zone.
+    - **Admin starts empty:** every admin screen starts with no sample data. The dashboard shows 0 counts and "No activity yet"; list screens show "No … yet" empty states; form screens start blank from `emptyProfile` in `lib/data`, which keeps only the owner's real LinkedIn/Scholar/ResearchGate links. The public site still uses the placeholders until Phase 5.
 
 ---
 
@@ -230,3 +232,5 @@ Newest last. Add one entry per work session.
 - **2026-09-23 (Claude Code):** verified that `.env` has all six Phase 5 vars with the correct key types (no values read); `.env` is gitignored.
 - **2026-09-23 (Claude Code), admin seed:** installed `@supabase/supabase-js` and added `scripts/seed-admin.mts` plus the `seed:admin` npm script. Ran it: connected, admin user created. Re-ran it: idempotent. Ticked phases 5.2 (the admin seed task; Phase 5 now 1/40). Flagged that `admin@gmail.com` is likely not the owner's inbox.
 - **2026-09-23 (Claude Code), design port:** ported the owner's Vite design source into Next.js (see §2): router conversion, route wiring with `(shell)` admin group and Training/Awards routes, placeholder data plus a prose sweep (the source described another person), globals.css aligned to the source `index.css` (radius, links, headings, transitions, glass), Analytics/Visitors removed, lint errors fixed (types, escaping, lucide `Image` → `ImageIcon`, unused imports, `Math.random` in render), and a 404 hydration fix. Verified by tsc, lint, build, and side-by-side Playwright screenshots against the source (tooling in the session scratchpad only). PRD/AGENTS/architecture updated for Training/Awards and the port.
+- **2026-09-23 (Claude Code), SEO removed:** deleted `components/admin/pages/AdminSEO.tsx`, `app/(admin)/admin/(shell)/seo/`, and the sidebar link. PRD: removed §6.7 (Media → 6.7, Settings → 6.8), the SEOEntry entity, the SEO NFR, the SEO acceptance criterion, the SPA-SEO risk, and `/admin/seo` in the sitemap; the Lighthouse target is now Performance/Accessibility; added a Resolved Decision. phases: removed 6.6 SEO and three 7.5 SEO tasks (Phase 6 count 41 → 37, Phase 7 count 30 → 27). architecture/AGENTS updated (also fixed AGENTS' stale "no Supabase dependency" line). Decision 14.
+- **2026-09-23 (Claude Code), admin trims:** removed the Academic/Research CVs (public tabs and research block, admin tabs, sidebar, two routes). Settings is reduced to Links + Password. The whole admin now starts empty (`emptyProfile`, empty typed lists, new empty states, dashboard zeros, resume-editor sliders max 10/50), and the database starts empty (decision 9 revised). Docs updated (PRD §1.3/§5.17/§6.4/§6.8/§7/§10/§13/§14, phases 4.x/5.1/6.3/6.7/7.5 with counts Phase 4 17 → 16 and Phase 6 37 → 33, architecture, AGENTS). Verified with tsc, lint (0 errors), build (48 pages), and screenshots with no console errors. Open: the removed admin URLs fall through to the generic catch-all page instead of a 404; the category/area pick-lists still hold "Sample Category" options; the Settings links duplicate the Footer editor's links; the admin login still shows the public placeholder name.

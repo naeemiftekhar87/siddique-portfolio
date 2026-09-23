@@ -13,10 +13,10 @@
 | 1     | Foundation           | 24                | 5    | 🟨 In progress |
 | 2     | Core Public Pages    | 45                | 0    | ⬜ Not started |
 | 3     | Research & eBooks    | 26                | 0    | ⬜ Not started |
-| 4     | Resume System        | 17                | 0    | ⬜ Not started |
+| 4     | Resume System        | 16                | 0    | ⬜ Not started |
 | 5     | Backend & Admin Core | 40                | 1    | 🟨 In progress |
-| 6     | Advanced Admin       | 41                | 0    | ⬜ Not started |
-| 7     | Hardening & Launch   | 30                | 0    | ⬜ Not started |
+| 6     | Advanced Admin       | 33                | 0    | ⬜ Not started |
+| 7     | Hardening & Launch   | 27                | 0    | ⬜ Not started |
 
 **Status legend:** ⬜ Not started · 🟨 In progress · ✅ Complete
 
@@ -209,11 +209,10 @@
 ### 4.1 Resume Center (`/resume`)
 
 - [ ] Dark hero with _Download PDF_ and _Infographic View_ buttons
-- [ ] Sticky tab bar (Professional / Academic CV / Research CV)
+- [ ] Professional Resume document with a link to the Infographic Resume
 - [ ] White-paper document with gradient navy header
 - [ ] Sections: Summary, Experience, Education, Technical Skills, Certifications
 - [ ] Languages section (flag, name, level, progress bar)
-- [ ] Research & Publications section (Academic + Research CV only)
 - [ ] Resume config object (section toggles, counts, accent colour, font) driving render
 
 ### 4.2 Infographic Resume (`/resume/infographic`)
@@ -226,12 +225,12 @@
 
 - [ ] Headless-Chromium export route (`app/api/resume/export`) rendering the resume route to PDF (package chosen with the hosting target, owner-approved)
 - [ ] Print stylesheet (A4, margins, page breaks)
-- [ ] Download PDF for each of the 4 variants
+- [ ] Download PDF for both variants (Professional, Infographic)
 - [ ] Test fonts, colours, and multi-page overflow
 
 **✅ Definition of Done**
 
-- [ ] PDF matches the on-screen layout for all 4 variants
+- [ ] PDF matches the on-screen layout for both variants
 - [ ] Section toggles in config visibly change output
 - [ ] No content cut off across page breaks
 
@@ -246,7 +245,7 @@
 
 - [ ] Configure the Supabase platform stack (Postgres, Storage, Auth); install `@supabase/supabase-js`, `@supabase/ssr`, `zod`, and set up server-only clients in `lib/db/` (no Prisma, no TanStack)
 - [ ] Design database schema for all entities (see PRD §7) as Supabase CLI SQL migrations; generate TypeScript types; enable RLS on every table (public read-only policies for public content)
-- [ ] Create migrations and an idempotent seed script from `lib/data/index.ts` (placeholder data also seeds production; re-runs must never overwrite owner-edited records)
+- [ ] Create migrations (the database starts empty; no sample-content seed)
 - [ ] Configure Supabase Storage buckets for images and documents
 - [ ] Build server-only selectors (public reads), Server Actions (admin CRUD), and Route Handlers (auth, contact, media, resume export, download counter)
 - [ ] Add validation, error handling, and logging
@@ -301,7 +300,7 @@
 
 - [ ] Add/edit/delete in admin reflects on the public site
 - [ ] Unauthenticated users cannot reach admin or write APIs
-- [ ] Seed data fully migrated with nothing lost
+- [ ] Database starts empty apart from the admin user
 
 ---
 
@@ -331,8 +330,6 @@
 
 - [ ] `/admin/resume/professional` — section toggles, count sliders, accent colour, font, custom note
 - [ ] Live white-paper preview
-- [ ] `/admin/resume/academic`
-- [ ] `/admin/resume/research`
 - [ ] `/admin/resume/infographic`
 - [ ] Persist configs and connect to public Resume Center
 
@@ -350,14 +347,7 @@
 - [ ] `/admin/website/footer` — tagline, copyright, social URLs, quick links manager, live preview
 - [ ] Public Navbar/Footer/Home/About read from these configs
 
-### 6.6 SEO
-
-- [ ] `/admin/seo` — per-page title, description, keywords, OG image, canonical, noindex toggle
-- [ ] Inject meta tags into public pages
-- [ ] Generate `sitemap.xml` and `robots.txt`
-- [ ] Add JSON-LD structured data (Person, ScholarlyArticle, Book) — _P1_
-
-### 6.7 Media Library
+### 6.6 Media Library
 
 - [ ] Upload zone with type/size validation
 - [ ] Grid/list toggle, search, type filter
@@ -365,12 +355,10 @@
 - [ ] Image optimisation (resize/WebP) — _P1_
 - [ ] Media picker used inside other admin forms
 
-### 6.8 Settings
+### 6.7 Settings
 
-- [ ] Profile quick-edit
-- [ ] 4 notification toggles
+- [ ] Social & academic links
 - [ ] Password change with show/hide
-- [ ] Danger zone with double confirmation
 
 **✅ Definition of Done**
 
@@ -395,7 +383,7 @@
 
 ### 7.2 Performance
 
-- [ ] Lighthouse ≥ 90 (Performance, Accessibility, SEO) on key pages
+- [ ] Lighthouse ≥ 90 (Performance, Accessibility) on key pages
 - [ ] Route-level code splitting and lazy-loaded images
 - [ ] CDN and caching configured
 - [ ] LCP under 2.5 s on 4G
@@ -414,12 +402,9 @@
 - [ ] CSRF/XSS protections, secure headers
 - [ ] File upload validation
 
-### 7.5 Content & SEO
+### 7.5 Content
 
-- [ ] Owner replaces placeholder seed data with real content via the admin
-- [ ] Fill SEO metadata for every page
-- [ ] Submit sitemap to Google Search Console
-- [ ] Verify Open Graph previews
+- [ ] Owner enters real content via the admin (the database starts empty)
 
 ### 7.6 Deployment
 

@@ -3,15 +3,25 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Save, FileText, Download, Eye } from "lucide-react";
-import { profile, experiences, education, skills, researchPapers } from "@/lib/data";
+import {
+  emptyProfile as profile,
+  type experiences as sampleExperiences,
+  type education as sampleEducation,
+  type skills as sampleSkills,
+  type researchPapers as sampleResearchPapers,
+} from "@/lib/data";
 
-const TABS = ["professional", "academic", "research", "infographic"] as const;
+// The admin starts empty; the preview fills in as content is added (Phase 5).
+const experiences: (typeof sampleExperiences)[number][] = [];
+const education: (typeof sampleEducation)[number][] = [];
+const skills: (typeof sampleSkills)[number][] = [];
+const researchPapers: (typeof sampleResearchPapers)[number][] = [];
+
+const TABS = ["professional", "infographic"] as const;
 type Tab = typeof TABS[number];
 
 const tabMeta: Record<Tab, { label: string; desc: string }> = {
   professional: { label: "Professional Resume",  desc: "Standard resume for industry and corporate roles" },
-  academic:     { label: "Academic CV",           desc: "Full curriculum vitae for academic applications" },
-  research:     { label: "Research CV",           desc: "Research-focused CV with publications highlighted" },
   infographic:  { label: "Infographic Resume",    desc: "Visual one-page resume for creative contexts" } };
 
 export default function AdminResumeEditor() {
@@ -93,8 +103,8 @@ export default function AdminResumeEditor() {
           <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
             <h2 className="font-serif text-base text-white">Display Limits</h2>
             {[
-              { key: "experienceLimit", label: "Max Experience Entries", max: experiences.length },
-              { key: "skillsLimit",     label: "Max Skills Shown",       max: skills.length },
+              { key: "experienceLimit", label: "Max Experience Entries", max: 10 },
+              { key: "skillsLimit",     label: "Max Skills Shown",       max: 50 },
             ].map(({ key, label, max }) => (
               <div key={key}>
                 <div className="flex items-center justify-between mb-1.5">

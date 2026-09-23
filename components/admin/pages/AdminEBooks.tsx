@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { ebooks as initialBooks } from "@/lib/data";
+import type { ebooks as initialBooks } from "@/lib/data";
 
 type Book = typeof initialBooks[0];
 
@@ -64,7 +64,7 @@ function BookForm({ initial, onSave, onCancel }: { initial?: Partial<Book>; onSa
 }
 
 export default function AdminEBooks() {
-  const [books, setBooks] = useState(initialBooks);
+  const [books, setBooks] = useState<(typeof initialBooks)[number][]>([]);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
@@ -117,6 +117,13 @@ export default function AdminEBooks() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800">
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={5} className="text-center py-16 text-slate-500 text-sm">
+                  {books.length === 0 ? "No eBooks yet." : "No eBooks match your filters."}
+                </td>
+              </tr>
+            )}
             {filtered.map((book) => (
               <tr key={book.id} className="hover:bg-slate-800/50 transition-colors">
                 <td className="px-5 py-4">

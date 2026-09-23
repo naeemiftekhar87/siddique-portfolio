@@ -26,32 +26,7 @@ const statusColors: Record<string, string> = {
   "In Progress":      "bg-green-900/40 text-green-400 border-green-800",
 };
 
-const initialTopics: Topic[] = [
-  {
-    id: 1, title: "Example Upcoming Research Topic 1",
-    area: "Research Area A", status: "Conceptualized",
-    question: "Placeholder research question.",
-    contribution: "Placeholder expected contribution.",
-    methodology: "Placeholder methodology.",
-    keywords: "Keyword 1, Keyword 2, Keyword 3", expectedYear: "2027",
-  },
-  {
-    id: 2, title: "Example Upcoming Research Topic 2",
-    area: "Research Area B", status: "Literature Review",
-    question: "Placeholder research question.",
-    contribution: "Placeholder expected contribution.",
-    methodology: "Placeholder methodology.",
-    keywords: "Keyword 1, Keyword 2, Keyword 3", expectedYear: "2026",
-  },
-  {
-    id: 3, title: "Example Upcoming Research Topic 3",
-    area: "Research Area A", status: "Idea",
-    question: "Placeholder research question.",
-    contribution: "Placeholder expected contribution.",
-    methodology: "Placeholder methodology.",
-    keywords: "Keyword 1, Keyword 2, Keyword 3", expectedYear: "2027",
-  },
-];
+const initialTopics: Topic[] = [];
 
 const emptyTopic: Omit<Topic, "id"> = {
   title: "", area: "Research Area A", status: "Idea",

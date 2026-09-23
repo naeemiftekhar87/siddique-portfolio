@@ -15,7 +15,7 @@ The repository currently contains a minimal Next.js App Router scaffold. The arc
 - Prefer Server Components for public content, metadata, and initial data access. Use Client Components only for browser state, forms, filters, accordions, dialogs, and other interactions.
 - Use Next.js Route Handlers for explicit REST-style endpoints and Server Actions for page-bound form mutations when that model is clearer. Do not implement the same operation through both without a documented reason.
 - Keep presentation, data access, domain logic, authentication, and persistence in separate layers.
-- Maintain one source of truth for profile, career, research, portfolio, resume, website, SEO, media, and site configuration data.
+- Maintain one source of truth for profile, career, research, portfolio, resume, website, media, and site configuration data.
 - Keep public reads separate from protected admin writes.
 - Build in the order defined by `docs/phases.md`; do not implement Phase 5 persistence or Phase 6 admin modules before their prerequisites exist.
 - Treat `P0` requirements as launch-critical, `P1` as required after the core flow, and `P2` as future work.
@@ -113,7 +113,7 @@ flowchart LR
 2. The authentication layer validates the credentials, creates a server-side session, and applies expiry and brute-force protection.
 3. Every `/admin/*` route checks authentication before rendering protected content.
 4. Admin forms validate input on the client and again in the server action or Route Handler.
-5. Protected mutations persist content, configuration, messages, media metadata, or SEO records.
+5. Protected mutations persist content, configuration, messages, or media metadata.
 6. Successful mutations invalidate or revalidate the affected public reads so changes appear after refresh or within the documented cache TTL.
 7. Destructive actions require a separate confirmation step.
 
@@ -143,7 +143,7 @@ flowchart LR
     I --> X
 ```
 
-All resume variants consume the same underlying content. `ResumeConfig` controls visibility, counts, accent color, typography, and custom notes. The export implementation must be selected deliberately: client print CSS or a server-side headless-browser renderer.
+The two resume variants (Professional and Infographic; the Academic and Research CVs were removed on 2026-09-23) consume the same underlying content. `ResumeConfig` controls visibility, counts, accent color, typography, and custom notes. The export implementation must be selected deliberately: client print CSS or a server-side headless-browser renderer.
 
 ## 5. Route and folder structure
 
@@ -233,8 +233,6 @@ app/
     ├── admin/ebooks/page.tsx
     ├── admin/messages/page.tsx
     ├── admin/resume/professional/page.tsx
-    ├── admin/resume/academic/page.tsx
-    ├── admin/resume/research/page.tsx
     ├── admin/resume/infographic/page.tsx
     ├── admin/portfolio/gallery/page.tsx
     ├── admin/portfolio/categories/page.tsx
@@ -242,7 +240,6 @@ app/
     ├── admin/website/about/page.tsx
     ├── admin/website/navigation/page.tsx
     ├── admin/website/footer/page.tsx
-    ├── admin/seo/page.tsx
     ├── admin/media/page.tsx
     └── admin/settings/page.tsx
 ```
@@ -312,7 +309,7 @@ The Geist setup is a scaffold placeholder. **Decided (2026-09-23):** the brand f
 | Cache invalidation | `revalidatePath`, `revalidateTag`, `updateTag`, and route-level caching |
 | Media handling | Server-side upload handlers backed by a storage adapter |
 | PDF generation | Server-side rendering/print pipeline or client print CSS |
-| SEO | Server Component metadata, generated metadata, sitemap, robots, and Open Graph routes/files |
+| Page titles | Server Component `metadata` exports (no SEO module) |
 
 ### 6.3 Not currently installed
 
@@ -349,7 +346,7 @@ The backend surface, database, storage, and authentication choices are resolved 
 
 ### 7.1 Data ownership
 
-The PRD entities are the domain model: Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, PortfolioCategory, navigation/footer/page configuration, SEOEntry, MediaAsset, and AdminUser.
+The PRD entities are the domain model: Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, PortfolioCategory, navigation/footer/page configuration, MediaAsset, and AdminUser.
 
 Define TypeScript types before creating forms, API contracts, or database schemas. Keep identifiers stable and use explicit status values where the PRD defines them.
 
@@ -376,7 +373,7 @@ During Phase 5 and later:
 - Keep public reads unauthenticated and protected writes authenticated.
 - Validate and sanitize all write payloads on the server.
 - Store media separately from content records via Supabase Storage and persist only safe metadata and URLs in Postgres.
-- Use migrations and a seed process from `lib/data/index.ts` when replacing temporary data.
+- Use migrations; the database starts empty apart from the admin user. `lib/data/index.ts` placeholders are never loaded into the database.
 - Revalidate public reads (`revalidatePath`/`revalidateTag`) after admin mutations.
 - Abstract Supabase access behind typed selectors so page components depend on the data-access layer, not on provider specifics directly.
 
@@ -393,9 +390,9 @@ During Phase 5 and later:
 - Public pages should use safe rendering, sanitized rich content, and appropriate HTTP/security headers.
 - HTTPS, CSRF/XSS protections, backups, monitoring, and secure headers are launch requirements.
 
-## 9. Rendering, caching, and SEO
+## 9. Rendering and caching
 
-- Use Server Components and React Server Component metadata exports for public-page titles, descriptions, Open Graph data, canonical URLs, and structured data.
+- Use Server Components and `metadata` exports for plain page titles. There is no SEO module (no Open Graph, canonical, sitemap, robots, or structured data), per the owner's 2026-09-23 decision.
 - Use `next/image` for local and remote portfolio imagery with meaningful alt text and explicit dimensions or a controlled `fill` layout.
 - Use route-level loading, error, and not-found states where data or records can fail.
 - Public reads may use documented time-based revalidation or CDN caching. Admin writes must call the appropriate cache invalidation mechanism after a successful mutation.
@@ -413,7 +410,7 @@ During Phase 5 and later:
 | Phase 3 | Research, publication, eBook, and dynamic detail routes |
 | Phase 4 | Resume variants, shared resume configuration, and export boundary |
 | Phase 5 | Same-app full-stack backend, database, authentication, protected API, admin shell, live public reads |
-| Phase 6 | Advanced admin modules, media storage, contact pipeline, SEO, and settings |
+| Phase 6 | Advanced admin modules, media storage, contact pipeline, and settings |
 | Phase 7 | Security, performance, accessibility, deployment, backups, and monitoring |
 
 A phase is complete only when its implementation, acceptance criteria, and definition of done in `docs/phases.md` are verified.
@@ -430,6 +427,6 @@ The following decisions remain open until the relevant phase:
 8. Select the data client and admin data-flow. **Resolved (2026-09-23):** plain Supabase client, Server Actions for admin CRUD, zod validation; Prisma and TanStack Query/Form rejected.
 6. Select the resume PDF rendering strategy. **Resolved:** server-side headless Chromium rendering of the resume routes, so the PDF matches the site exactly.
 7. Select the transactional email provider. **Resolved:** Resend.
-9. Database starting state. **Resolved:** the Supabase database is empty. Migrations create the schema; a content seed script loads placeholders; an admin seed script creates the single Supabase Auth user via the Admin API from `ADMIN_EMAIL`/`ADMIN_PASSWORD` env vars (never committed), idempotently.
+9. Database starting state. **Resolved:** the Supabase database is empty. Migrations create the schema; **no content seed** (revised 2026-09-23: the admin starts empty); an admin seed script creates the single Supabase Auth user via the Admin API from `ADMIN_EMAIL`/`ADMIN_PASSWORD` env vars (never committed), idempotently.
 
 Record each decision in this file and in `docs/memory.md`.

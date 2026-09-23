@@ -25,13 +25,7 @@ const colorMap: Record<string, string> = {
   sky:    "bg-sky-900/40 text-sky-400 border-sky-800",
 };
 
-const initialCategories: Category[] = [
-  { id: 1, name: "Sample Category A", slug: "sample-category-a", description: "Placeholder description for this project category.", color: "blue", projectCount: 1 },
-  { id: 2, name: "Sample Category B", slug: "sample-category-b", description: "Placeholder description for this project category.", color: "violet", projectCount: 1 },
-  { id: 3, name: "Sample Category C", slug: "sample-category-c", description: "Placeholder description for this project category.", color: "teal", projectCount: 1 },
-  { id: 4, name: "Sample Category D", slug: "sample-category-d", description: "Placeholder description for this project category.", color: "amber", projectCount: 1 },
-  { id: 5, name: "Sample Category E", slug: "sample-category-e", description: "Placeholder description for this project category.", color: "green", projectCount: 0 },
-];
+const initialCategories: Category[] = [];
 
 const emptyCategory: Omit<Category, "id" | "projectCount"> = {
   name: "", slug: "", description: "", color: "blue",
@@ -134,6 +128,12 @@ export default function AdminPortfolioCategories() {
 
       {/* Categories list */}
       <div className="bg-slate-900 rounded-2xl border border-slate-800 divide-y divide-slate-800">
+        {categories.length === 0 && (
+          <div className="text-center py-16">
+            <FolderOpen size={36} className="text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-500 text-sm">No categories yet.</p>
+          </div>
+        )}
         {categories.map(cat => (
           <div key={cat.id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-800/40 transition-colors">
             <GripVertical size={14} className="text-slate-700 flex-shrink-0 cursor-grab" />

@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Eye, Search, CheckCircle } from "lucide-react";
-import { certificates as initialCerts } from "@/lib/data";
+import type { certificates as initialCerts } from "@/lib/data";
 
 export default function AdminCertificates() {
-  const [certs, setCerts] = useState(initialCerts);
+  const [certs, setCerts] = useState<(typeof initialCerts)[number][]>([]);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -132,6 +132,13 @@ export default function AdminCertificates() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800">
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={6} className="text-center py-16 text-slate-500 text-sm">
+                  {certs.length === 0 ? "No certificates yet." : "No certificates match your filters."}
+                </td>
+              </tr>
+            )}
             {filtered.map((cert) => (
               <tr key={cert.id} className="hover:bg-slate-800/50 transition-colors">
                 <td className="px-5 py-4">

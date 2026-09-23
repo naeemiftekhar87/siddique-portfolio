@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Save, User, MapPin, Tag, Plus, X } from "lucide-react";
-import { profile as initialProfile } from "@/lib/data";
+import { emptyProfile as initialProfile } from "@/lib/data";
 
 export default function AdminProfile() {
   const [p, setP] = useState({ ...initialProfile });
@@ -43,11 +43,7 @@ export default function AdminProfile() {
           </h2>
           <div className="flex items-start gap-6">
             <div className="relative flex-shrink-0">
-              <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop"
-                alt="Profile"
-                className="w-24 h-24 rounded-2xl object-cover border border-slate-700"
-              />
+              <div className="w-24 h-24 rounded-2xl border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0"><User size={20} className="text-slate-600" /></div>
               <button
                 type="button"
                 className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white hover:bg-blue-700 transition-colors shadow-lg"

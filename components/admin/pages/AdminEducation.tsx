@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
-import { education as initialEdu } from "@/lib/data";
+import type { education as initialEdu } from "@/lib/data";
 
 type Edu = typeof initialEdu[0];
 
@@ -87,7 +87,7 @@ function EduForm({ initial, onSave, onCancel }: { initial?: Partial<Edu>; onSave
 }
 
 export default function AdminEducation() {
-  const [list, setList] = useState(initialEdu);
+  const [list, setList] = useState<(typeof initialEdu)[number][]>([]);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
@@ -137,6 +137,12 @@ export default function AdminEducation() {
       </div>
 
       <div className="space-y-3">
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <GraduationCap size={36} className="text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-500 text-sm">{list.length === 0 ? "No education entries yet." : "No education entries match your filters."}</p>
+          </div>
+        )}
         {filtered.map((edu) => (
           <div key={edu.id} className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
             {editing === edu.id ? (

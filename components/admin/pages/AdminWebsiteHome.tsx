@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Save, Home, Type, ArrowRight, Image as ImageIcon } from "lucide-react";
-import { profile } from "@/lib/data";
+import { Save, Home, Type, ArrowRight, Image as ImageIcon, User } from "lucide-react";
+import { emptyProfile as profile } from "@/lib/data";
 
 export default function AdminWebsiteHome() {
   const [hero, setHero] = useState({
@@ -14,8 +14,8 @@ export default function AdminWebsiteHome() {
     cta1Link: "/portfolio",
     cta2Label: "View Resume",
     cta2Link: "/resume",
-    profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-    floatingCard1: "Your Field",
+    profileImage: "",
+    floatingCard1: "",
     floatingCard2: "Analytics Growth",
   });
 
@@ -104,7 +104,11 @@ export default function AdminWebsiteHome() {
           <ImageIcon size={16} className="text-teal-400" /> Profile Photo
         </h2>
         <div className="flex items-center gap-5">
+          {hero.profileImage ? (
           <img src={hero.profileImage} alt="Preview" className="w-20 h-20 rounded-2xl object-cover border border-slate-700 flex-shrink-0" />
+        ) : (
+          <div className="w-20 h-20 rounded-2xl border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0"><User size={20} className="text-slate-600" /></div>
+        )}
           <div className="flex-1">
             <label className="block text-xs text-slate-400 mb-1.5">Image URL</label>
             <input value={hero.profileImage} onChange={e => setHero({ ...hero, profileImage: e.target.value })}

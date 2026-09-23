@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search, ExternalLink, Download, Copy } from "lucide-react";
-import { publications as initialPubs } from "@/lib/data";
+import { Plus, Pencil, Trash2, Search, ExternalLink, Download, Copy, BookOpen } from "lucide-react";
+import type { publications as initialPubs } from "@/lib/data";
 
 type Pub = typeof initialPubs[0];
 
@@ -93,7 +93,7 @@ function PubForm({ initial, onSave, onCancel }: { initial?: Partial<Pub>; onSave
 }
 
 export default function AdminPublications() {
-  const [pubs, setPubs] = useState(initialPubs);
+  const [pubs, setPubs] = useState<(typeof initialPubs)[number][]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [showAdd, setShowAdd] = useState(false);
@@ -149,6 +149,12 @@ export default function AdminPublications() {
       </div>
 
       <div className="space-y-3">
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <BookOpen size={36} className="text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-500 text-sm">{pubs.length === 0 ? "No publications yet." : "No publications match your filters."}</p>
+          </div>
+        )}
         {filtered.map((pub, idx) => (
           <div key={pub.id} className="bg-slate-900 rounded-2xl border border-slate-800">
             {editing === pub.id ? (

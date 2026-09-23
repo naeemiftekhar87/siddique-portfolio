@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, Calendar } from "lucide-react";
-import { experiences as initialExps } from "@/lib/data";
+import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, Calendar, Briefcase } from "lucide-react";
+import type { experiences as initialExps } from "@/lib/data";
 
 type Exp = typeof initialExps[0];
 
@@ -83,7 +83,7 @@ function ExpForm({
 }
 
 export default function AdminExperience() {
-  const [exps, setExps] = useState(initialExps);
+  const [exps, setExps] = useState<(typeof initialExps)[number][]>([]);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
@@ -133,6 +133,12 @@ export default function AdminExperience() {
       </div>
 
       <div className="space-y-3">
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <Briefcase size={36} className="text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-500 text-sm">{exps.length === 0 ? "No experience entries yet." : "No experience entries match your filters."}</p>
+          </div>
+        )}
         {filtered.map((exp) => (
           <div key={exp.id} className="bg-slate-900 rounded-2xl border border-slate-800">
             {editing === exp.id ? (

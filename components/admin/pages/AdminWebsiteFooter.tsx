@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Save, Plus, X, LayoutTemplate } from "lucide-react";
-import { profile } from "@/lib/data";
+import { emptyProfile as profile } from "@/lib/data";
 
 type FooterLink = { id: number; label: string; to: string };
 
@@ -16,8 +16,8 @@ const defaultQuickLinks: FooterLink[] = [
 ];
 
 export default function AdminWebsiteFooter() {
-  const [tagline, setTagline] = useState("Placeholder tagline. Replace it with a short line about who you are and what you work on.");
-  const [copyright, setCopyright] = useState(`© ${new Date().getFullYear()} ${profile.name}. All rights reserved.`);
+  const [tagline, setTagline] = useState("");
+  const [copyright, setCopyright] = useState("");
   const [linkedin, setLinkedin] = useState(profile.linkedin);
   const [github, setGithub]     = useState(profile.github);
   const [scholar, setScholar]   = useState(profile.scholar);

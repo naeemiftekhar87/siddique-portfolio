@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Trophy, Plus, Edit2, Trash2, Save, X, Award } from "lucide-react";
-import { achievements as initialData } from "@/lib/data";
 
 type Achievement = {
   id: number;
@@ -28,7 +27,7 @@ const empty: Omit<Achievement, "id"> = {
 };
 
 export default function AdminAchievements() {
-  const [items, setItems] = useState<Achievement[]>(initialData);
+  const [items, setItems] = useState<Achievement[]>([]);
   const [editing, setEditing] = useState<Achievement | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [saved, setSaved] = useState(false);

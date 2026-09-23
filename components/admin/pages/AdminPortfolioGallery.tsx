@@ -14,32 +14,7 @@ type GalleryItem = {
 
 const CATEGORIES = ["Data Visualization", "Dashboard", "Model Output", "Report", "Presentation", "Other"];
 
-const initialItems: GalleryItem[] = [
-  {
-    id: 1,
-    title: "Sample Gallery Item 1",
-    imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
-    caption: "Placeholder caption describing this image.",
-    category: "Dashboard",
-    projectLink: "/portfolio/1",
-  },
-  {
-    id: 2,
-    title: "Sample Gallery Item 2",
-    imageUrl: "https://images.unsplash.com/photo-1640158615573-cd28feb1bf4e?w=600&h=400&fit=crop",
-    caption: "Placeholder caption describing this image.",
-    category: "Data Visualization",
-    projectLink: "/portfolio/2",
-  },
-  {
-    id: 3,
-    title: "Sample Gallery Item 3",
-    imageUrl: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&h=400&fit=crop",
-    caption: "Placeholder caption describing this image.",
-    category: "Data Visualization",
-    projectLink: "/portfolio/3",
-  },
-];
+const initialItems: GalleryItem[] = [];
 
 const emptyItem: Omit<GalleryItem, "id"> = {
   title: "", imageUrl: "", caption: "", category: "Data Visualization", projectLink: "",

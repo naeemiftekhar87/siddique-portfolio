@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Save, Plus, X, GripVertical, Tag } from "lucide-react";
-import { profile } from "@/lib/data";
+import { emptyProfile as profile } from "@/lib/data";
 
 export default function AdminResearchInterests() {
   const [interests, setInterests] = useState<string[]>([...profile.researchInterests]);

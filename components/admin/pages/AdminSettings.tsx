@@ -1,25 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Save, User, Globe, Bell, Lock, Trash2, Eye, EyeOff, ToggleLeft, ToggleRight, Link2, GitFork, GraduationCap, AlertTriangle } from "lucide-react";
-import { profile } from "@/lib/data";
+import { Save, Globe, Lock, Eye, EyeOff, Link2, GitFork, GraduationCap } from "lucide-react";
+import { emptyProfile as profile } from "@/lib/data";
 
 export default function AdminSettings() {
+  // Personal information is edited on the Profile page; only links live here.
   const [profile_, setProfile] = useState({
-    name: profile.name,
-    headline: profile.headline,
-    email: profile.email,
-    location: profile.location,
     linkedin: profile.linkedin,
     github: profile.github,
     scholar: profile.scholar,
-  });
-
-  const [notifications, setNotifications] = useState({
-    newMessage: true,
-    weeklyDigest: true,
-    researchAlerts: false,
-    securityAlerts: true,
   });
 
   const [password, setPassword] = useState({ current: "", next: "", confirm: "" });
@@ -29,8 +19,6 @@ export default function AdminSettings() {
   const [profileSaved, setProfileSaved] = useState(false);
   const [passSaved, setPassSaved] = useState(false);
   const [passError, setPassError] = useState("");
-
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleProfileSave = (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -49,46 +37,12 @@ export default function AdminSettings() {
     setTimeout(() => setPassSaved(false), 3000);
   };
 
-  const toggleNotif = (key: keyof typeof notifications) => {
-    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="font-serif text-3xl text-white mb-1">Settings</h1>
-        <p className="text-slate-400 text-sm">Manage your account and platform configuration</p>
+        <p className="text-slate-400 text-sm">Manage your links and password</p>
       </div>
-
-      {/* ─── Personal Information ─────────────────────────────────── */}
-      <form onSubmit={handleProfileSave} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-5">
-        <h2 className="font-serif text-lg text-white flex items-center gap-2">
-          <User size={18} className="text-blue-400" /> Personal Information
-        </h2>
-        <div className="grid sm:grid-cols-2 gap-4">
-          {[
-            ["name", "Full Name"],
-            ["email", "Email Address"],
-            ["headline", "Professional Headline"],
-            ["location", "Location"],
-          ].map(([key, label]) => (
-            <div key={key} className={key === "headline" ? "sm:col-span-2" : ""}>
-              <label className="block text-xs text-slate-400 mb-1.5">{label}</label>
-              <input
-                value={profile_[key as keyof typeof profile_]}
-                onChange={(e) => setProfile({ ...profile_, [key]: e.target.value })}
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500"
-              />
-            </div>
-          ))}
-        </div>
-        <button
-          type="submit"
-          className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${profileSaved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}
-        >
-          <Save size={15} /> {profileSaved ? "Saved!" : "Save Profile"}
-        </button>
-      </form>
 
       {/* ─── Social Links ─────────────────────────────────────────── */}
       <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
@@ -115,37 +69,8 @@ export default function AdminSettings() {
           onClick={handleProfileSave}
           className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 border border-slate-700 transition-all"
         >
-          <Save size={15} /> Save Links
+          <Save size={15} /> {profileSaved ? "Saved!" : "Save Links"}
         </button>
-      </div>
-
-      {/* ─── Notifications ────────────────────────────────────────── */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
-        <h2 className="font-serif text-lg text-white flex items-center gap-2">
-          <Bell size={18} className="text-violet-400" /> Notification Preferences
-        </h2>
-        {[
-          { key: "newMessage", label: "New Contact Messages", desc: "Email alert when someone submits the contact form" },
-          { key: "weeklyDigest", label: "Weekly Analytics Digest", desc: "Summary of visitor stats every Monday" },
-          { key: "researchAlerts", label: "Research Citation Alerts", desc: "Notify when a paper is cited or viewed" },
-          { key: "securityAlerts", label: "Security Alerts", desc: "Alert on suspicious login attempts" },
-        ].map(({ key, label, desc }) => (
-          <div key={key} className="flex items-center justify-between py-2 border-b border-slate-800 last:border-0">
-            <div>
-              <p className="text-slate-300 text-sm font-medium">{label}</p>
-              <p className="text-slate-500 text-xs mt-0.5">{desc}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => toggleNotif(key as keyof typeof notifications)}
-              className="flex-shrink-0 ml-4"
-            >
-              {notifications[key as keyof typeof notifications]
-                ? <ToggleRight size={28} className="text-blue-500" />
-                : <ToggleLeft size={28} className="text-slate-600" />}
-            </button>
-          </div>
-        ))}
       </div>
 
       {/* ─── Change Password ──────────────────────────────────────── */}
@@ -217,47 +142,6 @@ export default function AdminSettings() {
         </button>
       </form>
 
-      {/* ─── Danger Zone ──────────────────────────────────────────── */}
-      <div className="bg-slate-900 rounded-2xl border border-red-900/40 p-6 space-y-4">
-        <h2 className="font-serif text-lg text-red-400 flex items-center gap-2">
-          <AlertTriangle size={18} /> Danger Zone
-        </h2>
-        <div className="flex items-center justify-between py-3 border-b border-slate-800">
-          <div>
-            <p className="text-slate-300 text-sm font-medium">Export All Data</p>
-            <p className="text-slate-500 text-xs mt-0.5">Download a JSON backup of all your CMS content</p>
-          </div>
-          <button className="px-4 py-2 text-xs font-medium bg-slate-800 text-slate-300 rounded-xl border border-slate-700 hover:border-slate-600 transition-all">
-            Export JSON
-          </button>
-        </div>
-        <div className="flex items-center justify-between py-3">
-          <div>
-            <p className="text-red-300 text-sm font-medium">Delete All Content</p>
-            <p className="text-slate-500 text-xs mt-0.5">Permanently remove all content. This cannot be undone.</p>
-          </div>
-          {!confirmDelete ? (
-            <button
-              onClick={() => setConfirmDelete(true)}
-              className="px-4 py-2 text-xs font-medium bg-red-950/40 text-red-400 rounded-xl border border-red-900/50 hover:bg-red-950/60 transition-all flex items-center gap-1.5"
-            >
-              <Trash2 size={12} /> Delete
-            </button>
-          ) : (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setConfirmDelete(false)}
-                className="px-3 py-2 text-xs bg-slate-800 text-slate-300 rounded-xl border border-slate-700 hover:border-slate-600 transition-all"
-              >
-                Cancel
-              </button>
-              <button className="px-3 py-2 text-xs bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all">
-                Confirm Delete
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

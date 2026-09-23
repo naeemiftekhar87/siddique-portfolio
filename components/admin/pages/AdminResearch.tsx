@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { researchPapers as initialPapers } from "@/lib/data";
+import { Plus, Pencil, Trash2, Search, FileText } from "lucide-react";
+import type { researchPapers as initialPapers } from "@/lib/data";
 
 type Paper = typeof initialPapers[0];
 
@@ -84,7 +84,7 @@ function PaperForm({ initial, onSave, onCancel }: { initial?: Partial<Paper>; on
 }
 
 export default function AdminResearch() {
-  const [papers, setPapers] = useState(initialPapers);
+  const [papers, setPapers] = useState<(typeof initialPapers)[number][]>([]);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
@@ -129,6 +129,12 @@ export default function AdminResearch() {
       </div>
 
       <div className="space-y-3">
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <FileText size={36} className="text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-500 text-sm">{papers.length === 0 ? "No research papers yet." : "No research papers match your filters."}</p>
+          </div>
+        )}
         {filtered.map((paper) => (
           <div key={paper.id} className="bg-slate-900 rounded-2xl border border-slate-800">
             {editing === paper.id ? (

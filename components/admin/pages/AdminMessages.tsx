@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Clock, User, Trash2 } from "lucide-react";
-import { messages as initialMessages } from "@/lib/data";
+import { Mail, Clock, User, Trash2, Inbox } from "lucide-react";
+import type { messages as initialMessages } from "@/lib/data";
 
 export default function AdminMessages() {
-  const [msgs, setMsgs] = useState(initialMessages);
+  const [msgs, setMsgs] = useState<(typeof initialMessages)[number][]>([]);
   const [selected, setSelected] = useState<number | null>(null);
 
   const selectedMsg = msgs.find((m) => m.id === selected);
@@ -24,6 +24,12 @@ export default function AdminMessages() {
       <div className="grid md:grid-cols-5 gap-4">
         {/* Message list */}
         <div className="md:col-span-2 space-y-2">
+          {msgs.length === 0 && (
+            <div className="text-center py-16">
+              <Inbox size={36} className="text-slate-700 mx-auto mb-3" />
+              <p className="text-slate-500 text-sm">No messages yet.</p>
+            </div>
+          )}
           {msgs.map((msg) => (
             <button
               key={msg.id}

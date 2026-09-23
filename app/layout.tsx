@@ -31,8 +31,7 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-// Site-wide defaults. The owner's name and per-page SEO come from the
-// Profile and SEO data once those exist (Phases 1 and 6).
+// Site-wide default page titles (no SEO module; see docs/memory.md).
 export const metadata: Metadata = {
   title: {
     default: "Academic & Professional Portfolio",

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, ExternalLink, ChevronDown, ChevronUp, Tag } from "lucide-react";
-import { projects as initialProjects } from "@/lib/data";
+import type { projects as initialProjects } from "@/lib/data";
 
 type Project = typeof initialProjects[0];
 
@@ -203,7 +203,7 @@ function ProjectForm({
 }
 
 export default function AdminProjects() {
-  const [projects, setProjects] = useState(initialProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");

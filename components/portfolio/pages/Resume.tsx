@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Download, FileText, User, Briefcase, GraduationCap, Award, BarChart2, LayoutTemplate, Languages } from "lucide-react";
-import { profile, experiences, education, skills, certificates, researchPapers, languages } from "@/lib/data";
+import { profile, experiences, education, skills, certificates, languages } from "@/lib/data";
 
-const tabs = ["Professional Resume", "Academic CV", "Research CV"];
+const tabs = ["Professional Resume"];
 
 export default function Resume() {
   const [activeTab, setActiveTab] = useState("Professional Resume");
@@ -27,7 +27,7 @@ export default function Resume() {
                 Resume<br /><span className="italic text-cyan-300">Center</span>
               </h1>
               <p className="text-slate-300 text-lg max-w-xl leading-relaxed">
-                Professional resume, academic CV, and research portfolio — each tailored for different audiences and contexts.
+                Professional resume and infographic resume — each tailored for different audiences and contexts.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
@@ -186,27 +186,6 @@ export default function Resume() {
               </div>
             </section>
 
-            {(activeTab === "Academic CV" || activeTab === "Research CV") && (
-              <>
-                <div className="h-px bg-slate-100" />
-                <section>
-                  <h3 className="font-serif text-xl text-slate-900 mb-6 flex items-center gap-2">
-                    <FileText size={18} className="text-blue-600" /> Research & Publications
-                  </h3>
-                  <div className="space-y-4">
-                    {researchPapers.map((paper) => (
-                      <div key={paper.id} className="pl-4 border-l-2 border-blue-100">
-                        <p className="text-slate-800 font-medium text-sm">{paper.title}</p>
-                        <p className="text-slate-500 text-sm">{paper.authors.join(", ")} · {paper.journal} · {paper.year}</p>
-                        <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs border ${
-                          paper.status === "Published" ? "bg-green-50 text-green-700 border-green-100" : "bg-blue-50 text-blue-700 border-blue-100"
-                        }`}>{paper.status}</span>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              </>
-            )}
           </div>
         </div>
       </div>

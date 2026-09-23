@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Save, User } from "lucide-react";
-import { profile } from "@/lib/data";
+import { emptyProfile as profile } from "@/lib/data";
 
 export default function AdminWebsiteAbout() {
   const [form, setForm] = useState({
@@ -11,10 +11,10 @@ export default function AdminWebsiteAbout() {
     location: profile.location,
     email: profile.email,
     summary: profile.summary,
-    careerFocus: "Placeholder career focus. Replace it with a few sentences about your current role, the problems you focus on, and how your professional experience and research connect.",
-    academicBio: "Placeholder academic journey. Replace it with a short narrative about your degrees, the institutions you studied at, and how your studies connect to your current work and research.",
-    profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=280&h=280&fit=crop",
-    domainExpertise: "Expertise Area 1, Expertise Area 2, Expertise Area 3, Expertise Area 4, Expertise Area 5, Expertise Area 6, Expertise Area 7",
+    careerFocus: "",
+    academicBio: "",
+    profileImage: "",
+    domainExpertise: "",
   });
 
   const [saved, setSaved] = useState(false);
@@ -45,7 +45,11 @@ export default function AdminWebsiteAbout() {
       <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
         <h2 className="font-serif text-lg text-white">Identity & Contact</h2>
         <div className="flex items-center gap-5 mb-2">
+          {form.profileImage ? (
           <img src={form.profileImage} alt="Profile" className="w-16 h-16 rounded-2xl object-cover border border-slate-700 flex-shrink-0" />
+        ) : (
+          <div className="w-16 h-16 rounded-2xl border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0"><User size={20} className="text-slate-600" /></div>
+        )}
           <div className="flex-1">
             <label className="block text-xs text-slate-400 mb-1.5">Profile Photo URL</label>
             <input value={form.profileImage} onChange={e => setForm({ ...form, profileImage: e.target.value })}

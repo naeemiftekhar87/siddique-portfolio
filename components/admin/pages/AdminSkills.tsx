@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { skills as initialSkills, skillCategories } from "@/lib/data";
+import { skillCategories, type skills as initialSkills } from "@/lib/data";
 
 type Skill = typeof initialSkills[0];
 
 export default function AdminSkills() {
-  const [skillsList, setSkillsList] = useState(initialSkills);
+  const [skillsList, setSkillsList] = useState<(typeof initialSkills)[number][]>([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL");
   const [editing, setEditing] = useState<number | null>(null);
@@ -110,6 +110,13 @@ export default function AdminSkills() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800">
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={5} className="text-center py-16 text-slate-500 text-sm">
+                  {skillsList.length === 0 ? "No skills yet." : "No skills match your filters."}
+                </td>
+              </tr>
+            )}
             {filtered.map((skill) => (
               <tr key={skill.id} className="hover:bg-slate-800/50 transition-colors">
                 <td className="px-5 py-3.5">

@@ -4,7 +4,6 @@ import {
   BarChart2, MessageSquare, TrendingUp, ArrowUpRight, Clock,
   Plus, CheckCircle, Eye
 } from "lucide-react";
-import { experiences, education, skills, certificates, projects, researchPapers, publications, ebooks, messages } from "@/lib/data";
 
 function StatCard({ label, value, icon: Icon, color, to }: {
   label: string; value: string | number; icon: React.ElementType; color: string; to: string;
@@ -23,13 +22,14 @@ function StatCard({ label, value, icon: Icon, color, to }: {
   );
 }
 
-const recentActivity = [
-  { action: "Certificate added", detail: "Sample Certificate Title", time: "2h ago", type: "add" },
-  { action: "Research paper updated", detail: "Example Research Paper Title", time: "1d ago", type: "edit" },
-  { action: "Portfolio project published", detail: "Sample Project Title", time: "2d ago", type: "publish" },
-  { action: "Resume updated", detail: "Professional Resume v5", time: "3d ago", type: "edit" },
-  { action: "New contact message", detail: "Research Collaboration Inquiry", time: "3d ago", type: "message" },
-];
+// The admin starts empty: counts and activity come from the database in
+// Phase 5, so nothing sample-based is shown here.
+const counts = {
+  experiences: 0, education: 0, skills: 0, certificates: 0, projects: 0,
+  researchPapers: 0, publications: 0, ebooks: 0, unreadMessages: 0,
+};
+
+const recentActivity: { action: string; detail: string; time: string; type: string }[] = [];
 
 export default function AdminDashboard() {
   return (
@@ -42,15 +42,15 @@ export default function AdminDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <StatCard label="Total Experience" value={experiences.length} icon={Briefcase} color="bg-blue-600" to="/admin/experience" />
-        <StatCard label="Degrees" value={education.length} icon={GraduationCap} color="bg-teal-600" to="/admin/education" />
-        <StatCard label="Skills" value={skills.length} icon={BarChart2} color="bg-violet-600" to="/admin/skills" />
-        <StatCard label="Certificates" value={certificates.length} icon={Award} color="bg-amber-500" to="/admin/certificates/professional" />
-        <StatCard label="Projects" value={projects.length} icon={FolderOpen} color="bg-pink-600" to="/admin/projects" />
-        <StatCard label="Research Papers" value={researchPapers.length} icon={FileText} color="bg-indigo-600" to="/admin/research/papers" />
-        <StatCard label="Publications" value={publications.length} icon={BookOpen} color="bg-emerald-600" to="/admin/publications" />
-        <StatCard label="eBooks" value={ebooks.length} icon={BookOpen} color="bg-orange-500" to="/admin/ebooks" />
-        <StatCard label="Messages" value={messages.filter(m => !m.read).length} icon={MessageSquare} color="bg-rose-600" to="/admin/messages" />
+        <StatCard label="Total Experience" value={counts.experiences} icon={Briefcase} color="bg-blue-600" to="/admin/experience" />
+        <StatCard label="Degrees" value={counts.education} icon={GraduationCap} color="bg-teal-600" to="/admin/education" />
+        <StatCard label="Skills" value={counts.skills} icon={BarChart2} color="bg-violet-600" to="/admin/skills" />
+        <StatCard label="Certificates" value={counts.certificates} icon={Award} color="bg-amber-500" to="/admin/certificates/professional" />
+        <StatCard label="Projects" value={counts.projects} icon={FolderOpen} color="bg-pink-600" to="/admin/projects" />
+        <StatCard label="Research Papers" value={counts.researchPapers} icon={FileText} color="bg-indigo-600" to="/admin/research/papers" />
+        <StatCard label="Publications" value={counts.publications} icon={BookOpen} color="bg-emerald-600" to="/admin/publications" />
+        <StatCard label="eBooks" value={counts.ebooks} icon={BookOpen} color="bg-orange-500" to="/admin/ebooks" />
+        <StatCard label="Messages" value={counts.unreadMessages} icon={MessageSquare} color="bg-rose-600" to="/admin/messages" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -61,6 +61,9 @@ export default function AdminDashboard() {
             <span className="text-xs text-slate-500">Last 7 days</span>
           </div>
           <div className="space-y-4">
+            {recentActivity.length === 0 && (
+              <p className="text-slate-500 text-sm py-8 text-center">No activity yet. Changes you make will appear here.</p>
+            )}
             {recentActivity.map((item, i) => (
               <div key={i} className="flex items-start gap-4">
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${

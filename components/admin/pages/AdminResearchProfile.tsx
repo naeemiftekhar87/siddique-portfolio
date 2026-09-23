@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import { Save, GraduationCap, BarChart2, Link2, RefreshCw } from "lucide-react";
-import { profile } from "@/lib/data";
+import { emptyProfile as profile } from "@/lib/data";
 
 export default function AdminResearchProfile() {
   const [metrics, setMetrics] = useState({ ...profile.scholarMetrics });
-  const [bio, setBio] = useState(
-    "Placeholder research bio. Replace it with a short description of your research focus and the questions you work on."
-  );
+  const [bio, setBio] = useState("");
   const [scholarUrl, setScholarUrl] = useState(profile.scholar);
   const [orcid, setOrcid] = useState("");
   const [researchGate, setResearchGate] = useState(profile.researchgate);

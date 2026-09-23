@@ -3,16 +3,9 @@
 import { useState } from "react";
 import { Upload, FileText, Search, Grid, List, Trash2, Copy, Eye } from "lucide-react";
 
-const mediaItems = [
-  { id: 1, name: "profile-photo.jpg", type: "image", size: "245 KB", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop", date: "Sep 17, 2026" },
-  { id: 2, name: "sample-certificate-1.pdf", type: "document", size: "1.2 MB", url: "", date: "Sep 17, 2026" },
-  { id: 3, name: "sample-project-1.png", type: "image", size: "512 KB", url: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&h=280&fit=crop", date: "Sep 10, 2026" },
-  { id: 4, name: "sample-project-2.png", type: "image", size: "380 KB", url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=280&fit=crop", date: "Sep 8, 2026" },
-  { id: 5, name: "professional-resume.pdf", type: "document", size: "320 KB", url: "", date: "Sep 5, 2026" },
-  { id: 6, name: "sample-ebook-cover.jpg", type: "image", size: "156 KB", url: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=560&fit=crop", date: "Aug 28, 2026" },
-  { id: 7, name: "sample-certificate-2.pdf", type: "document", size: "940 KB", url: "", date: "Aug 25, 2026" },
-  { id: 8, name: "sample-research-cover.jpg", type: "image", size: "290 KB", url: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=400&h=280&fit=crop", date: "Aug 20, 2026" },
-];
+type MediaItem = { id: number; name: string; type: string; size: string; url: string; date: string };
+
+const mediaItems: MediaItem[] = [];
 
 type FilterType = "all" | "image" | "document";
 
@@ -82,6 +75,9 @@ export default function AdminMedia() {
 
       {viewMode === "grid" ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filtered.length === 0 && (
+            <p className="col-span-full text-center py-16 text-slate-500 text-sm">{items.length === 0 ? "No media yet." : "No media match your filters."}</p>
+          )}
           {filtered.map((item) => (
             <div
               key={item.id}
@@ -117,6 +113,13 @@ export default function AdminMedia() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
+{filtered.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center py-16 text-slate-500 text-sm">
+                    {items.length === 0 ? "No media yet." : "No media match your filters."}
+                  </td>
+                </tr>
+              )}
               {filtered.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-800/50 transition-colors">
                   <td className="px-5 py-3.5">

@@ -53,6 +53,27 @@ export const profile = {
   },
 };
 
+/**
+ * Starting state for the admin panel: same shape as `profile`, but empty, so
+ * the admin shows only what the owner enters (docs/memory.md decision 15). The
+ * owner's real profile links are kept; they are not sample data.
+ */
+export const emptyProfile: typeof profile = {
+  name: "",
+  headline: "",
+  badge: "",
+  summary: "",
+  location: "",
+  email: "",
+  linkedin: profile.linkedin,
+  github: "",
+  scholar: profile.scholar,
+  researchgate: profile.researchgate,
+  stats: { experience: "", degrees: "", certificates: "", research: "", publications: "", skills: "" },
+  researchInterests: [],
+  scholarMetrics: { citations: 0, hIndex: 0, i10Index: 0, publications: 0 },
+};
+
 export const experiences = [
   {
     id: 1,

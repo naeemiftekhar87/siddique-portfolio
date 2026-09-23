@@ -43,7 +43,7 @@ Before writing code, also read the relevant Next.js guide under `node_modules/ne
 - The target is a full-stack Next.js application. The Phase 5 backend must be implemented inside this application with Route Handlers, Server Actions where appropriate, and server-only data/auth modules; do not introduce a separate Express or Vite backend.
 - shadcn/ui is initialized (`components.json`: Radix base, Nova preset, Lucide icons) with the design.md component set in `components/ui/`. In this shadcn version `form` is replaced by `field`. There is no backend implementation, database client, authentication layer, or configured test framework yet.
 - `lib/data/index.ts` holds TEMPORARY, obviously fake placeholder data with the source design's shape and item counts. Never put real-looking personal or research data there; the owner enters real content via the admin once Phase 5 exists.
-- Supabase is the chosen Phase 5 platform (Postgres, Storage, Auth). Credentials exist in the gitignored `.env`, but no Supabase client, schema, or dependency has been added yet.
+- Supabase is the chosen Phase 5 platform (Postgres, Storage, Auth). Credentials exist in the gitignored `.env`, but `@supabase/supabase-js` is installed (used by the admin seed script); no `lib/db` clients or schema exist yet.
 - The PRD's long-term goal is to replace static content with persistent data in Phase 5. Do not pretend that admin edits persist before that work exists.
 
 ## Product scope
@@ -51,7 +51,7 @@ Before writing code, also read the relevant Next.js guide under `node_modules/ne
 The product has two surfaces:
 
 - A responsive public portfolio for recruiters, researchers, institutions, readers, and collaborators.
-- A protected single-owner admin panel for content, resume configuration, media, messages, SEO, and site settings. There is no analytics module or visitor tracking.
+- A protected single-owner admin panel for content, resume configuration, media, messages, and site settings. There is no analytics module or visitor tracking.
 
 Treat `P0` requirements as launch-critical, `P1` as required after the core flow, and `P2` as future work unless the user explicitly changes the priority. Do not implement non-goals from the PRD, including multi-tenant hosting, checkout/payments, a blog/newsletter, native mobile apps, or automatic Scholar/ORCID sync, unless they are moved into the active scope.
 
@@ -128,8 +128,6 @@ app/
     admin/ebooks/page.tsx
     admin/messages/page.tsx
     admin/resume/professional/page.tsx
-    admin/resume/academic/page.tsx
-    admin/resume/research/page.tsx
     admin/resume/infographic/page.tsx
     admin/portfolio/gallery/page.tsx
     admin/portfolio/categories/page.tsx
@@ -137,7 +135,6 @@ app/
     admin/website/about/page.tsx
     admin/website/navigation/page.tsx
     admin/website/footer/page.tsx
-    admin/seo/page.tsx
     admin/media/page.tsx
     admin/settings/page.tsx
 components/
@@ -166,7 +163,7 @@ Create `components/`, `lib/`, and nested route folders only when there is code t
 - Use `next/link` for internal navigation and semantic links for external navigation.
 - In Next.js 16, treat `params` and `searchParams` as asynchronous values in Server Components and use the generated `PageProps`/`LayoutProps` helpers where useful.
 - Keep data access and rendering concerns separate. Put reusable data access in `lib/`, not directly in many page components.
-- Use React Server Component metadata exports (`metadata` or `generateMetadata`) for public-page SEO.
+- Use `metadata` exports only for plain page titles. There is no SEO module (no meta editing, Open Graph, sitemap, robots, or JSON-LD); do not add one unless the owner asks.
 - Use `next/image` for local and remote portfolio imagery, with meaningful alt text and explicit dimensions or `fill` where required.
 - Use `loading.tsx`, `error.tsx`, and `not-found.tsx` where a route needs a real loading, failure, or missing-record state.
 - Do not add React Router, Vite, Express, or another frontend framework to this Next.js project.
@@ -194,7 +191,7 @@ The visual target is defined by `docs/design.md`: deep navy heroes, cyan accents
 - Use the existing typed data as the seed/migration source only after confirming the file and schema actually exist.
 - Admin routes under `/admin/*` must be protected. Implement login, session expiry, logout, password hashing, brute-force protection, and two-step confirmation for destructive actions before exposing CRUD workflows.
 - Public pages must reflect admin changes after a refresh or within the documented cache TTL.
-- Treat media uploads, contact messages, resume exports, and SEO records as separate bounded areas with explicit validation and failure states.
+- Treat media uploads, contact messages, and resume exports as separate bounded areas with explicit validation and failure states.
 
 ## Required product areas
 
@@ -205,10 +202,10 @@ Follow the PRD sitemap and requirements rather than inventing alternate routes. 
 - Portfolio and project details.
 - Research, research details, publications, and upcoming research.
 - eBooks and eBook details.
-- Professional, Academic, and Research resume views, plus the infographic resume and PDF export.
+- The Professional resume view, plus the infographic resume and PDF export (the Academic and Research CVs were removed).
 - Contact and the catch-all 404 page.
 
-The admin surface includes authentication, dashboard, content CRUD, research management, messages, resume editors, portfolio management, website editors, SEO, media, and settings as listed in `docs/PRD.md`.
+The admin surface includes authentication, dashboard, content CRUD, research management, messages, resume editors, portfolio management, website editors, media, and settings as listed in `docs/PRD.md`.
 
 ## Quality and completion checklist
 
