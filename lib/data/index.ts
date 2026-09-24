@@ -865,63 +865,6 @@ export const achievements = [
   },
 ];
 
-export const messages = [
-  {
-    id: 1,
-    name: "Sample Sender 1",
-    email: "sender1@example.com",
-    subject: "Sample Message Subject 1",
-    message: "This is a placeholder contact message used to preview the admin inbox. Real messages arrive through the contact form once it is connected in Phase 6.",
-    date: "2026-09-14",
-    read: false,
-  },
-  {
-    id: 2,
-    name: "Sample Sender 2",
-    email: "sender2@example.com",
-    subject: "Sample Message Subject 2",
-    message: "This is a placeholder contact message used to preview the admin inbox. Real messages arrive through the contact form once it is connected in Phase 6.",
-    date: "2026-09-12",
-    read: true,
-  },
-  {
-    id: 3,
-    name: "Sample Sender 3",
-    email: "sender3@example.com",
-    subject: "Sample Message Subject 3",
-    message: "This is a placeholder contact message used to preview the admin inbox. Real messages arrive through the contact form once it is connected in Phase 6.",
-    date: "2026-09-10",
-    read: false,
-  },
-  {
-    id: 4,
-    name: "Sample Sender 4",
-    email: "sender4@example.com",
-    subject: "Sample Message Subject 4",
-    message: "This is a placeholder contact message used to preview the admin inbox. Real messages arrive through the contact form once it is connected in Phase 6.",
-    date: "2026-09-08",
-    read: true,
-  },
-  {
-    id: 5,
-    name: "Sample Sender 5",
-    email: "sender5@example.com",
-    subject: "Sample Message Subject 5",
-    message: "This is a placeholder contact message used to preview the admin inbox. Real messages arrive through the contact form once it is connected in Phase 6.",
-    date: "2026-09-06",
-    read: true,
-  },
-  {
-    id: 6,
-    name: "Sample Sender 6",
-    email: "sender6@example.com",
-    subject: "Sample Message Subject 6",
-    message: "This is a placeholder contact message used to preview the admin inbox. Real messages arrive through the contact form once it is connected in Phase 6.",
-    date: "2026-09-04",
-    read: false,
-  },
-];
-
 export const languages = [
   { id: 1, name: "Language 1", level: "Native", proficiency: 100, flag: "🏳️" },
   { id: 2, name: "Language 2", level: "Professional Working Proficiency", proficiency: 90, flag: "🏳️" },

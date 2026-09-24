@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   Briefcase, GraduationCap, Award, FolderOpen, BookOpen, FileText,
-  BarChart2, MessageSquare, TrendingUp, ArrowUpRight, Clock,
+  BarChart2, TrendingUp, ArrowUpRight, Clock,
   Plus, CheckCircle, Eye
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -27,7 +27,7 @@ function StatCard({ label, value, icon: Icon, color, to }: {
 // Phase 5, so nothing sample-based is shown here.
 const counts = {
   experiences: 0, education: 0, skills: 0, certificates: 0, projects: 0,
-  researchPapers: 0, publications: 0, ebooks: 0, unreadMessages: 0,
+  researchPapers: 0, publications: 0, ebooks: 0,
 };
 
 const recentActivity: { action: string; detail: string; time: string; type: string }[] = [];
@@ -51,7 +51,6 @@ export default function AdminDashboard() {
         <StatCard label="Research Papers" value={counts.researchPapers} icon={FileText} color="bg-indigo-600" to="/admin/research/papers" />
         <StatCard label="Publications" value={counts.publications} icon={BookOpen} color="bg-emerald-600" to="/admin/publications" />
         <StatCard label="eBooks" value={counts.ebooks} icon={BookOpen} color="bg-orange-500" to="/admin/ebooks" />
-        <StatCard label="Messages" value={counts.unreadMessages} icon={MessageSquare} color="bg-rose-600" to="/admin/messages" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -70,12 +69,10 @@ export default function AdminDashboard() {
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
                   item.type === "add" ? "bg-green-950 text-green-400" :
                   item.type === "publish" ? "bg-blue-950 text-blue-400" :
-                  item.type === "message" ? "bg-violet-950 text-violet-400" :
                   "bg-slate-800 text-slate-400"
                 }`}>
                   {item.type === "add" ? <Plus size={14} /> :
                    item.type === "publish" ? <Eye size={14} /> :
-                   item.type === "message" ? <MessageSquare size={14} /> :
                    <CheckCircle size={14} />}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -99,7 +96,6 @@ export default function AdminDashboard() {
               { label: "Add Project", to: "/admin/projects", icon: FolderOpen, color: "text-pink-400" },
               { label: "Add Research Paper", to: "/admin/research/papers", icon: FileText, color: "text-indigo-400" },
               { label: "Add eBook", to: "/admin/ebooks", icon: BookOpen, color: "text-orange-400" },
-              { label: "View Messages", to: "/admin/messages", icon: MessageSquare, color: "text-rose-400" },
               { label: "Edit Resume", to: "/admin/resume/professional", icon: TrendingUp, color: "text-cyan-400" },
             ].map(({ label, to, icon: Icon, color }) => (
               <Link

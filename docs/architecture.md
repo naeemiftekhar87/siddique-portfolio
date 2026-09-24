@@ -113,7 +113,7 @@ flowchart LR
 2. The authentication layer validates the credentials, creates a server-side session, and applies expiry and brute-force protection.
 3. Every `/admin/*` route checks authentication before rendering protected content.
 4. Admin forms validate input on the client and again in the server action or Route Handler.
-5. Protected mutations persist content, configuration, messages, or media metadata.
+5. Protected mutations persist content, configuration, or media metadata.
 6. Successful mutations invalidate or revalidate the affected public reads so changes appear after refresh or within the documented cache TTL.
 7. Destructive actions require a separate confirmation step.
 
@@ -124,13 +124,11 @@ flowchart LR
     C["Public contact form"] --> V["Client validation and honeypot"]
     V --> E["Next.js contact Route Handler"]
     E --> R["Rate limit and server validation"]
-    R --> M[("Message record")]
-    R --> N["Optional owner email notification"]
-    M --> I["Admin messages inbox"]
-    N --> I
+    R --> N["Resend (lib/email/)"]
+    N --> I["Owner's inbox (CONTACT_TO_EMAIL), Reply-To = visitor"]
 ```
 
-The contact form must not write directly to the database from the browser. The Next.js server endpoint is responsible for validation, sanitization, spam protection, persistence, and optional email delivery.
+Contact submissions are **not stored** and there is no admin inbox (owner decision, 2026-09-24). The Next.js server endpoint is responsible for validation, sanitization, spam protection, and email delivery; the browser never calls Resend directly, and a delivery failure is reported to the visitor as an error.
 
 ### 4.4 Resume flow
 
@@ -231,7 +229,6 @@ app/
     ├── admin/research/upcoming/page.tsx
     ├── admin/research/working/page.tsx
     ├── admin/ebooks/page.tsx
-    ├── admin/messages/page.tsx
     ├── admin/resume/professional/page.tsx
     ├── admin/resume/infographic/page.tsx
     ├── admin/portfolio/gallery/page.tsx
@@ -346,7 +343,7 @@ The backend surface, database, storage, and authentication choices are resolved 
 
 ### 7.1 Data ownership
 
-The PRD entities are the domain model: Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, PortfolioCategory, navigation/footer/page configuration, MediaAsset, and AdminUser.
+The PRD entities are the domain model: Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, ResumeConfig, PortfolioCategory, navigation/footer/page configuration, MediaAsset, and AdminUser.
 
 Define TypeScript types before creating forms, API contracts, or database schemas. Keep identifiers stable and use explicit status values where the PRD defines them.
 
@@ -367,7 +364,7 @@ During Phase 5 and later:
 - The chosen persistence layer is **Supabase**: Supabase Postgres for data and Supabase Storage for media (S3-compatible), accessed with the **plain Supabase client** (`@supabase/supabase-js` + `@supabase/ssr`). No ORM (Prisma) and no client data cache (TanStack Query) — decided 2026-09-23.
 - Clients live in server-only modules under `lib/db/` (marked with `import "server-only"`): a cookie-aware `@supabase/ssr` client for the admin session, and a service-role client for privileged writes that is used only after the session is verified. Never expose the secret key (`sb_secret_…`) to the browser.
 - Schema is owned by SQL migrations managed with the Supabase CLI (`supabase/migrations/`); TypeScript types are generated from the schema (`supabase gen types typescript`) into `lib/db/` and used by all selectors and actions.
-- Row Level Security is enabled on every table, deny by default. Public content tables get read-only `select` policies; messages, download stats, and admin/config data have no public policies.
+- Row Level Security is enabled on every table, deny by default. Public content tables get read-only `select` policies; download stats, rate-limit records, and admin/config data have no public policies.
 - Public reads: Server Components call `lib/data/` selectors. Admin CRUD: Server Actions (session check → zod validation → write → `revalidatePath`/`revalidateTag`). Route Handlers are used only for auth, the contact form, media upload, resume export, and the download counter. Do not implement the same mutation both ways.
 - Expose persistence through typed Route Handlers, Server Actions, or server-only data-access functions under `lib/data/` and `lib/storage/`.
 - Keep public reads unauthenticated and protected writes authenticated.

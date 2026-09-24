@@ -56,8 +56,8 @@
 
 ### 1.4 Data Layer
 
-- [ ] Define TypeScript types for all entities (Profile, Experience, Education, Skill, Certificate, Project, Paper, Language, eBook, Achievement, Message)
-- [ ] Create `lib/data/index.ts` with clearly marked **placeholder** seed data (1 profile, 6 experiences, 2 education, 38 skills, 15 certificates, 4 projects, 6 papers, 4 languages, 5 eBooks, 12 achievements, 6 messages). Only the owner's real profile URLs (LinkedIn, Scholar, ResearchGate) are real; everything else is entered by the owner via the admin later.
+- [ ] Define TypeScript types for all entities (Profile, Experience, Education, Skill, Certificate, Project, Paper, Language, eBook, Achievement)
+- [ ] Create `lib/data/index.ts` with clearly marked **placeholder** seed data (1 profile, 6 experiences, 2 education, 38 skills, 15 certificates, 4 projects, 6 papers, 4 languages, 5 eBooks, 12 achievements). Only the owner's real profile URLs (LinkedIn, Scholar, ResearchGate) are real; everything else is entered by the owner via the admin later.
 - [ ] Create helper selectors (recent experience, latest papers, stats calculators)
 
 **✅ Definition of Done**
@@ -269,7 +269,7 @@
 
 ### 5.4 Dashboard (`/admin`)
 
-- [ ] 9 stat cards wired to real content/message counts (Visitors removed — no analytics)
+- [ ] 8 stat cards wired to real content counts (Visitors removed — no analytics; Messages removed — contact goes to email only)
 - [ ] Anonymous download counter (`DownloadStat` daily aggregates for resume PDFs and eBooks; no IP/cookies)
 - [ ] Dashboard overview charts: bar chart (content items per section) and area chart (downloads over time)
 - [ ] Recent Activity feed (5 items with icons)
@@ -316,15 +316,12 @@
 - [ ] `/admin/research/upcoming` — CRUD + expandable cards
 - [ ] `/admin/research/working` — CRUD, version, target journal, preprint URL, status pipeline (Draft → Accepted)
 
-### 6.2 Messages & Contact Pipeline
+### 6.2 Contact Pipeline (email only — no admin inbox)
 
-- [ ] Contact form POST endpoint storing to database
-- [ ] Spam protection (honeypot + rate limit; optional CAPTCHA)
-- [ ] `/admin/messages` — read/unread list, mark-read
-- [ ] Reply action (mailto or send via Resend)
-- [ ] Delete with confirmation
-- [ ] Email notification to owner on new message via Resend (`lib/email/`)
-- [ ] Unread count in dashboard and sidebar badge
+- [ ] `app/api/contact/route.ts` POST endpoint: server validation (zod), sanitization; nothing is stored in the database
+- [ ] Spam protection (honeypot + rate limit stored in Supabase; optional CAPTCHA)
+- [ ] Send each submission to the owner's inbox (`CONTACT_TO_EMAIL`) via Resend (`lib/email/`), with Reply-To set to the visitor so the owner replies from their mail client
+- [ ] Success and failure states on the form (a Resend failure must show an error, not a false success)
 
 ### 6.3 Resume Editors
 

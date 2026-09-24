@@ -2,7 +2,7 @@
 
 > **Read this first.** It is the canonical handoff file: it should give a new agent enough context to start work without re-reading the whole repo. Update it at the end of every work session (the "Session log" and any section whose facts changed).
 >
-> **Last updated:** 2026-09-23
+> **Last updated:** 2026-09-24
 
 ---
 
@@ -11,7 +11,7 @@
 A personal **academic + professional portfolio** for a single owner (Siddique), with a built-in **single-owner admin CMS**. The owner enters data once in the admin, and it drives the public site, two resume variants (Professional and Infographic) with PDF export, and SEO metadata.
 
 - **Public site:** 20 routes for recruiters, researchers, institutions, and readers.
-- **Admin panel:** `/admin/*`, a login plus about 29 management screens: content CRUD, research, messages, resume editors, portfolio, website editors, media, and settings.
+- **Admin panel:** `/admin/*`, a login plus about 29 management screens: content CRUD, research, resume editors, portfolio, website editors, media, and settings.
 - **Out of scope for v1:** multi-tenant use, eBook payments, a blog or newsletter, native apps, any automatic import or sync from LinkedIn/Scholar/ResearchGate/ORCID, analytics or visitor tracking, SEO tooling, and 2FA (removed from the PRD on 2026-09-23).
 
 ---
@@ -82,11 +82,11 @@ A personal **academic + professional portfolio** for a single owner (Siddique), 
 
 **Public routes:** `/`, `/about`, `/experience`, `/education`, `/skills`, `/achievements`, `/certificates` (+`/[id]`), `/portfolio` (+`/[id]`), `/research` (tabs via `?tab=`), `/research/[id]`, `/research/upcoming`, `/publications`, `/ebooks` (+`/[id]`), `/resume`, `/resume/infographic`, `/contact`, 404.
 
-**Admin routes:** `/admin/login`, `/admin` (dashboard), profile, experience, education, skills, achievements, certificates/{professional,academic}, projects, publications, research/{papers,profile,interests,upcoming,working}, ebooks, messages, resume/{professional,academic,research,infographic}, portfolio/{gallery,categories}, website/{home,about,navigation,footer}, seo, media, settings.
+**Admin routes:** `/admin/login`, `/admin` (dashboard), profile, experience, education, skills, achievements, certificates/{professional,academic}, projects, publications, research/{papers,profile,interests,upcoming,working}, ebooks, resume/{professional,academic,research,infographic}, portfolio/{gallery,categories}, website/{home,about,navigation,footer}, seo, media, settings.
 
 **Entities (PRD §7):** Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, Message, ResumeConfig, PortfolioCategory, NavItem/FooterConfig/PageConfig, MediaAsset, AdminUser, DownloadStat (anonymous daily download counts).
 
-**Seed data target (Phase 1, `lib/data/index.ts`):** 1 profile, 6 experiences, 2 education, 38 skills, 15 certificates, 4 projects, 6 papers, 4 languages, 5 eBooks, 12 achievements, 6 messages. All entries are **clearly marked placeholders** because the owner enters real content through the admin (decision 8). Per `docs/rules.md` §19–20, never invent realistic-looking personal or research data (jobs, degrees, DOIs, citation counts, and so on).
+**Seed data target (Phase 1, `lib/data/index.ts`):** 1 profile, 6 experiences, 2 education, 38 skills, 15 certificates, 4 projects, 6 papers, 4 languages, 5 eBooks, 12 achievements. All entries are **clearly marked placeholders** because the owner enters real content through the admin (decision 8). Per `docs/rules.md` §19–20, never invent realistic-looking personal or research data (jobs, degrees, DOIs, citation counts, and so on).
 
 **Owner's external profiles** (given by the owner on 2026-09-23; tracking/session query params stripped):
 
@@ -107,7 +107,7 @@ These are link targets only: use them for social icons, the footer, and research
 3. Research and eBooks.
 4. Resume system and PDF.
 5. Backend and admin core (Supabase, auth, CRUD, public site reads live data).
-6. Advanced admin (research mgmt, messages, resume editors, website editors, media, settings).
+6. Advanced admin (research mgmt, contact-to-email pipeline, resume editors, website editors, media, settings).
 7. Hardening and launch.
 
 ---
@@ -116,7 +116,7 @@ These are link targets only: use them for social icons, the footer, and research
 
 1. **Full-stack Next.js in one repo.** Route Handlers under `app/api/` and Server Actions; no Express, Vite, React Router, or separate API repo. Deploy on a Node server runtime, not static export.
 2. **Supabase for data, media, and auth (Phase 5).** Postgres is the source of truth for entities, Storage holds media (only URLs and metadata go into Postgres), and Supabase Auth provides email/password login with cookie sessions. Server-only access sits behind `lib/db/` and `lib/storage/`, and the secret key (`sb_secret_…`) never reaches the client. Mixing in another persistence system needs a written decision record.
-3. **No analytics module and no visitor tracking** (reconfirmed 2026-09-23). There is no `/admin/analytics`, `/api/analytics`, `lib/analytics/`, page views, time on site, or bounce rate. The dashboard has 9 stat cards (Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks, Unread Messages) plus two Recharts charts: **content items per section** (bar), which replaced "top pages", and **downloads over time** (area). Downloads come from the `DownloadStat` entity: anonymous daily counts per resume variant or eBook, with no IP, cookie, or visitor ID. A cookieless hosted analytics tool (Plausible, Umami, Vercel) is only a post-launch backlog idea and needs owner approval.
+3. **No analytics module and no visitor tracking** (reconfirmed 2026-09-23). There is no `/admin/analytics`, `/api/analytics`, `lib/analytics/`, page views, time on site, or bounce rate. The dashboard has 8 stat cards (Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks) plus two Recharts charts: **content items per section** (bar), which replaced "top pages", and **downloads over time** (area). Downloads come from the `DownloadStat` entity: anonymous daily counts per resume variant or eBook, with no IP, cookie, or visitor ID. A cookieless hosted analytics tool (Plausible, Umami, Vercel) is only a post-launch backlog idea and needs owner approval.
 4. **No 2FA.** It was removed from PRD §6.1 and phases.md §7.4 by the owner (2026-09-23).
 5. Single owner and admin, with no public accounts. Content is in English. Scholar metrics are entered manually in v1.
 6. Route groups `(public)` and `(admin)` are organizational only, and URLs match PRD §14.
@@ -128,7 +128,7 @@ These are link targets only: use them for social icons, the footer, and research
 11. **Data layer: plain Supabase client** (decided 2026-09-23; the Kilo Prisma + TanStack plan was rejected).
     - `@supabase/supabase-js` + `@supabase/ssr` in server-only `lib/db/` modules. There is a cookie-aware client for the admin session and a service-role client for writes, used only after the session is verified.
     - No Prisma, TanStack Query, or TanStack Form.
-    - Schema is Supabase CLI SQL migrations (`supabase/migrations/`) with generated TypeScript types. RLS is on for every table: public content gets read-only policies; messages, stats, and config have none.
+    - Schema is Supabase CLI SQL migrations (`supabase/migrations/`) with generated TypeScript types. RLS is on for every table: public content gets read-only policies; stats, rate limits, and config have none.
     - Public reads: Server Components → `lib/data/` selectors.
     - Admin CRUD: **Server Actions** (session check → zod → write → revalidate).
     - Route Handlers are used only for auth, contact, media upload, resume export, and the download counter.
@@ -141,8 +141,8 @@ These are link targets only: use them for social icons, the footer, and research
     - **Email:** Resend, behind a server-only `lib/email/` adapter using `RESEND_API_KEY`. Until a custom domain is verified, Resend can only send from its test sender to the account owner's own address, which is enough for owner notifications.
     - **Database:** the Supabase DB is **empty**. Migrations create the schema, no content is seeded (decision 9), and an **admin seed script** creates the single Supabase Auth user through the Admin API from `ADMIN_EMAIL`/`ADMIN_PASSWORD`. It is idempotent and the credentials are never committed.
     - **Hosting: Vercel** (2026-09-23). Use the Node.js runtime for routes that use the service-role client, Resend, or Chromium. The resume PDF uses `puppeteer-core` + `@sparticuz/chromium` (needs approval in Phase 4; watch Vercel's function size and duration limits). Rate limits for login and contact must be stored in Supabase, not in memory. Env vars live in Vercel project settings.
-    - **Domain:** a custom domain is registered at **Namecheap**, with **no mailbox**. It points to Vercel via DNS, and Resend sends from it after SPF/DKIM/DMARC records are added at Namecheap (no mailbox needed to send). Contact notifications go to the owner's personal address, with Reply-To set to the visitor.
-    - **Env vars still to add** (to the gitignored `.env`): `RESEND_API_KEY` (Phase 6), plus `ADMIN_EMAIL` and `ADMIN_PASSWORD` (Phase 5).
+    - **Domain:** a custom domain is registered at **Namecheap**, with **no mailbox**. It points to Vercel via DNS, and Resend sends from it after SPF/DKIM/DMARC records are added at Namecheap (no mailbox needed to send). Contact submissions go to the owner's personal address (see decision 18), with Reply-To set to the visitor.
+    - **Env vars still to add** (to the gitignored `.env`): `RESEND_API_KEY` and `CONTACT_FROM_EMAIL` (Phase 6). `CONTACT_TO_EMAIL` was added 2026-09-24.
 13. **Design source ported; design must stay identical** (2026-09-23). The owner's Vite prototype is the visual source of truth for all pages; where it differs from `docs/design.md` (hard-coded hex classes, `<img>` tags, admin styling), the **ported design wins**. Its person-specific content was replaced with obvious placeholders (owner's choice). Training/Awards certificate admin pages were kept (owner's choice).
 14. **No SEO module** (2026-09-23, owner: "remove the SEO fully"). The `/admin/seo` page, route, and sidebar link, the `SEOEntry` entity, and all SEO scope (per-page meta/OG/canonical editing, sitemap.xml, robots.txt, JSON-LD, the Lighthouse SEO target, Search Console) are removed from the code, PRD, phases, architecture, and AGENTS.md. **Kept:** plain page `<title>`s (browser tabs) and `noindex` on `/admin`. `docs/rules.md` §18 (the owner's file) still asks for SEO-friendly pages; this was flagged to the owner rather than edited.
 15. **Admin changes (2026-09-23):**
@@ -162,6 +162,7 @@ These are link targets only: use them for social icons, the footer, and research
     - **URL:** paste an http(s) URL; an optional thumbnail is shown.
     - **Used in:** Website → Home (hero photo), Website → About (profile photo), Profile (the "+" on the photo reveals the chooser; `photo` was added to the Profile data type, and `emptyProfile.photo` is `""`), Projects (cover), Portfolio Gallery (image), and eBooks (cover, replacing the inert "Drag & drop" placeholder; new books no longer get a stock cover, and the list shows a neutral box when there is none).
     - **Not yet covered:** Certificates, Experience, and Education have no image field in their forms; new entries still get a stock Unsplash image/logo on add (leftover sample data).
+18. **Contact form → email only; no admin Messages inbox** (2026-09-24, owner). Submissions are emailed via Resend to **`mdtarakesiddique@gmail.com`** (env `CONTACT_TO_EMAIL`) with Reply-To = the visitor; they are **not stored** and there is no `Message` entity. Removed: `/admin/messages` route, `AdminMessages.tsx`, the sidebar link, the dashboard Messages card and "View Messages" quick action, and the placeholder `messages` array in `lib/data`. PRD §5.19/§6/§7/§10, phases 2.x/5.x/6.2, and architecture §4.3 updated. `docs/rules.md` (owner's file) still lists "Messages" among data models; flagged, not edited. The Contact page UI is unchanged (the form is still UI-only until Phase 6).
 
 ---
 
@@ -174,7 +175,7 @@ These are link targets only: use them for social icons, the footer, and research
 ## 7. Open questions and known doc conflicts
 
 1. **GitHub URL:** the owner will create and provide it. Until then, hide the GitHub icon/link; never guess a URL.
-2. **Domain name and notification address:** the exact Namecheap domain, and which personal email should receive contact notifications. Needed by Phase 6 (Resend) and Phase 7 (DNS).
+2. **Domain name:** the exact Namecheap domain (needed for the Resend sender, Phase 6, and DNS, Phase 7). The notification address is settled: `mdtarakesiddique@gmail.com` (decision 18).
 3. **Supabase credentials for Phase 5.** The owner keeps them in the gitignored `.env`; never paste them in chat or commit them. The project uses Supabase's **new API keys**: publishable `sb_publishable_…` replaces anon, and secret `sb_secret_…` replaces service_role. Legacy anon/service_role keys are **not used**. Present as of 2026-09-23: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `SUPABASE_DB_PASSWORD`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`. `SUPABASE_SECRET_KEY` added and verified 2026-09-23. **All Phase 5 credentials are present.** Suggestion given to the owner: lengthen `ADMIN_PASSWORD` (currently short) before the Phase 5 admin seed. CLI auth: the owner runs `npx supabase login` in Phase 5 (no `SUPABASE_ACCESS_TOKEN` stored). The same runtime vars go in Vercel project settings.
 
 ---
@@ -250,3 +251,4 @@ Newest last. Add one entry per work session.
 - **2026-09-24 (Claude Code), shadcn batch 1:** converted the admin panel to shadcn components with design variants (see decision 16). tsc, lint (0 errors), and build pass; the pixel diff is identical. Noted owner edits made outside this session: commit `ed76358` (About page refactor) and an uncommitted removal of the resume editor's Preview button plus reformatting (kept as-is). Next: batch 2, the public pages.
 - **2026-09-24 (Claude Code), shadcn batch 2:** public pages, Navbar, and Footer converted to shadcn (Button incl. asChild links, Input, Textarea, Label, Card, Badge) with `site-*` design variants. tsc, lint (0 errors), and build pass; the pixel diff is identical and the interaction test passed. Decision 16 is complete.
 - **2026-09-24 (Claude Code), image upload:** added `ImageSourceField` (upload or URL) to six admin screens (decision 17). Browser-tested: txt and 6 MB files rejected, PNG upload previewed on all six screens, URL mode works, no console errors. tsc and lint are clean.
+- **2026-09-24 (Claude Code), messages removed:** owner decision 18: contact submissions go straight to `mdtarakesiddique@gmail.com` via Resend; the admin Messages module (route, component, sidebar link, dashboard card and quick action, placeholder data) was removed and the docs updated. Added `CONTACT_TO_EMAIL` to `.env`. Told the owner what Resend needs: an API key, and the domain verified with DNS records at Namecheap for the sender address.

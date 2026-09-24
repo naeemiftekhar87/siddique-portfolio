@@ -18,7 +18,7 @@
 A personal website for an academic-professional that presents their career, research, portfolio, certificates, eBooks, and resume in one polished place. It has two parts:
 
 1. **Public Website** – a visitor-facing site (Home, About, Experience, Education, Skills, Achievements, Certificates, Portfolio, Research, Publications, eBooks, Resume Center, Contact).
-2. **Admin Panel** – a secure back office where the owner manages every piece of content, the resume/CV output, site appearance, media, and messages without touching code.
+2. **Admin Panel** – a secure back office where the owner manages every piece of content, the resume/CV output, site appearance, and media without touching code.
 
 ### 1.2 Problem Statement
 
@@ -34,7 +34,7 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 - Make research output (papers, metrics, pipeline) highly discoverable.
 - Let the owner update all content in minutes with no developer help.
 - Generate multiple resume/CV formats from the same data.
-- Surface content and inbox metrics (content counts, resume/eBook downloads, unread messages) on the admin dashboard — without behavioural tracking of visitors.
+- Surface content and inbox metrics (content counts, resume/eBook downloads) on the admin dashboard — without behavioural tracking of visitors.
 
 ### 1.5 Non-Goals (v1)
 
@@ -51,7 +51,7 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 
 | Persona                              | Description                                 | Key Needs                                                           |
 | ------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------- |
-| **Site Owner (Admin)**               | The academic/professional who owns the site | Fast content updates, resume generation, message inbox              |
+| **Site Owner (Admin)**               | The academic/professional who owns the site | Fast content updates, resume generation, contact messages delivered to their email              |
 | **Recruiter / Hiring Manager**       | Evaluates the owner's fit for a role        | Quick view of experience, skills, certificates, downloadable resume |
 | **Researcher / Collaborator**        | Looks for research alignment                | Publications, DOI links, interests, upcoming topics, contact        |
 | **Academic Committee / Institution** | Reviews credentials                         | Education, achievements, verified certificates, resume              |
@@ -65,7 +65,6 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 | ------------------------------------------------- | ------------------------------------------------------------------ |
 | Lighthouse Performance / Accessibility            | ≥ 90 each                                                          |
 | Resume downloads / month                          | Counted anonymously (no visitor tracking), growth month over month |
-| Contact form submissions / month                  | Counted from Messages, growth month over month                     |
 | Time for owner to publish a new paper/certificate | < 3 minutes                                                        |
 
 ---
@@ -77,7 +76,7 @@ A single source of truth: the owner enters data once in the admin panel, and it 
 | Public site       | 20 routes (incl. detail pages and 404)                                                                                     |
 | Shared components | Navbar, Footer                                                                                                             |
 | Admin panel       | Login, Dashboard, ~28 management screens                                                                                   |
-| Data              | Profile, experience, education, skills, certificates, projects, research papers, languages, eBooks, achievements, messages |
+| Data              | Profile, experience, education, skills, certificates, projects, research papers, languages, eBooks, achievements |
 
 ---
 
@@ -219,9 +218,8 @@ Combined page with a 3-section toggle.
 - **P0** Dark hero with social links.
 - **P0** Form: name, email, subject, message; validation; success state.
 - **P0** Contact info sidebar: location, email, social links.
-- **P0** Submissions saved to Admin → Messages.
+- **P0** Submissions are emailed to the owner (`CONTACT_TO_EMAIL`) via Resend with Reply-To set to the visitor. They are **not** stored and there is no admin inbox (owner decision, 2026-09-24).
 - **P0** Spam protection (honeypot + rate limit; CAPTCHA optional).
-- **P1** Email notification to owner on new message.
 
 ### 5.20 404 Not Found (`/*`)
 
@@ -240,7 +238,7 @@ Combined page with a 3-section toggle.
 
 ### 6.2 Dashboard (`/admin`)
 
-- **P0** 9 stat cards: Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks, Unread Messages.
+- **P0** 8 stat cards: Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks.
 - **P0** Overview charts on the dashboard (Recharts), built only from content and anonymous counters: a bar chart of content items per section (experience, certificates, projects, papers, eBooks, and so on) and an area chart of resume/eBook downloads over time. No page-view or visitor data.
 - **P0** Recent Activity feed (5 items with type icons).
 - **P0** Quick Actions panel (6 shortcut links).
@@ -266,7 +264,6 @@ Combined page with a 3-section toggle.
 | `/admin/research/upcoming`         | Upcoming Research         | CRUD; title, area, status, expected year, research question, contribution, methodology, keywords; expandable cards        |
 | `/admin/research/working`          | Working Papers            | CRUD; version, target journal, submission date, preprint URL; status pipeline (Draft → Accepted)                          |
 | `/admin/ebooks`                    | eBooks                    | CRUD; cover image, **PDF file upload**, category, pages, ISBN, description                                                |
-| `/admin/messages`                  | Messages                  | Read/unread list, mark-read, reply, delete with confirmation                                                              |
 
 ### 6.4 Resume Management
 
@@ -296,7 +293,7 @@ Combined page with a 3-section toggle.
 
 - **P0** Social & academic profile links (LinkedIn, GitHub, Google Scholar).
 - **P0** Password change with show/hide.
-- Personal information is edited only on `/admin/profile` (not repeated in Settings). There are no notification preferences (contact-message emails are always sent) and no danger zone (2026-09-23).
+- Personal information is edited only on `/admin/profile` (not repeated in Settings). There are no notification preferences (contact messages always go to the owner's email) and no danger zone (2026-09-23).
 
 ---
 
@@ -316,7 +313,6 @@ Combined page with a 3-section toggle.
 | **WorkingPaper**                        | id, title, version, targetJournal, submissionDate, preprintUrl, status                                                         |
 | **Language**                            | id, name, flag, level, proficiency %                                                                                           |
 | **eBook**                               | id, title, subtitle, author, cover, category, pages, year, ISBN, description, fileUrl (uploaded PDF), downloads                |
-| **Message**                             | id, name, email, subject, body, createdAt, read, repliedAt                                                                     |
 | **ResumeConfig**                        | type (professional / infographic), sections visibility, counts, accent colour, font, custom note                               |
 | **PortfolioCategory**                   | id, name, slug, colour, order                                                                                                  |
 | **NavItem / FooterConfig / PageConfig** | label, path, visible, order; tagline, copyright, links; home/about editable fields                                             |
@@ -324,7 +320,7 @@ Combined page with a 3-section toggle.
 | **AdminUser**                           | Supabase Auth user (email; password hashed by Supabase) ; seeded by an admin seed script (no notification prefs)               |
 | **DownloadStat**                        | date, kind (resume variant / eBook), targetId, count — daily aggregate only; no IP, cookie, user-agent, or visitor identifier  |
 
-**Supabase decision:** The Phase 5 backend uses **Supabase** as the single platform for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The typed seed data at `lib/data/index.ts` — to be created in Phase 1; it does not exist yet; **clearly marked placeholder content** for building the UI, since real content is entered by the owner through the admin — (seed data: 1 profile, 6 experiences, 2 education entries, 38 skills, 15 certificates, 4 projects, 6 research papers, 4 languages, 5 eBooks, 12 achievements, 6 messages) is a UI-only placeholder for Phases 1–4 and is **not** loaded into Supabase; the database starts empty. Mixing Supabase with any other persistence system is disallowed unless a separate decision record is written.
+**Supabase decision:** The Phase 5 backend uses **Supabase** as the single platform for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The typed seed data at `lib/data/index.ts` — to be created in Phase 1; it does not exist yet; **clearly marked placeholder content** for building the UI, since real content is entered by the owner through the admin — (seed data: 1 profile, 6 experiences, 2 education entries, 38 skills, 15 certificates, 4 projects, 6 research papers, 4 languages, 5 eBooks, 12 achievements) is a UI-only placeholder for Phases 1–4 and is **not** loaded into Supabase; the database starts empty. Mixing Supabase with any other persistence system is disallowed unless a separate decision record is written.
 
 ---
 
@@ -354,7 +350,7 @@ Combined page with a 3-section toggle.
 | **Auth**           | Supabase Auth: email/password + server-side sessions, brute-force protection                                                                                                                                                                                   |
 | **Media storage**  | Supabase Storage (object storage) for images, covers, documents                                                                                                                                                                                                |
 | **PDF generation** | Headless Chromium renders the resume route server-side (`app/api/resume/export`) so the PDF matches the site exactly                                                                                                                                           |
-| **Email**          | Resend (owner notifications for new contact messages; replies)                                                                                                                                                                                                 |
+| **Email**          | Resend (delivers contact-form submissions to the owner's inbox)                                                                                                                                                                                                 |
 | **Hosting**        | Vercel (Next.js serverless/Node runtime + CDN); Supabase for DB/storage/auth; custom domain registered at Namecheap                                                                                                                                            |
 
 ---
@@ -392,7 +388,7 @@ Combined page with a 3-section toggle.
 ### Phase 6 – Advanced Admin (Weeks 14–16)
 
 - Research profile, interests, upcoming, working papers.
-- Messages inbox (contact form wired end-to-end, email notifications).
+- Contact form wired end-to-end to the owner's email (no inbox).
 - Resume editors (2: professional, infographic), portfolio gallery/categories.
 - Website editors (home, about, navigation, footer).
 - Media Library, Settings.
@@ -414,7 +410,7 @@ Combined page with a 3-section toggle.
 | Feature             | Acceptance Criteria                                                                                                                 |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Content persistence | Editing an item in admin updates the public page within one page refresh (or within the cache TTL)                                  |
-| Contact form        | A valid submission shows a success state, appears in Admin → Messages as unread, and triggers a notification email                  |
+| Contact form        | A valid submission shows a success state and arrives in the owner's email inbox with Reply-To set to the visitor                  |
 | Certificate filter  | Selecting "Academic" shows only academic certificates; count matches                                                                |
 | Research toggle     | Switching sections doesn't reload the page; URL reflects the active section                                                         |
 | Resume PDF          | Downloaded PDF visually matches the on-screen resume and respects admin section toggles and accent colour                           |
@@ -462,7 +458,7 @@ Combined page with a 3-section toggle.
 - **Hosting:** Vercel, with the Namecheap custom domain pointed at it.
 - **Database:** the Supabase database is empty; the schema is created from migrations, and only the single admin user is seeded (no sample content).
 - **No SEO module** (owner decision, 2026-09-23): no `/admin/seo`, no `SEOEntry`, no per-page meta/OG/canonical editing, no `sitemap.xml`/`robots.txt`/JSON-LD, no SEO Lighthouse target. Pages keep plain `<title>`s, and the admin stays `noindex`.
-- There is **no analytics module**: no `/admin/analytics`, no `/api/analytics`, no visitor/page-view tracking. The dashboard shows content/message metrics plus anonymous daily download counts (`DownloadStat`). The "top pages" chart is replaced by a content-per-section chart; time-on-site and bounce-rate metrics are dropped. A cookieless hosted analytics tool (e.g. Plausible, Umami, Vercel Web Analytics) is not adopted and would need owner approval.
+- There is **no analytics module**: no `/admin/analytics`, no `/api/analytics`, no visitor/page-view tracking. The dashboard shows content metrics plus anonymous daily download counts (`DownloadStat`). The "top pages" chart is replaced by a content-per-section chart; time-on-site and bounce-rate metrics are dropped. A cookieless hosted analytics tool (e.g. Plausible, Umami, Vercel Web Analytics) is not adopted and would need owner approval.
 - **Data layer:** plain Supabase client — no Prisma, no TanStack Query/Form (the Kilo plan was rejected on 2026-09-23). Schema changes are SQL migrations via the Supabase CLI with generated TypeScript types; RLS is enabled on every table.
 - The Phase 5 backend uses **Supabase** for data (Postgres), media storage (S3-compatible object storage), and authentication (email/password + server-side sessions). The typed seed data at `lib/data/index.ts` (created in Phase 1) is the migration source; no separate S3-compatible service or self-hosted database is in scope. Mixing Supabase with an incompatible persistence system requires a documented decision record.
 
@@ -474,4 +470,4 @@ Combined page with a 3-section toggle.
 `/`, `/about`, `/experience`, `/education`, `/skills`, `/achievements`, `/certificates`, `/certificates/:id`, `/portfolio`, `/portfolio/:id`, `/research`, `/research/:id`, `/research/upcoming`, `/publications`, `/ebooks`, `/ebooks/:id`, `/resume`, `/resume/infographic`, `/contact`, `/*` (404)
 
 **Admin**
-`/admin/login`, `/admin`, `/admin/profile`, `/admin/experience`, `/admin/education`, `/admin/skills`, `/admin/achievements`, `/admin/certificates/professional`, `/admin/certificates/academic`, `/admin/certificates/training`, `/admin/certificates/awards`, `/admin/projects`, `/admin/publications`, `/admin/research/papers`, `/admin/research/profile`, `/admin/research/interests`, `/admin/research/upcoming`, `/admin/research/working`, `/admin/ebooks`, `/admin/messages`, `/admin/resume/professional`, `/admin/resume/infographic`, `/admin/portfolio/gallery`, `/admin/portfolio/categories`, `/admin/website/home`, `/admin/website/about`, `/admin/website/navigation`, `/admin/website/footer`, `/admin/media`, `/admin/settings`
+`/admin/login`, `/admin`, `/admin/profile`, `/admin/experience`, `/admin/education`, `/admin/skills`, `/admin/achievements`, `/admin/certificates/professional`, `/admin/certificates/academic`, `/admin/certificates/training`, `/admin/certificates/awards`, `/admin/projects`, `/admin/publications`, `/admin/research/papers`, `/admin/research/profile`, `/admin/research/interests`, `/admin/research/upcoming`, `/admin/research/working`, `/admin/ebooks`, `/admin/resume/professional`, `/admin/resume/infographic`, `/admin/portfolio/gallery`, `/admin/portfolio/categories`, `/admin/website/home`, `/admin/website/about`, `/admin/website/navigation`, `/admin/website/footer`, `/admin/media`, `/admin/settings`

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Globe, User, Award, FolderOpen, FileText,
-  MessageSquare, Settings, Menu, ChevronDown, ChevronRight,
+  Settings, Menu, ChevronDown, ChevronRight,
   Library, Image,
   Search, Bell, LogOut
 } from "lucide-react";
@@ -76,7 +76,6 @@ const nav: NavItem[] = [
       { label: "Infographic", to: "/admin/resume/infographic" },
     ] },
   { label: "Media Library", icon: Image, to: "/admin/media" },
-  { label: "Messages", icon: MessageSquare, to: "/admin/messages" },
   { label: "Settings", icon: Settings, to: "/admin/settings" },
 ];
 
