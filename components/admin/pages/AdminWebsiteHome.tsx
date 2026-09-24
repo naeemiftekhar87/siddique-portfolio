@@ -1,26 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Save, Home, Type, ArrowRight, Image as ImageIcon, User } from "lucide-react";
-import { emptyProfile as profile } from "@/lib/data";
+import { Save, Home, Type, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ImageSourceField } from "@/components/admin/image-source-field";
+import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
 
 export default function AdminWebsiteHome() {
   const [hero, setHero] = useState({
-    badge: profile.badge,
-    headline: profile.name,
-    subheadline: profile.headline,
-    summary: profile.summary.slice(0, 200),
     cta1Label: "Explore My Work",
     cta1Link: "/portfolio",
     cta2Label: "View Resume",
     cta2Link: "/resume",
-    profileImage: "",
     floatingCard1: "",
     floatingCard2: "Analytics Growth",
   });
@@ -48,8 +41,10 @@ export default function AdminWebsiteHome() {
         <h1 className="font-serif text-3xl text-white mb-1 flex items-center gap-2">
           <Home size={22} className="text-blue-400" /> Home Page
         </h1>
-        <p className="text-slate-400 text-sm">Edit hero content, CTAs, and section visibility</p>
+        <p className="text-slate-400 text-sm">Edit hero buttons and section visibility</p>
       </div>
+
+      <SharedFieldsNote fields="The hero badge, name, headline, summary, and photo" href="/admin/profile" screen="Profile → Personal Info" />
 
       {saved && (
         <div className="px-4 py-3 bg-green-950/40 border border-green-800/50 rounded-xl text-green-400 text-sm">
@@ -60,32 +55,8 @@ export default function AdminWebsiteHome() {
       {/* Hero content */}
       <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white flex items-center gap-2">
-          <Type size={16} className="text-violet-400" /> Hero Section
+          <Type size={16} className="text-violet-400" /> Hero Buttons
         </h2>
-
-        <div>
-          <Label variant="admin-label" className="mb-1.5">Badge Text</Label>
-          <Input variant="unstyled" value={hero.badge} onChange={e => setHero({ ...hero, badge: e.target.value })}
-            placeholder="FIELD ONE • FIELD TWO • FIELD THREE" className={inputClass} />
-        </div>
-        <div>
-          <Label variant="admin-label" className="mb-1.5">Main Headline (Name)</Label>
-          <Input variant="unstyled" value={hero.headline} onChange={e => setHero({ ...hero, headline: e.target.value })}
-            className={inputClass} />
-        </div>
-        <div>
-          <Label variant="admin-label" className="mb-1.5">Sub-headline</Label>
-          <Input variant="unstyled" value={hero.subheadline} onChange={e => setHero({ ...hero, subheadline: e.target.value })}
-            className={inputClass} />
-        </div>
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <Label variant="unstyled" className="text-xs text-slate-400">Summary Excerpt</Label>
-            <span className="text-xs font-mono text-slate-600">{hero.summary.length} / 220 chars</span>
-          </div>
-          <Textarea variant="unstyled" rows={3} value={hero.summary} onChange={e => setHero({ ...hero, summary: e.target.value })}
-            className={`${inputClass} resize-none`} />
-        </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           {[
@@ -101,24 +72,6 @@ export default function AdminWebsiteHome() {
                 className={key.includes("Link") ? `${inputClass} font-mono` : inputClass} />
             </div>
           ))}
-        </div>
-      </Card>
-
-      {/* Profile image */}
-      <Card variant="admin-panel" className="p-6 space-y-4">
-        <h2 className="font-serif text-lg text-white flex items-center gap-2">
-          <ImageIcon size={16} className="text-teal-400" /> Profile Photo
-        </h2>
-        <div className="flex items-center gap-5">
-          {hero.profileImage ? (
-          <img src={hero.profileImage} alt="Preview" className="w-20 h-20 rounded-2xl object-cover border border-slate-700 flex-shrink-0" />
-        ) : (
-          <div className="w-20 h-20 rounded-2xl border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0"><User size={20} className="text-slate-600" /></div>
-        )}
-          <div className="flex-1">
-            <Label variant="admin-label" className="mb-1.5">Photo</Label>
-            <ImageSourceField value={hero.profileImage} onChange={(v) => setHero({ ...hero, profileImage: v })} />
-          </div>
         </div>
       </Card>
 

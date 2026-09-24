@@ -54,7 +54,7 @@ export default function BookDetail({ id }: { id: string }) {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#040d1f] to-blue-950 pt-20 pb-16 px-6">
+      <div className="bg-gradient-to-br from-(color:--site-top) to-(color:--site-top-end) pt-20 pb-16 px-6">
         <div className="max-w-5xl mx-auto">
           <Link href="/ebooks" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-8 transition-colors w-fit">
             <ArrowLeft size={14} /> Library

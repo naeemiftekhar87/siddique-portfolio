@@ -16,7 +16,7 @@ export default function CertificateDetail({ id }: { id: string }) {
   return (
     <div className="min-h-screen">
       {/* Dark header */}
-      <div className="bg-[#040d1f] pt-20 pb-12 px-6">
+      <div className="bg-(color:--site-top) pt-20 pb-12 px-6">
         <div className="max-w-5xl mx-auto">
           <Link href="/certificates" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-8 transition-colors w-fit">
             <ArrowLeft size={14} /> Certificates

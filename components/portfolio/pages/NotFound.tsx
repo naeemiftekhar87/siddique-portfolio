@@ -26,7 +26,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Dark header band */}
-      <section className="bg-[#040d1f] py-20 px-6 flex-1 flex items-center">
+      <section className="bg-(color:--site-top) py-20 px-6 flex-1 flex items-center">
         <div className="max-w-3xl mx-auto text-center w-full">
           <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-8">
             <Search size={28} className="text-cyan-400" />

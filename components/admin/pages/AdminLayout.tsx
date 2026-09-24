@@ -28,6 +28,7 @@ const nav: NavItem[] = [
       { label: "About", to: "/admin/website/about" },
       { label: "Navigation", to: "/admin/website/navigation" },
       { label: "Footer", to: "/admin/website/footer" },
+      { label: "Colours", to: "/admin/website/colours" },
     ] },
   {
     label: "Profile",
@@ -39,15 +40,7 @@ const nav: NavItem[] = [
       { label: "Skills", to: "/admin/skills" },
       { label: "Achievements", to: "/admin/achievements" },
     ] },
-  {
-    label: "Certificates",
-    icon: Award,
-    children: [
-      { label: "Academic", to: "/admin/certificates/academic" },
-      { label: "Professional", to: "/admin/certificates/professional" },
-      { label: "Training", to: "/admin/certificates/training" },
-      { label: "Awards", to: "/admin/certificates/awards" },
-    ] },
+  { label: "Certificates", icon: Award, to: "/admin/certificates" },
   {
     label: "Portfolio",
     icon: FolderOpen,
@@ -62,9 +55,7 @@ const nav: NavItem[] = [
     children: [
       { label: "Research Profile", to: "/admin/research/profile" },
       { label: "Research Papers", to: "/admin/research/papers" },
-      { label: "Publications", to: "/admin/publications" },
       { label: "Upcoming Topics", to: "/admin/research/upcoming" },
-      { label: "Working Papers", to: "/admin/research/working" },
       { label: "Research Interests", to: "/admin/research/interests" },
     ] },
   { label: "eBooks", icon: Library, to: "/admin/ebooks" },

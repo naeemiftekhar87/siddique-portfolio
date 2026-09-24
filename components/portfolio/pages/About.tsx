@@ -19,7 +19,7 @@ export default function About() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#040d1f] via-[#071428] to-[#040d1f] py-20 px-6 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-10 items-start md:items-center">
             <div className="flex-shrink-0">

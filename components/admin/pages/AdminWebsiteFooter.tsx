@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
 
 type FooterLink = { id: number; label: string; to: string };
 
@@ -23,9 +24,6 @@ const defaultQuickLinks: FooterLink[] = [
 export default function AdminWebsiteFooter() {
   const [tagline, setTagline] = useState("");
   const [copyright, setCopyright] = useState("");
-  const [linkedin, setLinkedin] = useState(profile.linkedin);
-  const [github, setGithub]     = useState(profile.github);
-  const [scholar, setScholar]   = useState(profile.scholar);
   const [quickLinks, setQuickLinks] = useState<FooterLink[]>(defaultQuickLinks);
   const [newLabel, setNewLabel] = useState("");
   const [newTo, setNewTo]       = useState("");
@@ -49,7 +47,7 @@ export default function AdminWebsiteFooter() {
         <h1 className="font-serif text-3xl text-white mb-1 flex items-center gap-2">
           <LayoutTemplate size={22} className="text-blue-400" /> Footer
         </h1>
-        <p className="text-slate-400 text-sm">Manage footer content, quick links, and social links</p>
+        <p className="text-slate-400 text-sm">Manage footer text and quick links</p>
       </div>
 
       {saved && (
@@ -72,20 +70,7 @@ export default function AdminWebsiteFooter() {
         </div>
       </Card>
 
-      {/* Social links */}
-      <Card variant="admin-panel" className="p-6 space-y-4">
-        <h2 className="font-serif text-lg text-white">Social Links</h2>
-        {[
-          { label: "LinkedIn URL", value: linkedin, set: setLinkedin },
-          { label: "GitHub URL",   value: github,   set: setGithub   },
-          { label: "Google Scholar URL", value: scholar, set: setScholar },
-        ].map(({ label, value, set }) => (
-          <div key={label}>
-            <Label variant="admin-label" className="mb-1.5">{label}</Label>
-            <Input variant="unstyled" value={value} onChange={e => set(e.target.value)} className={`${inputClass} font-mono`} />
-          </div>
-        ))}
-      </Card>
+      <SharedFieldsNote fields="Social links" href="/admin/settings" screen="Settings" />
 
       {/* Quick links */}
       <Card variant="admin-panel" className="p-6 space-y-4">

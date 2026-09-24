@@ -14,7 +14,8 @@ const statusConfig: Record<string, { color: string }> = {
   "Under Review":  { color: "bg-yellow-50 text-yellow-700 border-yellow-200" },
   "Working Paper": { color: "bg-blue-50 text-blue-700 border-blue-200" },
   Submitted:       { color: "bg-blue-50 text-blue-700 border-blue-200" },
-  Upcoming:        { color: "bg-slate-100 text-slate-600 border-slate-200" },
+  "Revision Requested": { color: "bg-orange-50 text-orange-700 border-orange-200" },
+  Accepted:        { color: "bg-teal-50 text-teal-700 border-teal-200" },
 };
 
 const allStatuses = ["All", ...Array.from(new Set(publications.map((p) => p.status)))];
@@ -33,7 +34,7 @@ export default function Publications() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#040d1f] via-[#071428] to-[#040d1f] py-20 px-6 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center">

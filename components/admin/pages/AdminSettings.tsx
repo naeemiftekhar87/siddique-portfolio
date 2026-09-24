@@ -9,11 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function AdminSettings() {
-  // Personal information is edited on the Profile page; only links live here.
+  // Personal information is edited on the Profile page. Every social and
+  // academic link is edited only here (footer, navbar, Research page use them).
   const [profile_, setProfile] = useState({
     linkedin: profile.linkedin,
     github: profile.github,
     scholar: profile.scholar,
+    researchgate: profile.researchgate,
+    orcid: "",
   });
 
   const [password, setPassword] = useState({ current: "", next: "", confirm: "" });
@@ -57,6 +60,8 @@ export default function AdminSettings() {
           { key: "linkedin", label: "LinkedIn", Icon: Link2 },
           { key: "github", label: "GitHub", Icon: GitFork },
           { key: "scholar", label: "Google Scholar", Icon: GraduationCap },
+          { key: "researchgate", label: "ResearchGate", Icon: GraduationCap },
+          { key: "orcid", label: "ORCID", Icon: GraduationCap },
         ].map(({ key, label, Icon }) => (
           <div key={key}>
             <Label variant="unstyled" className="block text-xs text-slate-400 mb-1.5 flex items-center gap-1.5">

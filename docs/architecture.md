@@ -217,17 +217,12 @@ app/
     ├── admin/education/page.tsx
     ├── admin/skills/page.tsx
     ├── admin/achievements/page.tsx
-    ├── admin/certificates/professional/page.tsx
-    ├── admin/certificates/academic/page.tsx
-    ├── admin/certificates/training/page.tsx
-    ├── admin/certificates/awards/page.tsx
+    ├── admin/certificates/page.tsx
     ├── admin/projects/page.tsx
-    ├── admin/publications/page.tsx
     ├── admin/research/papers/page.tsx
     ├── admin/research/profile/page.tsx
     ├── admin/research/interests/page.tsx
     ├── admin/research/upcoming/page.tsx
-    ├── admin/research/working/page.tsx
     ├── admin/ebooks/page.tsx
     ├── admin/resume/professional/page.tsx
     ├── admin/resume/infographic/page.tsx
@@ -237,6 +232,7 @@ app/
     ├── admin/website/about/page.tsx
     ├── admin/website/navigation/page.tsx
     ├── admin/website/footer/page.tsx
+    ├── admin/website/colours/page.tsx
     ├── admin/media/page.tsx
     └── admin/settings/page.tsx
 ```
@@ -343,7 +339,7 @@ The backend surface, database, storage, and authentication choices are resolved 
 
 ### 7.1 Data ownership
 
-The PRD entities are the domain model: Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication, UpcomingResearch, WorkingPaper, Language, eBook, ResumeConfig, PortfolioCategory, navigation/footer/page configuration, MediaAsset, and AdminUser.
+The PRD entities are the domain model: Profile, Experience, Education, Skill, Achievement, Certificate, Project, ResearchPaper/Publication (one entity covering working papers), UpcomingResearch, Language, eBook, ResumeConfig, PortfolioCategory, navigation/footer/page configuration, MediaAsset, and AdminUser.
 
 Define TypeScript types before creating forms, API contracts, or database schemas. Keep identifiers stable and use explicit status values where the PRD defines them.
 

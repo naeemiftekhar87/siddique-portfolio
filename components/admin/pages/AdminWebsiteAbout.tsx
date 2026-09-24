@@ -2,24 +2,16 @@
 
 import { useState } from "react";
 import { Save, User } from "lucide-react";
-import { emptyProfile as profile } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageSourceField } from "@/components/admin/image-source-field";
+import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
 
 export default function AdminWebsiteAbout() {
   const [form, setForm] = useState({
-    name: profile.name,
-    headline: profile.headline,
-    location: profile.location,
-    email: profile.email,
-    summary: profile.summary,
     careerFocus: "",
     academicBio: "",
-    profileImage: "",
     domainExpertise: "",
   });
 
@@ -47,40 +39,12 @@ export default function AdminWebsiteAbout() {
         </div>
       )}
 
-      {/* Identity */}
-      <Card variant="admin-panel" className="p-6 space-y-4">
-        <h2 className="font-serif text-lg text-white">Identity & Contact</h2>
-        <div className="flex items-center gap-5 mb-2">
-          {form.profileImage ? (
-          <img src={form.profileImage} alt="Profile" className="w-16 h-16 rounded-2xl object-cover border border-slate-700 flex-shrink-0" />
-        ) : (
-          <div className="w-16 h-16 rounded-2xl border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0"><User size={20} className="text-slate-600" /></div>
-        )}
-          <div className="flex-1">
-            <Label variant="admin-label" className="mb-1.5">Profile Photo</Label>
-            <ImageSourceField value={form.profileImage} onChange={(v) => setForm({ ...form, profileImage: v })} />
-          </div>
-        </div>
-        {[
-          { key: "name",     label: "Full Name" },
-          { key: "headline", label: "Professional Headline" },
-          { key: "location", label: "Location" },
-          { key: "email",    label: "Email" },
-        ].map(({ key, label }) => (
-          <div key={key}>
-            <Label variant="admin-label" className="mb-1.5">{label}</Label>
-            <Input variant="unstyled" value={form[key as keyof typeof form]}
-              onChange={e => setForm({ ...form, [key]: e.target.value })}
-              className={inputClass} />
-          </div>
-        ))}
-      </Card>
+      <SharedFieldsNote fields="Name, photo, headline, location, email, and professional summary" href="/admin/profile" screen="Profile → Personal Info" />
 
       {/* Bio sections */}
       <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white">Bio Sections</h2>
         {[
-          { key: "summary",      label: "Professional Summary", rows: 4 },
           { key: "careerFocus",  label: "Career Focus",         rows: 4 },
           { key: "academicBio",  label: "Academic Journey Bio",  rows: 4 },
         ].map(({ key, label, rows }) => (

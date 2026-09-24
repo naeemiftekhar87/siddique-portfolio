@@ -27,7 +27,7 @@ function StatCard({ label, value, icon: Icon, color, to }: {
 // Phase 5, so nothing sample-based is shown here.
 const counts = {
   experiences: 0, education: 0, skills: 0, certificates: 0, projects: 0,
-  researchPapers: 0, publications: 0, ebooks: 0,
+  researchPapers: 0, ebooks: 0,
 };
 
 const recentActivity: { action: string; detail: string; time: string; type: string }[] = [];
@@ -46,10 +46,9 @@ export default function AdminDashboard() {
         <StatCard label="Total Experience" value={counts.experiences} icon={Briefcase} color="bg-blue-600" to="/admin/experience" />
         <StatCard label="Degrees" value={counts.education} icon={GraduationCap} color="bg-teal-600" to="/admin/education" />
         <StatCard label="Skills" value={counts.skills} icon={BarChart2} color="bg-violet-600" to="/admin/skills" />
-        <StatCard label="Certificates" value={counts.certificates} icon={Award} color="bg-amber-500" to="/admin/certificates/professional" />
+        <StatCard label="Certificates" value={counts.certificates} icon={Award} color="bg-amber-500" to="/admin/certificates" />
         <StatCard label="Projects" value={counts.projects} icon={FolderOpen} color="bg-pink-600" to="/admin/projects" />
         <StatCard label="Research Papers" value={counts.researchPapers} icon={FileText} color="bg-indigo-600" to="/admin/research/papers" />
-        <StatCard label="Publications" value={counts.publications} icon={BookOpen} color="bg-emerald-600" to="/admin/publications" />
         <StatCard label="eBooks" value={counts.ebooks} icon={BookOpen} color="bg-orange-500" to="/admin/ebooks" />
       </div>
 
@@ -92,7 +91,7 @@ export default function AdminDashboard() {
           <h2 className="font-serif text-lg text-white mb-6">Quick Actions</h2>
           <div className="space-y-3">
             {[
-              { label: "Add Certificate", to: "/admin/certificates/professional", icon: Award, color: "text-amber-400" },
+              { label: "Add Certificate", to: "/admin/certificates", icon: Award, color: "text-amber-400" },
               { label: "Add Project", to: "/admin/projects", icon: FolderOpen, color: "text-pink-400" },
               { label: "Add Research Paper", to: "/admin/research/papers", icon: FileText, color: "text-indigo-400" },
               { label: "Add eBook", to: "/admin/ebooks", icon: BookOpen, color: "text-orange-400" },

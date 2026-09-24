@@ -265,7 +265,8 @@
 
   body {
     font-family: var(--font-sans);
-    background: var(--gradient-body);
+    /* --site-body-bg: admin-chosen body colour (lib/site-colors.ts) */
+    background: var(--site-body-bg, var(--gradient-body));
     background-attachment: fixed; /* gradient does not scroll */
     color: var(--foreground);
     line-height: 1.6;

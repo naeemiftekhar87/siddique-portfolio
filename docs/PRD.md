@@ -247,22 +247,17 @@ Combined page with a 3-section toggle.
 
 | Route                              | Module                    | Requirements                                                                                                              |
 | ---------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `/admin/profile`                   | Personal Information      | Photo, name, badge, headline, summary, location, email; hero stats editor; research-interest tag manager; Scholar metrics |
+| `/admin/profile`                   | Personal Information      | Photo, name, badge, headline, summary, location, email; hero stats editor. The **only** place these are edited |
 | `/admin/experience`                | Experience                | CRUD; responsibilities list; achievements list; skill tags; company logo                                                  |
 | `/admin/education`                 | Education                 | CRUD; degree, major, GPA, coursework, status                                                                              |
 | `/admin/skills`                    | Skills                    | CRUD; name, category, proficiency slider                                                                                  |
 | `/admin/achievements`              | Achievements              | CRUD; category filter tabs; colour-coded badges; inline edit; two-step delete                                             |
-| `/admin/certificates/professional` | Professional Certificates | CRUD; image URL, grade, duration, credential ID, skill chips                                                              |
-| `/admin/certificates/academic`     | Academic Certificates     | Same as above, separate category                                                                                          |
-| `/admin/certificates/training`     | Training Certificates     | Same as above, separate category (added 2026-09-23 from the owner's design source)                                        |
-| `/admin/certificates/awards`       | Awards                    | Same as above, separate category (added 2026-09-23 from the owner's design source)                                        |
+| `/admin/certificates`             | Certificates              | CRUD; one list with a category field and filter (Academic, Professional, Training, Awards); image, grade, duration, credential ID, skill chips |
 | `/admin/projects`                  | Projects                  | CRUD; image, tech stack, status, problem/objective/methodology/results                                                    |
-| `/admin/publications`              | Publications              | CRUD; title, journal, year, area, status, abstract, keywords, DOI                                                         |
-| `/admin/research/papers`           | Research Papers           | CRUD; same fields as publications                                                                                         |
-| `/admin/research/profile`          | Research Profile          | Scholar metrics (citations, h-index, i10-index, publications); research bio; profile links (Scholar, ORCID, ResearchGate) |
+| `/admin/research/papers`           | Research Papers           | CRUD; **one list for every paper, working paper to published** (status: Working Paper → Submitted → Under Review → Revision Requested → Accepted → Published; status filter); title, authors, journal/target journal, year, area, abstract, keywords, DOI, PDF; version, submission date, preprint URL while not yet accepted |
+| `/admin/research/profile`          | Research Profile          | Scholar metrics (citations, h-index, i10-index, publications); research bio (links are in Settings) |
 | `/admin/research/interests`        | Research Interests        | Tag manager (add via Enter/button, remove with ×); live preview                                                           |
 | `/admin/research/upcoming`         | Upcoming Research         | CRUD; title, area, status, expected year, research question, contribution, methodology, keywords; expandable cards        |
-| `/admin/research/working`          | Working Papers            | CRUD; version, target journal, submission date, preprint URL; status pipeline (Draft → Accepted)                          |
 | `/admin/ebooks`                    | eBooks                    | CRUD; cover image, **PDF file upload**, category, pages, ISBN, description                                                |
 
 ### 6.4 Resume Management
@@ -279,10 +274,11 @@ Combined page with a 3-section toggle.
 
 ### 6.6 Website Management
 
-- **`/admin/website/home`** – hero badge, headline, sub-headline, summary, CTA labels/links, profile image URL, visibility toggles for 5 sections.
-- **`/admin/website/about`** – photo URL, identity fields, 3 bio textareas with character count, domain expertise (comma list with live chip preview).
+- **`/admin/website/home`** – CTA labels/links, visibility toggles for 5 sections. The hero badge, name, headline, summary and photo come from `/admin/profile`.
+- **`/admin/website/about`** – career-focus and academic-journey bios with character count, domain expertise (comma list with live chip preview). Identity, photo and professional summary come from `/admin/profile`.
 - **`/admin/website/navigation`** – drag-to-reorder links, show/hide eye toggle, hidden pages list, add custom link, live navbar preview.
-- **`/admin/website/footer`** – tagline, copyright, social URLs, quick-links manager, live dark-navy footer preview.
+- **`/admin/website/footer`** – tagline, copyright, quick-links manager (social links come from Settings), live dark-navy footer preview.
+- **`/admin/website/colours`** – site-wide colours for the navbar, footer, page top (the dark header on every page except Home, whose top section is light) and page body. Each colour has a colour picker plus a hex-code field (`#rrggbb` or `#rgb`), a reset-to-default, a low-contrast warning, and a live preview. One change applies to every public page; defaults are the design's colours.
 
 ### 6.7 Media Library (`/admin/media`)
 
@@ -291,7 +287,7 @@ Combined page with a 3-section toggle.
 
 ### 6.8 Settings (`/admin/settings`)
 
-- **P0** Social & academic profile links (LinkedIn, GitHub, Google Scholar).
+- **P0** Social & academic profile links (LinkedIn, GitHub, Google Scholar, ResearchGate, ORCID): the only place links are edited; the navbar, footer and Research page read them from here.
 - **P0** Password change with show/hide.
 - Personal information is edited only on `/admin/profile` (not repeated in Settings). There are no notification preferences (contact messages always go to the owner's email) and no danger zone (2026-09-23).
 
@@ -306,11 +302,10 @@ Combined page with a 3-section toggle.
 | **Education**                           | id, institution, degree, major, GPA, start/end, coursework[], status, country                                                  |
 | **Skill**                               | id, name, category, level (0–100)                                                                                              |
 | **Achievement**                         | id, title, description, category, date, institution, pinned                                                                    |
-| **Certificate**                         | id, title, issuer, category (professional/academic), image, grade, duration, credentialId, date, skills[], verified, verifyUrl |
+| **Certificate**                         | id, title, issuer, category (Academic / Professional / Training / Awards), image, grade, duration, credentialId, date, skills[], verified, verifyUrl |
 | **Project**                             | id, title, category, image, techStack[], status, problem, objective, methodology, results, tools[], link                       |
-| **ResearchPaper / Publication**         | id, title, authors[], journal, year, area, status, abstract, keywords[], DOI, url                                              |
+| **ResearchPaper / Publication**         | id, title, authors[], journal, year, area, status (Working Paper → Published), abstract, keywords[], DOI, url, pdf, version, submissionDate, preprintUrl |
 | **UpcomingResearch**                    | id, title, area, status, expectedYear, researchQuestion, contribution, methodology, keywords[]                                 |
-| **WorkingPaper**                        | id, title, version, targetJournal, submissionDate, preprintUrl, status                                                         |
 | **Language**                            | id, name, flag, level, proficiency %                                                                                           |
 | **eBook**                               | id, title, subtitle, author, cover, category, pages, year, ISBN, description, fileUrl (uploaded PDF), downloads                |
 | **ResumeConfig**                        | type (professional / infographic), sections visibility, counts, accent colour, font, custom note                               |
@@ -387,10 +382,10 @@ Combined page with a 3-section toggle.
 
 ### Phase 6 – Advanced Admin (Weeks 14–16)
 
-- Research profile, interests, upcoming, working papers.
+- Research profile, interests, upcoming.
 - Contact form wired end-to-end to the owner's email (no inbox).
 - Resume editors (2: professional, infographic), portfolio gallery/categories.
-- Website editors (home, about, navigation, footer).
+- Website editors (home, about, navigation, footer, colours).
 - Media Library, Settings.
 
 ### Phase 7 – Hardening & Launch (Weeks 17–18)
@@ -470,4 +465,4 @@ Combined page with a 3-section toggle.
 `/`, `/about`, `/experience`, `/education`, `/skills`, `/achievements`, `/certificates`, `/certificates/:id`, `/portfolio`, `/portfolio/:id`, `/research`, `/research/:id`, `/research/upcoming`, `/publications`, `/ebooks`, `/ebooks/:id`, `/resume`, `/resume/infographic`, `/contact`, `/*` (404)
 
 **Admin**
-`/admin/login`, `/admin`, `/admin/profile`, `/admin/experience`, `/admin/education`, `/admin/skills`, `/admin/achievements`, `/admin/certificates/professional`, `/admin/certificates/academic`, `/admin/certificates/training`, `/admin/certificates/awards`, `/admin/projects`, `/admin/publications`, `/admin/research/papers`, `/admin/research/profile`, `/admin/research/interests`, `/admin/research/upcoming`, `/admin/research/working`, `/admin/ebooks`, `/admin/resume/professional`, `/admin/resume/infographic`, `/admin/portfolio/gallery`, `/admin/portfolio/categories`, `/admin/website/home`, `/admin/website/about`, `/admin/website/navigation`, `/admin/website/footer`, `/admin/media`, `/admin/settings`
+`/admin/login`, `/admin`, `/admin/profile`, `/admin/experience`, `/admin/education`, `/admin/skills`, `/admin/achievements`, `/admin/certificates`, `/admin/projects`, `/admin/research/papers`, `/admin/research/profile`, `/admin/research/interests`, `/admin/research/upcoming`, `/admin/ebooks`, `/admin/resume/professional`, `/admin/resume/infographic`, `/admin/portfolio/gallery`, `/admin/portfolio/categories`, `/admin/website/home`, `/admin/website/about`, `/admin/website/navigation`, `/admin/website/footer`, `/admin/website/colours`, `/admin/media`, `/admin/settings`

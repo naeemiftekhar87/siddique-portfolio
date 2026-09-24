@@ -311,6 +311,9 @@ export const skills = [
   { id: 38, name: "Sample Skill 38", category: "OTHER", level: 73 },
 ];
 
+/** Certificate categories: the admin form options and the public /certificates tabs. */
+export const certificateCategories = ["Academic Certificates", "Professional Certificates", "Training", "Awards"];
+
 export const certificates = [
   {
     id: 1,
@@ -692,6 +695,9 @@ export const researchPapers = [
 ];
 
 export const publications = researchPapers;
+
+/** One paper list covers the whole pipeline, from working paper to published. */
+export const paperStatuses = ["Working Paper", "Submitted", "Under Review", "Revision Requested", "Accepted", "Published"];
 
 export const ebooks = [
   {

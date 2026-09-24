@@ -1,20 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Save, GraduationCap, BarChart2, Link2, RefreshCw } from "lucide-react";
+import { Save, GraduationCap, BarChart2, RefreshCw } from "lucide-react";
 import { emptyProfile as profile } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
 
 export default function AdminResearchProfile() {
   const [metrics, setMetrics] = useState({ ...profile.scholarMetrics });
   const [bio, setBio] = useState("");
-  const [scholarUrl, setScholarUrl] = useState(profile.scholar);
-  const [orcid, setOrcid] = useState("");
-  const [researchGate, setResearchGate] = useState(profile.researchgate);
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
@@ -26,7 +24,7 @@ export default function AdminResearchProfile() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="font-serif text-3xl text-white mb-1">Research Profile</h1>
-        <p className="text-slate-400 text-sm">Manage your scholar metrics, academic bio, and profile links</p>
+        <p className="text-slate-400 text-sm">Manage your scholar metrics and research bio</p>
       </div>
 
       {saved && (
@@ -80,27 +78,7 @@ export default function AdminResearchProfile() {
         </div>
       </Card>
 
-      {/* Profile Links */}
-      <Card variant="admin-panel" className="p-6 space-y-4">
-        <h2 className="font-serif text-lg text-white flex items-center gap-2">
-          <Link2 size={17} className="text-teal-400" /> Academic Profile Links
-        </h2>
-        {[
-          { label: "Google Scholar URL", value: scholarUrl, set: setScholarUrl, placeholder: "https://scholar.google.com/..." },
-          { label: "ORCID URL", value: orcid, set: setOrcid, placeholder: "https://orcid.org/0000-..." },
-          { label: "ResearchGate URL", value: researchGate, set: setResearchGate, placeholder: "https://www.researchgate.net/..." },
-        ].map(({ label, value, set, placeholder }) => (
-          <div key={label}>
-            <Label variant="admin-label" className="mb-1.5">{label}</Label>
-            <Input variant="admin-field"
-              value={value}
-              onChange={e => set(e.target.value)}
-              placeholder={placeholder}
-              className="w-full font-mono"
-            />
-          </div>
-        ))}
-      </Card>
+      <SharedFieldsNote fields="Google Scholar, ORCID, and ResearchGate links" href="/admin/settings" screen="Settings" />
 
       <Button variant="unstyled"
         onClick={handleSave}

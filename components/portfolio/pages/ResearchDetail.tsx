@@ -10,7 +10,8 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   "Under Review": { label: "Under Review",   color: "bg-yellow-50 text-yellow-700 border-yellow-200" },
   "Working Paper":{ label: "Working Paper",  color: "bg-blue-50 text-blue-700 border-blue-200" },
   Submitted:      { label: "Submitted",      color: "bg-blue-50 text-blue-700 border-blue-200" },
-  Upcoming:       { label: "Upcoming",       color: "bg-slate-100 text-slate-600 border-slate-200" },
+  "Revision Requested": { label: "Revision Requested", color: "bg-orange-50 text-orange-700 border-orange-200" },
+  Accepted:       { label: "Accepted",       color: "bg-teal-50 text-teal-700 border-teal-200" },
 };
 
 export default function ResearchDetail({ id }: { id: string }) {
@@ -26,7 +27,7 @@ export default function ResearchDetail({ id }: { id: string }) {
   return (
     <div className="min-h-screen">
       {/* Header band */}
-      <div className="bg-[#040d1f] pt-20 pb-12 px-6">
+      <div className="bg-(color:--site-top) pt-20 pb-12 px-6">
         <div className="max-w-4xl mx-auto">
           <Link href="/research" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-8 transition-colors w-fit">
             <ArrowLeft size={14} /> Research

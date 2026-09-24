@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Save, User, MapPin, Tag, Plus, X } from "lucide-react";
+import Link from "next/link";
+import { Save, User, MapPin, Plus } from "lucide-react";
 import { emptyProfile as initialProfile } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,22 +13,10 @@ import { ImageSourceField } from "@/components/admin/image-source-field";
 
 export default function AdminProfile() {
   const [p, setP] = useState({ ...initialProfile });
-  const [newInterest, setNewInterest] = useState("");
   const [showPhoto, setShowPhoto] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const set = (k: string, v: unknown) => setP((prev) => ({ ...prev, [k]: v }));
-
-  const addInterest = () => {
-    if (newInterest.trim() && !p.researchInterests.includes(newInterest.trim())) {
-      set("researchInterests", [...p.researchInterests, newInterest.trim()]);
-      setNewInterest("");
-    }
-  };
-
-  const removeInterest = (interest: string) => {
-    set("researchInterests", p.researchInterests.filter((r) => r !== interest));
-  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +28,12 @@ export default function AdminProfile() {
     <div className="max-w-3xl mx-auto">
       <div className="mb-8">
         <h1 className="font-serif text-3xl text-white mb-1">Personal Information</h1>
-        <p className="text-slate-400 text-sm">Manage your public profile content</p>
+        <p className="text-slate-400 text-sm">
+          Your name, photo, headline, and contact details, used across the whole site. Research interests and
+          Scholar metrics are under <Link href="/admin/research/interests" className="text-blue-400 hover:underline">Research Interests</Link> and{" "}
+          <Link href="/admin/research/profile" className="text-blue-400 hover:underline">Research Profile</Link>; social links are in{" "}
+          <Link href="/admin/settings" className="text-blue-400 hover:underline">Settings</Link>.
+        </p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
@@ -136,64 +130,6 @@ export default function AdminProfile() {
                 <Input variant="admin-field"
                   value={value}
                   onChange={(e) => set("stats", { ...p.stats, [key]: e.target.value })}
-                  className="w-full font-mono"
-                />
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Research interests */}
-        <Card variant="admin-panel" className="p-6">
-          <h2 className="font-serif text-lg text-white mb-5 flex items-center gap-2">
-            <Tag size={18} className="text-violet-400" /> Research Interests
-          </h2>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {p.researchInterests.map((interest) => (
-              <span
-                key={interest}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-300 text-xs rounded-xl border border-slate-700 group"
-              >
-                {interest}
-                <Button variant="unstyled"
-                  type="button"
-                  onClick={() => removeInterest(interest)}
-                  className="text-slate-600 hover:text-red-400 transition-colors"
-                >
-                  <X size={11} />
-                </Button>
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <Input variant="admin-field"
-              value={newInterest}
-              onChange={(e) => setNewInterest(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addInterest(); } }}
-              placeholder="Add research interest..."
-              className="flex-1"
-            />
-            <Button variant="unstyled"
-              type="button"
-              onClick={addInterest}
-              className="px-4 py-2.5 bg-slate-700 text-slate-200 text-sm rounded-xl hover:bg-slate-600 transition-colors"
-            >
-              <Plus size={16} />
-            </Button>
-          </div>
-        </Card>
-
-        {/* Scholar metrics */}
-        <Card variant="admin-panel" className="p-6">
-          <h2 className="font-serif text-lg text-white mb-5">Google Scholar Metrics</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {(Object.entries(p.scholarMetrics) as [string, number][]).map(([key, value]) => (
-              <div key={key}>
-                <Label variant="admin-label" className="mb-1 capitalize">{key.replace(/([A-Z])/g, " $1")}</Label>
-                <Input variant="admin-field"
-                  type="number"
-                  value={value}
-                  onChange={(e) => set("scholarMetrics", { ...p.scholarMetrics, [key]: Number(e.target.value) })}
                   className="w-full font-mono"
                 />
               </div>

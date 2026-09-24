@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Eye, Search, CheckCircle } from "lucide-react";
-import type { certificates as initialCerts } from "@/lib/data";
+import { certificateCategories, type certificates as initialCerts } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 export default function AdminCertificates() {
   const [certs, setCerts] = useState<(typeof initialCerts)[number][]>([]);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     title: "", issuer: "", category: "Professional Certificates", completionDate: "",
@@ -21,8 +22,9 @@ export default function AdminCertificates() {
   });
 
   const filtered = certs.filter((c) =>
-    c.title.toLowerCase().includes(search.toLowerCase()) ||
-    c.issuer.toLowerCase().includes(search.toLowerCase())
+    (categoryFilter === "All" || c.category === categoryFilter) &&
+    (c.title.toLowerCase().includes(search.toLowerCase()) ||
+      c.issuer.toLowerCase().includes(search.toLowerCase()))
   );
 
   const handleAdd = (e: React.FormEvent) => {
@@ -85,7 +87,7 @@ export default function AdminCertificates() {
               onChange={(e) => setForm({ ...form, category: e.target.value })}
               className="w-full"
             >
-              {["Academic Certificates", "Professional Certificates", "Training", "Awards"].map((c) => (
+              {certificateCategories.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </NativeSelect>
@@ -115,15 +117,25 @@ export default function AdminCertificates() {
         </form>
       )}
 
-      {/* Search */}
-      <div className="relative max-w-sm mb-6">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-        <Input variant="admin-field-dark"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search certificates..."
-          className="w-full pl-9 pr-4 py-2.5"
-        />
+      {/* Search + category filter */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="relative max-w-sm flex-1">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Input variant="admin-field-dark"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search certificates..."
+            className="w-full pl-9 pr-4 py-2.5"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {["All", ...certificateCategories].map((c) => (
+            <Button variant="unstyled" key={c} onClick={() => setCategoryFilter(c)} aria-pressed={categoryFilter === c}
+              className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${categoryFilter === c ? "bg-blue-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"}`}>
+              {c}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}

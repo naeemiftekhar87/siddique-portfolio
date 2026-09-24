@@ -14,7 +14,7 @@
 | 2     | Core Public Pages    | 45                | 0    | ⬜ Not started |
 | 3     | Research & eBooks    | 26                | 0    | ⬜ Not started |
 | 4     | Resume System        | 16                | 0    | ⬜ Not started |
-| 5     | Backend & Admin Core | 40                | 1    | 🟨 In progress |
+| 5     | Backend & Admin Core | 38                | 1    | 🟨 In progress |
 | 6     | Advanced Admin       | 33                | 0    | ⬜ Not started |
 | 7     | Hardening & Launch   | 27                | 0    | ⬜ Not started |
 
@@ -278,16 +278,14 @@
 ### 5.5 Core CRUD Modules
 
 - [ ] `/admin/profile` — photo, name, badge, headline, summary, location, email
-- [ ] `/admin/profile` — hero stats editor, interests tag manager, Scholar metrics
+- [ ] `/admin/profile` — hero stats editor (interests and Scholar metrics live in 6.1, links in Settings)
 - [ ] `/admin/experience` — CRUD + responsibilities/achievements/skills lists
 - [ ] `/admin/education` — CRUD
 - [ ] `/admin/skills` — CRUD with proficiency slider
 - [ ] `/admin/achievements` — CRUD, category tabs, inline edit, two-step delete
-- [ ] `/admin/certificates/professional` — CRUD
-- [ ] `/admin/certificates/academic` — CRUD
+- [ ] `/admin/certificates` — CRUD, one list with category field + filter (Academic, Professional, Training, Awards)
 - [ ] `/admin/projects` — CRUD with problem/objective/methodology/results
-- [ ] `/admin/publications` — CRUD
-- [ ] `/admin/research/papers` — CRUD
+- [ ] `/admin/research/papers` — CRUD, one list from working paper to published (status pipeline + filter, working-paper fields)
 - [ ] `/admin/ebooks` — CRUD with cover image and PDF file upload
 
 ### 5.6 Connect Public Site to API
@@ -311,10 +309,9 @@
 
 ### 6.1 Research Management
 
-- [ ] `/admin/research/profile` — Scholar metrics, bio, profile links (Scholar, ORCID, ResearchGate)
+- [ ] `/admin/research/profile` — Scholar metrics, research bio
 - [ ] `/admin/research/interests` — tag manager (Enter/button add, × remove) + live preview
 - [ ] `/admin/research/upcoming` — CRUD + expandable cards
-- [ ] `/admin/research/working` — CRUD, version, target journal, preprint URL, status pipeline (Draft → Accepted)
 
 ### 6.2 Contact Pipeline (email only — no admin inbox)
 
@@ -338,10 +335,11 @@
 
 ### 6.5 Website Editors
 
-- [ ] `/admin/website/home` — hero text, CTAs, profile image, 5 section visibility toggles
-- [ ] `/admin/website/about` — photo, identity, 3 bio textareas with char count, domain expertise chips
+- [ ] `/admin/website/home` — CTAs, 5 section visibility toggles (hero identity comes from Profile)
+- [ ] `/admin/website/about` — career-focus and academic-journey bios with char count, domain expertise chips (identity comes from Profile)
 - [ ] `/admin/website/navigation` — drag-to-reorder, show/hide toggle, hidden list, add custom link, live preview
 - [ ] `/admin/website/footer` — tagline, copyright, social URLs, quick links manager, live preview
+- [ ] `/admin/website/colours` — site-wide navbar, footer, page-top and page-body colours (picker + hex field, reset, contrast warning, live preview); saved colours drive `SiteColorStyle` on the public site
 - [ ] Public Navbar/Footer/Home/About read from these configs
 
 ### 6.6 Media Library

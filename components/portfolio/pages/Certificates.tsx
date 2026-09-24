@@ -3,12 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle, Clock, Award } from "lucide-react";
-import { certificates } from "@/lib/data";
+import { certificates, certificateCategories } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-const tabs = ["All", "Academic Certificates", "Professional Certificates", "Training", "Awards"];
+const tabs = ["All", ...certificateCategories];
 
 export default function Certificates() {
   const [activeTab, setActiveTab] = useState("All");
@@ -25,7 +25,7 @@ export default function Certificates() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#040d1f] via-[#071428] to-[#040d1f] py-20 px-6 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
