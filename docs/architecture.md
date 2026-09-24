@@ -27,17 +27,15 @@ The repository currently contains a minimal Next.js App Router scaffold. The arc
 
 ### 3.1 Current baseline
 
-The checked-in application is a single Next.js application with:
+As of 2026-09-25 the application is a working full-stack Next.js app (details in `docs/memory.md` §2a):
 
-- `app/layout.tsx` as the single root layout (design.md fonts via `next/font/google`, `TooltipProvider`, default metadata).
-- `app/globals.css` with the design.md theme (brand tokens, light public theme, `.admin-theme` dark theme, glass/hero/navbar classes).
-- `app/(public)/` (layout + placeholder pages for every public route) and `app/(admin)/admin/` (dark-theme layout, noindex, placeholder pages for every admin route). `app/not-found.tsx` is the minimal 404.
-- `components/ui/` (shadcn, Radix base, Nova preset), `components/portfolio/` and `components/admin/` (placeholders and the admin `<html>` theme toggle), `hooks/use-mobile.ts`, and `lib/utils.ts`.
-- Empty `lib/{data,api,auth,db,storage,email,resume}/` and `public/{images,documents,icons}/` folders (tracked with `.gitkeep`).
-- No `src/` directory.
-- No backend implementation, database client, authentication system, media storage, or configured test framework yet.
-
-The PRD refers to a typed seed-data file at `lib/data/index.ts`, but that file is not present yet; it is created in Phase 1 (task 1.4). Do not import it or describe it as implemented until it exists. Supabase project credentials exist in the gitignored `.env` (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`), but no Supabase client or schema has been written.
+- **Supabase** Postgres schema (`supabase/migrations/`) with RLS on every table, `site_settings` for singleton configs, and public Storage buckets `images` and `documents`.
+- **Server-only data access:** `lib/db/` (publishable-key public client, cookie session client, secret-key admin client), `lib/data/queries.ts` (cached reads) and `lib/actions/` (zod-validated Server Actions via `mutate()`).
+- **Auth:** Supabase Auth email/password with the `app_metadata.role = "admin"` check, an 8-hour signed session cookie, a Supabase-backed rate limit, `proxy.ts` for early redirects, and `requireAdmin()` as the authoritative guard.
+- **Route Handlers:** `api/media/sign` + `api/media` (signed direct-to-Storage uploads, then server-side verification; files never pass through the app server, whose request bodies Vercel caps at ~4.5 MB), `api/contact` (Resend), `api/ebooks/[id]/download` (anonymous counter).
+- **Security headers** (HSTS, nosniff, frame DENY, Referrer-Policy, Permissions-Policy) are set in `next.config.ts`. There is no CSP yet (it needs nonces for inline styles). `proxy.ts` redirects only GET/HEAD navigations; Server Actions answer an expired session with `code: "unauthenticated"`.
+- **Public pages** are prerendered and re-rendered on demand after admin writes (`revalidatePath`). The build therefore needs database access.
+- Resume PDF is browser print (Save as PDF) with an A4 print stylesheet (owner decision 2026-09-25); there is no server export route. No test framework yet.
 
 ### 3.2 Full-stack target architecture
 
@@ -54,7 +52,7 @@ The PRD refers to a typed seed-data file at `lib/data/index.ts`, but that file i
 | Database access | Schema queries, transactions, migrations, and persistence adapters | `lib/db/` |
 | Media storage | Upload handling, object storage adapters, file metadata | `lib/storage/` |
 | Resume logic | Resume configuration, variant selection, export preparation | `lib/resume/` |
-| External integrations | Email delivery (Resend, `lib/email/`), resume PDF rendering (headless Chromium) | Bounded adapters behind `lib/` |
+| External integrations | Email delivery (Resend, `lib/email/`), resume PDF via browser print (A4 print CSS) | Bounded adapters behind `lib/` |
 
 The layers should depend inward: pages and components call typed data-access functions; data-access functions call API, database, or storage adapters; persistence and external services never import UI components.
 
@@ -330,8 +328,8 @@ shadcn/ui (with `radix-ui`, `lucide-react`, `sonner`, and `recharts` via the `ch
 | **Media storage** | **Supabase Storage (S3-compatible)** — chosen | **Phase 5 — resolved** |
 | **Admin authentication** | **Supabase Auth (email/password + server-side sessions)** — chosen | **Phase 5 — resolved** |
 | **Charts** | **Recharts via shadcn `Chart`** — chosen | **Phase 5 — resolved** |
-| **Resume PDF** | **Server-side headless Chromium renders the resume route (A4 print CSS) in `app/api/resume/export/route.ts`**. Because hosting is Vercel, use `puppeteer-core` + `@sparticuz/chromium` (serverless-sized Chromium) on the Node.js runtime with a raised `maxDuration`; confirm the function stays under Vercel's bundle-size limit. Adding the packages still needs owner approval in Phase 4 | **Phase 4 — strategy resolved** |
-| **Email** | **Resend** (`resend` SDK behind `lib/email/`; `RESEND_API_KEY` server-only). Sender domain: the owner's Namecheap domain, verified in Resend by adding its SPF/DKIM (and recommended DMARC) DNS records at Namecheap. No mailbox is needed to send. Notifications go to the owner's personal address, with Reply-To set to the visitor's email. Until the domain is verified, use Resend's test sender to the account email | **Phase 6 — resolved** |
+| **Resume PDF** | **Browser print (Save as PDF)** of the resume pages with an A4 print stylesheet (`@page` + Tailwind `print:` variants in `app/globals.css`); no server route and no Chromium package. Chosen by the owner on 2026-09-25, replacing the earlier headless-Chromium plan | **Phase 4 — resolved** |
+| **Email** | **Resend** (REST API over `fetch` behind `lib/email/`, no SDK; `RESEND_API_KEY` server-only). Sender domain: the owner's Namecheap domain, verified in Resend by adding its SPF/DKIM (and recommended DMARC) DNS records at Namecheap. No mailbox is needed to send. Notifications go to the owner's personal address, with Reply-To set to the visitor's email. Until the domain is verified, use Resend's test sender to the account email | **Phase 6 — resolved** |
 
 The backend surface, database, storage, and authentication choices are resolved for Phase 5: **Supabase** provides the database (Postgres), object storage, and authentication. Do not mix Supabase Postgres/Storage with an incompatible persistence system without a recorded reason.
 
@@ -418,7 +416,7 @@ The following decisions remain open until the relevant phase:
 4. Confirm the final brand fonts. **Resolved:** follow `docs/design.md` (DM Serif Display / Plus Jakarta Sans / JetBrains Mono via `next/font/google`).
 5. Select the charting library for the dashboard overview charts. **Resolved:** Recharts via shadcn `Chart`; charts use content counts and anonymous `DownloadStat` aggregates only (no visitor tracking).
 8. Select the data client and admin data-flow. **Resolved (2026-09-23):** plain Supabase client, Server Actions for admin CRUD, zod validation; Prisma and TanStack Query/Form rejected.
-6. Select the resume PDF rendering strategy. **Resolved:** server-side headless Chromium rendering of the resume routes, so the PDF matches the site exactly.
+6. Select the resume PDF rendering strategy. **Resolved (2026-09-25, owner):** browser print with an A4 print stylesheet; this replaces the earlier server-side headless-Chromium plan.
 7. Select the transactional email provider. **Resolved:** Resend.
 9. Database starting state. **Resolved:** the Supabase database is empty. Migrations create the schema; **no content seed** (revised 2026-09-23: the admin starts empty); an admin seed script creates the single Supabase Auth user via the Admin API from `ADMIN_EMAIL`/`ADMIN_PASSWORD` env vars (never committed), idempotently.
 

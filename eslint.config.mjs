@@ -12,7 +12,17 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Untracked Kilo Code agent worktrees (copies of this repo).
+    ".kilo/**",
   ]),
+  {
+    rules: {
+      // Images are owner-supplied URLs from any host (Supabase Storage or a
+      // pasted link), so next/image would need an open remotePatterns list;
+      // plain <img> keeps the ported layout identical.
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

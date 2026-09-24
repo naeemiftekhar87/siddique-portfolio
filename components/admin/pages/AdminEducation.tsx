@@ -1,24 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
-import type { education as initialEdu } from "@/lib/data";
+import { Plus, Pencil, Search, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
+import { educationStatuses, type Education } from "@/lib/data";
+import { deleteEducation, saveEducation } from "@/lib/actions/content";
+import { ConfirmDelete } from "@/components/admin/confirm-delete";
+import { ImageSourceField } from "@/components/admin/image-source-field";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { dateRange } from "@/lib/data/format";
 
-type Edu = typeof initialEdu[0];
+type Edu = Education;
+type EduInput = Omit<Edu, "id"> & { id?: number };
 
-function EduForm({ initial, onSave, onCancel }: { initial?: Partial<Edu>; onSave: (d: Partial<Edu>) => void; onCancel: () => void }) {
-  const [f, setF] = useState<Partial<Edu>>(
-    initial ?? {
-      university: "", degree: "", major: "", startDate: "", endDate: "",
-      status: "In Progress", gpa: "", description: "", coursework: [], skills: [],
-    }
-  );
+const emptyEdu: EduInput = {
+  university: "", degree: "", major: "", startDate: "", endDate: "",
+  status: "In Progress", gpa: "", description: "", coursework: [], skills: [], logo: "",
+};
+
+function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave: (d: EduInput) => void; onCancel: () => void; pending: boolean }) {
+  const [f, setF] = useState<EduInput>(initial ?? emptyEdu);
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
@@ -49,9 +55,7 @@ function EduForm({ initial, onSave, onCancel }: { initial?: Partial<Edu>; onSave
             onChange={(e) => set("status", e.target.value)}
             className="w-full"
           >
-            <option>In Progress</option>
-            <option>Completed</option>
-            <option>On Hold</option>
+            {educationStatuses.map((st) => <option key={st}>{st}</option>)}
           </NativeSelect>
         </div>
       </div>
@@ -84,16 +88,21 @@ function EduForm({ initial, onSave, onCancel }: { initial?: Partial<Edu>; onSave
           />
         </div>
       </div>
+      <div>
+        <Label variant="admin-label" className="mb-1">Institution Logo</Label>
+        <ImageSourceField value={f.logo} onChange={(v) => set("logo", v)} showPreview />
+      </div>
       <div className="flex gap-3 pt-2">
-        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} className="px-5 py-2.5">Save</Button>
+        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} disabled={pending} className="px-5 py-2.5 disabled:opacity-50">{pending ? "Saving…" : "Save"}</Button>
         <Button variant="admin-secondary" type="button" onClick={onCancel} className="px-5 py-2.5">Cancel</Button>
       </div>
     </Card>
   );
 }
 
-export default function AdminEducation() {
-  const [list, setList] = useState<(typeof initialEdu)[number][]>([]);
+export default function AdminEducation({ initial }: { initial: Edu[] }) {
+  const [list, setList] = useState<Edu[]>(initial);
+  const { pending, run } = useAction();
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
@@ -105,14 +114,31 @@ export default function AdminEducation() {
       e.degree.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAdd = (data: Partial<Edu>) => {
-    setList((prev) => [{ id: Date.now(), logo: "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=80&h=80&fit=crop", coursework: [], skills: [], ...data } as (typeof prev)[number], ...prev]);
-    setShowAdd(false);
+  const handleAdd = (data: EduInput) => {
+    run(() => saveEducation(data), {
+      success: "Education added.",
+      onSuccess: (saved) => {
+        setList((prev) => [saved, ...prev]);
+        setShowAdd(false);
+      },
+    });
   };
 
-  const handleEdit = (id: number, data: Partial<Edu>) => {
-    setList((prev) => prev.map((e) => (e.id === id ? { ...e, ...data } : e)));
-    setEditing(null);
+  const handleEdit = (id: number, data: EduInput) => {
+    run(() => saveEducation({ ...data, id }), {
+      success: "Education updated.",
+      onSuccess: (saved) => {
+        setList((prev) => prev.map((e) => (e.id === id ? saved : e)));
+        setEditing(null);
+      },
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    run(() => deleteEducation(id), {
+      success: "Education deleted.",
+      onSuccess: () => setList((prev) => prev.filter((x) => x.id !== id)),
+    });
   };
 
   return (
@@ -130,7 +156,7 @@ export default function AdminEducation() {
         </Button>
       </div>
 
-      {showAdd && <EduForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
+      {showAdd && <EduForm onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}
 
       <div className="relative max-w-sm mb-6">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -153,7 +179,7 @@ export default function AdminEducation() {
           <Card variant="admin-panel" key={edu.id} className="overflow-hidden">
             {editing === edu.id ? (
               <div className="p-6">
-                <EduForm initial={edu} onSave={(d) => handleEdit(edu.id, d)} onCancel={() => setEditing(null)} />
+                <EduForm initial={edu} onSave={(d) => handleEdit(edu.id, d)} onCancel={() => setEditing(null)} pending={pending} />
               </div>
             ) : (
               <>
@@ -167,24 +193,19 @@ export default function AdminEducation() {
                   <div className="flex-1 min-w-0">
                     <p className="text-slate-200 font-medium text-sm">{edu.degree}</p>
                     <p className="text-slate-400 text-xs mt-0.5">{edu.university}</p>
-                    <p className="text-slate-500 text-xs mt-0.5 font-mono">{edu.startDate} – {edu.endDate} · {edu.major}</p>
+                    <p className="text-slate-500 text-xs mt-0.5 font-mono">{dateRange(edu.startDate, edu.endDate)} · {edu.major}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span className={`px-2.5 py-1 rounded-full text-xs border font-medium ${edu.status === "In Progress" ? "bg-blue-900/40 text-blue-400 border-blue-800" : "bg-green-900/40 text-green-400 border-green-800"}`}>
                       {edu.status}
                     </span>
-                    <Button variant="admin-icon-edit"
+                    <Button variant="admin-icon-edit" aria-label={`Edit ${edu.degree}`}
                       onClick={(e) => { e.stopPropagation(); setEditing(edu.id); }}
                       
 >
                       <Pencil size={14} />
                     </Button>
-                    <Button variant="admin-icon-danger"
-                      onClick={(e) => { e.stopPropagation(); setList((prev) => prev.filter((x) => x.id !== edu.id)); }}
-                      
->
-                      <Trash2 size={14} />
-                    </Button>
+                    <ConfirmDelete label={edu.degree} pending={pending} onConfirm={() => handleDelete(edu.id)} />
                     {expanded === edu.id ? <ChevronUp size={15} className="text-slate-500" /> : <ChevronDown size={15} className="text-slate-500" />}
                   </div>
                 </div>

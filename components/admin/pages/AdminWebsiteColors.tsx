@@ -13,6 +13,8 @@ import {
   siteColorVars,
   type SiteColors,
 } from "@/lib/site-colors";
+import { saveSettings } from "@/lib/actions/settings";
+import { useAction } from "@/components/admin/use-action";
 
 type ColorField = {
   key: keyof SiteColors;
@@ -92,12 +94,17 @@ function ColorRow({ field, value, onChange }: { field: ColorField; value: string
   );
 }
 
-export default function AdminWebsiteColors() {
-  const [colors, setColors] = useState<SiteColors>(defaultSiteColors);
+export default function AdminWebsiteColors({ initial, name }: { initial: SiteColors; name: string }) {
+  const [colors, setColors] = useState<SiteColors>(initial);
   const [saved, setSaved] = useState(false);
+  const { pending, run } = useAction();
 
   const set = (key: keyof SiteColors) => (hex: string) => setColors(prev => ({ ...prev, [key]: hex }));
-  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 3000); };
+  const handleSave = () => {
+    run(() => saveSettings("colors", colors), {
+      onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000); },
+    });
+  };
 
   // The preview uses the same CSS variables as the public site.
   const previewVars = siteColorVars(colors) as React.CSSProperties;
@@ -135,7 +142,7 @@ export default function AdminWebsiteColors() {
         <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Preview</p>
         <div style={previewVars} className="rounded-xl overflow-hidden border border-slate-700 text-left" aria-hidden="true">
           <div className="bg-(color:--site-navbar) px-4 h-10 flex items-center justify-between">
-            <span className="font-serif text-white text-sm">Your Name</span>
+            <span className="font-serif text-white text-sm">{name || "Your Name"}</span>
             <span className="hidden sm:flex gap-3 text-white/70 text-xs"><span className="text-white">Home</span><span>About</span><span>Research</span><span>Contact</span></span>
           </div>
           <div className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) px-4 py-8">
@@ -148,15 +155,15 @@ export default function AdminWebsiteColors() {
             <div className="glass-card rounded-lg p-3 text-slate-600 text-xs">Cards and content sit on this background.</div>
           </div>
           <div className="bg-(color:--site-footer) px-4 py-4 text-slate-300 text-xs flex justify-between">
-            <span className="font-serif text-white">Your Name</span>
+            <span className="font-serif text-white">{name || "Your Name"}</span>
             <span className="text-slate-400">Footer</span>
           </div>
         </div>
       </Card>
 
-      <Button variant="unstyled" onClick={handleSave}
-        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
-        <Save size={15} /> {saved ? "Saved!" : "Save Colours"}
+      <Button variant="unstyled" onClick={handleSave} disabled={pending}
+        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all disabled:opacity-50 ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
+        <Save size={15} /> {pending ? "Saving…" : saved ? "Saved!" : "Save Colours"}
       </Button>
     </div>
   );

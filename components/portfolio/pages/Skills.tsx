@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Search, BarChart2 } from "lucide-react";
-import { skills, skillCategories } from "@/lib/data";
+import { skillCategories, type Skill } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-export default function Skills() {
+export default function Skills({ skills }: { skills: Skill[] }) {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [search, setSearch] = useState("");
 
@@ -17,7 +17,7 @@ export default function Skills() {
     return matchCat && matchSearch;
   });
 
-  const avgLevel = Math.round(skills.reduce((s, k) => s + k.level, 0) / skills.length);
+  const avgLevel = skills.length ? Math.round(skills.reduce((s, k) => s + k.level, 0) / skills.length) : 0;
 
   return (
     <div className="min-h-screen">
@@ -34,12 +34,12 @@ export default function Skills() {
             Skills &<br /><span className="italic text-cyan-300">Expertise</span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl leading-relaxed mb-10">
-            A broad technical and analytical skill set built through professional practice, academic research, and continuous self-development across your domains.
+            A broad technical and analytical skill set built through professional practice, academic research, and continuous self-development.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
               { value: skills.length, label: "Total Skills" },
-              { value: skillCategories.length - 1, label: "Categories" },
+              { value: new Set(skills.map((s) => s.category)).size, label: "Categories" },
               { value: skills.filter((s) => s.level >= 80).length, label: "Expert Level" },
               { value: `${avgLevel}%`, label: "Avg. Proficiency" },
             ].map(({ value, label }) => (
@@ -62,16 +62,18 @@ export default function Skills() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search skills..."
+              aria-label="Search skills"
               className="w-full focus:ring-blue-100"
             />
           </div>
 
           {/* Category tabs */}
           <div className="flex flex-wrap gap-2">
-            {skillCategories.map((cat) => (
+            {["ALL", ...skillCategories].map((cat) => (
               <Button variant="unstyled"
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
+                aria-pressed={activeCategory === cat}
                 className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
                   activeCategory === cat
                     ? "bg-blue-600 text-white shadow-sm"
@@ -100,7 +102,7 @@ export default function Skills() {
                     skill.category === "INTERPERSONAL" ? "text-blue-500" :
                     "text-orange-500"
                   }`}>
-                    {skill.category === "ALL" ? "" : skill.category}
+                    {skill.category}
                   </span>
                 </div>
                 <span className="font-mono text-xs text-slate-400">{skill.level}%</span>
@@ -118,7 +120,7 @@ export default function Skills() {
 
         {filtered.length === 0 && (
           <div className="text-center py-16 text-slate-400">
-            No skills match your search.
+            {skills.length === 0 ? "No skills yet." : "No skills match your search."}
           </div>
         )}
       </div>

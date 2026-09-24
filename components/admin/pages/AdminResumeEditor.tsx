@@ -1,30 +1,19 @@
 "use client";
 
-import {
-  emptyProfile as profile,
-  type education as sampleEducation,
-  type experiences as sampleExperiences,
-  type researchPapers as sampleResearchPapers,
-  type skills as sampleSkills,
-} from "@/lib/data";
-import { Download, FileText, Save } from "lucide-react";
-import { usePathname } from "next/navigation";
+import type { Education, Experience, Paper, ProfileSettings, ResumeConfig, Skill } from "@/lib/data";
+import { ExternalLink, FileText, Save } from "lucide-react";
 import { useState } from "react";
+import { saveSettings } from "@/lib/actions/settings";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { dateRange } from "@/lib/data/format";
 
-// The admin starts empty; the preview fills in as content is added (Phase 5).
-const experiences: (typeof sampleExperiences)[number][] = [];
-const education: (typeof sampleEducation)[number][] = [];
-const skills: (typeof sampleSkills)[number][] = [];
-const researchPapers: (typeof sampleResearchPapers)[number][] = [];
-
-const TABS = ["professional", "infographic"] as const;
-type Tab = (typeof TABS)[number];
+type Tab = "professional" | "infographic";
 
 const tabMeta: Record<Tab, { label: string; desc: string }> = {
   professional: {
@@ -37,30 +26,36 @@ const tabMeta: Record<Tab, { label: string; desc: string }> = {
   },
 };
 
-export default function AdminResumeEditor() {
-  const pathname = usePathname();
-  const slug = pathname.split("/").pop() as Tab;
-  const currentTab: Tab = TABS.includes(slug) ? slug : "professional";
-
-  const [settings, setSettings] = useState({
-    showSummary: true,
-    showExperience: true,
-    showEducation: true,
-    showSkills: true,
-    showCertificates: true,
-    showResearch: currentTab !== "professional",
-    experienceLimit: 4,
-    skillsLimit: 20,
-    accentColor: "#2563eb",
-    fontStyle: "serif",
-  });
-
-  const [customNote, setCustomNote] = useState("");
+export default function AdminResumeEditor({
+  variant: currentTab,
+  initial,
+  profile,
+  experiences,
+  education,
+  skills,
+  researchPapers,
+}: {
+  variant: Tab;
+  initial: ResumeConfig;
+  profile: ProfileSettings;
+  experiences: Experience[];
+  education: Education[];
+  skills: Skill[];
+  researchPapers: Paper[];
+}) {
+  const { customNote: initialNote, ...initialSettings } = initial;
+  const [settings, setSettings] = useState(initialSettings);
+  const [customNote, setCustomNote] = useState(initialNote);
   const [saved, setSaved] = useState(false);
+  const { pending, run } = useAction();
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    run(() => saveSettings(`resume_${currentTab}`, { ...settings, customNote }), {
+      onSuccess: () => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      },
+    });
   };
 
   const meta = tabMeta[currentTab];
@@ -75,8 +70,10 @@ export default function AdminResumeEditor() {
           <p className="text-slate-400 text-sm">{meta.desc}</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="admin-outline" className="flex items-center gap-2 px-4 py-2.5">
-            <Download size={14} /> Export PDF
+          <Button asChild variant="admin-outline" className="flex items-center gap-2 px-4 py-2.5">
+            <a href={currentTab === "professional" ? "/resume" : "/resume/infographic"} target="_blank" rel="noopener noreferrer">
+              <ExternalLink size={14} /> View on Site
+            </a>
           </Button>
         </div>
       </div>
@@ -100,10 +97,14 @@ export default function AdminResumeEditor() {
               { key: "showSkills", label: "Skills" },
               { key: "showCertificates", label: "Certificates" },
               { key: "showResearch", label: "Research & Publications" },
+              { key: "showLanguages", label: "Languages" },
             ].map(({ key, label }) => (
               <div key={key} className="flex items-center justify-between">
                 <span className="text-slate-400 text-sm">{label}</span>
                 <Button variant="unstyled"
+                  role="switch"
+                  aria-checked={settings[key as keyof typeof settings] as boolean}
+                  aria-label={label}
                   onClick={() =>
                     setSettings((prev) => ({
                       ...prev,
@@ -188,7 +189,7 @@ export default function AdminResumeEditor() {
                 onChange={(e) =>
                   setSettings((prev) => ({
                     ...prev,
-                    fontStyle: e.target.value,
+                    fontStyle: e.target.value as ResumeConfig["fontStyle"],
                   }))
                 }
                 className="w-full"
@@ -213,9 +214,10 @@ export default function AdminResumeEditor() {
 
           <Button variant="unstyled"
             onClick={handleSave}
-            className={`w-full flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}
+            disabled={pending}
+            className={`w-full flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all disabled:opacity-50 ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}
           >
-            <Save size={15} /> {saved ? "Saved!" : "Save Settings"}
+            <Save size={15} /> {pending ? "Saving…" : saved ? "Saved!" : "Save Settings"}
           </Button>
         </div>
 
@@ -247,7 +249,7 @@ export default function AdminResumeEditor() {
                     Summary
                   </h3>
                   <p className="text-slate-600 leading-relaxed text-xs">
-                    {profile.summary.slice(0, 220)}…
+                    {profile.summary.length > 220 ? `${profile.summary.slice(0, 220)}…` : profile.summary}
                   </p>
                 </div>
               )}
@@ -272,7 +274,7 @@ export default function AdminResumeEditor() {
                             className="text-xs"
                             style={{ color: settings.accentColor }}
                           >
-                            {exp.company} · {exp.startDate}–{exp.endDate}
+                            {exp.company} · {dateRange(exp.startDate, exp.endDate)}
                           </p>
                         </div>
                       ))}
@@ -295,7 +297,7 @@ export default function AdminResumeEditor() {
                           {edu.degree}
                         </p>
                         <p className="text-slate-500 text-xs">
-                          {edu.university} · {edu.startDate}–{edu.endDate}
+                          {edu.university} · {dateRange(edu.startDate, edu.endDate)}
                         </p>
                       </div>
                     ))}

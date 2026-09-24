@@ -1,34 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, BarChart2, AlertCircle } from "lucide-react";
-import { profile } from "@/lib/data";
+import { login } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function AdminLogin() {
-  const router = useRouter();
+export default function AdminLogin({ name }: { name: string }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
-    // Demo auth — accept any non-empty credentials
-    setTimeout(() => {
-      if (form.email && form.password) {
-        router.push("/admin");
-      } else {
-        setError("Please enter your email and password.");
+    if (!form.email || !form.password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    // On success the action redirects to /admin; otherwise it returns a message.
+    startTransition(async () => {
+      try {
+        const result = await login(form);
+        if (result && !result.ok) setError(result.error);
+      } catch {
+        setError("Could not reach the server. Check your connection and try again.");
       }
-      setLoading(false);
-    }, 800);
+    });
   };
 
   return (
@@ -55,7 +56,7 @@ export default function AdminLogin() {
             <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
               <BarChart2 size={20} className="text-white" />
             </div>
-            <span className="font-serif text-white text-lg">{profile.name}</span>
+            <span className="font-serif text-white text-lg">{name || "Admin CMS"}</span>
           </Link>
 
           <div>
@@ -77,7 +78,7 @@ export default function AdminLogin() {
           </div>
 
           <p className="text-slate-600 text-xs">
-            © {new Date().getFullYear()} {profile.name}. All rights reserved.
+            © {new Date().getFullYear()} {name || "Admin CMS"}. All rights reserved.
           </p>
         </div>
       </div>
@@ -99,7 +100,7 @@ export default function AdminLogin() {
           </div>
 
           {error && (
-            <div className="flex items-center gap-3 bg-red-950/50 border border-red-800/60 rounded-xl px-4 py-3 mb-6">
+            <div role="alert" className="flex items-center gap-3 bg-red-950/50 border border-red-800/60 rounded-xl px-4 py-3 mb-6">
               <AlertCircle size={16} className="text-red-400 flex-shrink-0" />
               <p className="text-red-300 text-sm">{error}</p>
             </div>
@@ -107,11 +108,13 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <Label variant="unstyled" className="block text-sm text-slate-400 mb-2">Email address</Label>
+              <Label variant="unstyled" htmlFor="admin-email" className="block text-sm text-slate-400 mb-2">Email address</Label>
               <div className="relative">
                 <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                 <Input variant="admin-field-dark"
+                  id="admin-email"
                   type="email"
+                  autoComplete="username"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="admin@example.com"
@@ -121,11 +124,13 @@ export default function AdminLogin() {
             </div>
 
             <div>
-              <Label variant="unstyled" className="block text-sm text-slate-400 mb-2">Password</Label>
+              <Label variant="unstyled" htmlFor="admin-password" className="block text-sm text-slate-400 mb-2">Password</Label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                 <Input variant="admin-field-dark"
+                  id="admin-password"
                   type={showPass ? "text" : "password"}
+                  autoComplete="current-password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="Enter your password"
@@ -134,6 +139,7 @@ export default function AdminLogin() {
                 <Button variant="unstyled"
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
+                  aria-label={showPass ? "Hide password" : "Show password"}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -156,12 +162,6 @@ export default function AdminLogin() {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-slate-900 rounded-xl border border-slate-800">
-            <p className="text-slate-500 text-xs mb-2 font-mono">Demo credentials</p>
-            <p className="text-slate-400 text-xs">Email: <span className="text-slate-200">admin@example.com</span></p>
-            <p className="text-slate-400 text-xs">Password: <span className="text-slate-200">any value</span></p>
-          </div>
 
           <div className="mt-6 text-center">
             <Link href="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">

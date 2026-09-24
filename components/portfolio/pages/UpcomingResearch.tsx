@@ -5,18 +5,7 @@ import { Microscope, Tag, ChevronDown, ChevronUp, Calendar, Lightbulb, BookOpen,
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
-type ResearchTopic = {
-  id: number;
-  title: string;
-  area: string;
-  status: string;
-  question: string;
-  contribution: string;
-  methodology: string;
-  keywords: string[];
-  expectedYear?: string;
-};
+import type { UpcomingResearch as ResearchTopic } from "@/lib/data";
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   Idea: { label: "Idea", color: "bg-blue-900/40 text-cyan-400 border-blue-800", icon: <Lightbulb size={11} /> },
@@ -26,68 +15,10 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.R
   "In Progress": { label: "In Progress", color: "bg-green-900/40 text-green-400 border-green-800", icon: <FlaskConical size={11} /> },
 };
 
-const topics: ResearchTopic[] = [
-  {
-    id: 1,
-    title: "Example Upcoming Research Topic 1",
-    area: "Research Area A",
-    status: "Conceptualized",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2027",
-  },
-  {
-    id: 2,
-    title: "Example Upcoming Research Topic 2",
-    area: "Research Area B",
-    status: "Literature Review",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2026",
-  },
-  {
-    id: 3,
-    title: "Example Upcoming Research Topic 3",
-    area: "Research Area A",
-    status: "Idea",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2027",
-  },
-  {
-    id: 4,
-    title: "Example Upcoming Research Topic 4",
-    area: "Research Area C",
-    status: "Data Collection",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2026",
-  },
-  {
-    id: 5,
-    title: "Example Upcoming Research Topic 5",
-    area: "Research Area D",
-    status: "Conceptualized",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2028",
-  },
-];
 
-const areas = ["All", ...Array.from(new Set(topics.map((t) => t.area)))];
-const statuses = ["All", ...Array.from(new Set(topics.map((t) => t.status)))];
-
-export default function UpcomingResearch() {
+export default function UpcomingResearch({ topics }: { topics: ResearchTopic[] }) {
+  const areas = ["All", ...Array.from(new Set(topics.map((t) => t.area).filter(Boolean)))];
+  const statuses = ["All", ...Array.from(new Set(topics.map((t) => t.status)))];
   const [areaFilter, setAreaFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -121,7 +52,7 @@ export default function UpcomingResearch() {
               { value: topics.length, label: "Topics in Pipeline" },
               { value: topics.filter((t) => t.status === "Data Collection" || t.status === "In Progress").length, label: "Active" },
               { value: topics.filter((t) => t.status === "Literature Review").length, label: "Under Review" },
-              { value: Array.from(new Set(topics.map((t) => t.area))).length, label: "Research Areas" },
+              { value: Array.from(new Set(topics.map((t) => t.area).filter(Boolean))).length, label: "Research Areas" },
             ].map(({ value, label }) => (
               <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>
@@ -230,7 +161,7 @@ export default function UpcomingResearch() {
         {filtered.length === 0 && (
           <div className="text-center py-20">
             <Microscope size={40} className="text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-400">No topics match the current filters.</p>
+            <p className="text-gray-400">{topics.length === 0 ? "No upcoming topics yet." : "No topics match the current filters."}</p>
           </div>
         )}
 

@@ -1,4 +1,4 @@
-import { education, experiences, profile } from "@/lib/data";
+import type { AboutSettings, Education, Experience, SiteProfile } from "@/lib/data";
 import {
   ArrowRight,
   BookOpen,
@@ -8,13 +8,43 @@ import {
   Link2,
   Mail,
   MapPin,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { dateRange } from "@/lib/data/format";
 
-export default function About() {
+type AboutProps = {
+  profile: SiteProfile;
+  about: AboutSettings;
+  education: Education[];
+  experiences: Experience[];
+};
+
+export default function About({ profile, about, education, experiences }: AboutProps) {
   const currentRole = experiences[0];
+  const socials = [
+    { href: profile.linkedin, label: "LinkedIn", Icon: Link2 },
+    { href: profile.github, label: "GitHub", Icon: GitFork },
+    { href: profile.scholar, label: "Scholar", Icon: GraduationCap },
+  ].filter((s) => s.href);
+  const stats = [
+    { value: profile.stats.experience, label: "Years Exp." },
+    { value: profile.stats.degrees, label: "Degrees" },
+    { value: profile.stats.certificates, label: "Certificates" },
+    { value: profile.stats.research, label: "Research" },
+    { value: profile.stats.publications, label: "Publications" },
+    { value: profile.stats.skills, label: "Skills" },
+  ];
+  const glance = [
+    ["Experience", profile.stats.experience && `${profile.stats.experience} years`],
+    ["Degrees", profile.stats.degrees],
+    ["Certificates", profile.stats.certificates],
+    ["Research Projects", profile.stats.research],
+    ["Publications", profile.stats.publications],
+    ["Technical Skills", profile.stats.skills],
+  ].filter(([, value]) => value);
 
   return (
     <div className="min-h-screen">
@@ -24,14 +54,22 @@ export default function About() {
           <div className="flex flex-col md:flex-row gap-10 items-start md:items-center">
             <div className="flex-shrink-0">
               <div className="relative">
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=280&h=280&fit=crop"
-                  alt={profile.name}
-                  className="w-36 h-36 rounded-3xl object-cover border-2 border-white/10 shadow-2xl"
-                />
-                <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white text-xs font-mono px-2.5 py-1 rounded-lg border-2 border-[#040d1f]">
-                  {profile.badge}
-                </div>
+                {profile.photo ? (
+                  <img
+                    src={profile.photo}
+                    alt={profile.name}
+                    className="w-36 h-36 rounded-3xl object-cover border-2 border-white/10 shadow-2xl"
+                  />
+                ) : (
+                  <div className="w-36 h-36 rounded-3xl border-2 border-white/10 shadow-2xl bg-white/5 flex items-center justify-center" aria-hidden>
+                    <User size={40} className="text-slate-500" />
+                  </div>
+                )}
+                {profile.badge && (
+                  <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white text-xs font-mono px-2.5 py-1 rounded-lg border-2 border-[#040d1f]">
+                    {profile.badge}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex-1">
@@ -45,55 +83,39 @@ export default function About() {
                 {profile.headline}
               </p>
               <div className="flex flex-wrap gap-4 text-slate-400 text-sm mb-6">
-                <span className="flex items-center gap-1.5">
-                  <MapPin size={14} /> {profile.location}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Mail size={14} /> {profile.email}
-                </span>
+                {profile.location && (
+                  <span className="flex items-center gap-1.5">
+                    <MapPin size={14} /> {profile.location}
+                  </span>
+                )}
+                {profile.email && (
+                  <a href={`mailto:${profile.email}`} className="flex items-center gap-1.5 hover:text-white transition-colors">
+                    <Mail size={14} /> {profile.email}
+                  </a>
+                )}
               </div>
-              <div className="flex gap-3">
-                <a
-                  href={profile.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors"
-                >
-                  <Link2 size={14} /> LinkedIn
-                </a>
-                <a
-                  href={profile.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors"
-                >
-                  <GitFork size={14} /> GitHub
-                </a>
-                <a
-                  href={profile.scholar}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors"
-                >
-                  <GraduationCap size={14} /> Scholar
-                </a>
+              <div className="flex flex-wrap gap-3">
+                {socials.map(({ href, label, Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <Icon size={14} /> {label}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 mt-12">
-            {[
-              { value: profile.stats.experience, label: "Years Exp." },
-              { value: profile.stats.degrees, label: "Degrees" },
-              { value: profile.stats.certificates, label: "Certificates" },
-              { value: profile.stats.research, label: "Research" },
-              { value: profile.stats.publications, label: "Publications" },
-              { value: profile.stats.skills, label: "Skills" },
-            ].map(({ value, label }) => (
+            {stats.map(({ value, label }) => (
               <Card variant="site-glass-dark"
                 key={label}
                 className="p-4 text-center"
               >
-                <div className="font-serif text-2xl text-white">{value}</div>
+                <div className="font-serif text-2xl text-white">{value || "—"}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
               </Card>
             ))}
@@ -105,35 +127,38 @@ export default function About() {
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-10">
-            <div>
-              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
-                Professional Summary
-              </h2>
-              <p className="text-slate-600 leading-relaxed text-base">
-                {profile.summary}
-              </p>
-            </div>
+            {profile.summary && (
+              <div>
+                <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                  Professional Summary
+                </h2>
+                <p className="text-slate-600 leading-relaxed text-base whitespace-pre-line">
+                  {profile.summary}
+                </p>
+              </div>
+            )}
 
-            <div>
-              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
-                Career Focus
-              </h2>
-              <p className="text-slate-600 leading-relaxed">
-                Placeholder career focus. Replace it with a few sentences about
-                your current role, the problems you focus on, and how your
-                professional experience and research connect.
-              </p>
-            </div>
+            {about.careerFocus && (
+              <div>
+                <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                  Career Focus
+                </h2>
+                <p className="text-slate-600 leading-relaxed whitespace-pre-line">
+                  {about.careerFocus}
+                </p>
+              </div>
+            )}
 
+            {(about.academicBio || education.length > 0) && (
             <div>
               <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
                 Academic Journey
               </h2>
-              <p className="text-slate-600 leading-relaxed mb-6">
-                Placeholder academic journey. Replace it with a short narrative
-                about your degrees, the institutions you studied at, and how
-                your studies connect to your current work and research.
-              </p>
+              {about.academicBio && (
+                <p className="text-slate-600 leading-relaxed mb-6 whitespace-pre-line">
+                  {about.academicBio}
+                </p>
+              )}
               <div className="space-y-3">
                 {education.map((edu) => (
                   <Card variant="site-panel"
@@ -157,7 +182,7 @@ export default function About() {
                         {edu.degree}
                       </p>
                       <p className="text-slate-500 text-xs mt-0.5">
-                        {edu.university} · {edu.startDate}–{edu.endDate}
+                        {edu.university}{(edu.startDate || edu.endDate) && ` · ${dateRange(edu.startDate, edu.endDate)}`}
                       </p>
                     </div>
                     <Badge variant="unstyled"
@@ -169,6 +194,7 @@ export default function About() {
                 ))}
               </div>
             </div>
+            )}
 
             {currentRole && (
               <div>
@@ -177,11 +203,17 @@ export default function About() {
                 </h2>
                 <Card variant="site-glass-card" className="p-6 hover:shadow-md transition-all">
                   <div className="flex items-start gap-4">
-                    <img
-                      src={currentRole.logo}
-                      alt={currentRole.company}
-                      className="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-100"
-                    />
+                    {currentRole.logo ? (
+                      <img
+                        src={currentRole.logo}
+                        alt={currentRole.company}
+                        className="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-100"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 border border-slate-100">
+                        <Briefcase size={20} className="text-blue-600" />
+                      </div>
+                    )}
                     <div className="flex-1">
                       <h3 className="font-semibold text-slate-900">
                         {currentRole.position}
@@ -190,8 +222,7 @@ export default function About() {
                         {currentRole.company}
                       </p>
                       <p className="text-slate-400 text-xs mt-0.5">
-                        {currentRole.startDate} – {currentRole.endDate} ·{" "}
-                        {currentRole.location}
+                        {[dateRange(currentRole.startDate, currentRole.endDate), currentRole.location].filter(Boolean).join(" · ")}
                       </p>
                       <p className="text-slate-600 text-sm mt-3 leading-relaxed">
                         {currentRole.description}
@@ -211,6 +242,7 @@ export default function About() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {profile.researchInterests.length > 0 && (
             <Card variant="site-panel" className="p-6">
               <h3 className="font-serif text-lg text-[#040d1f] mb-4 flex items-center gap-2">
                 <BookOpen size={16} className="text-blue-500" /> Research
@@ -233,20 +265,30 @@ export default function About() {
                 View research papers <ArrowRight size={11} />
               </Link>
             </Card>
+            )}
 
+            {about.domainExpertise.length > 0 && (
+              <Card variant="site-panel" className="p-6">
+                <h3 className="font-serif text-lg text-[#040d1f] mb-4">
+                  Domain Expertise
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {about.domainExpertise.map((d) => (
+                    <span key={d} className="px-3 py-1.5 bg-white text-slate-700 text-xs rounded-xl border border-slate-200 font-medium">
+                      {d}
+                    </span>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {glance.length > 0 && (
             <Card variant="site-glass-card" className="p-6">
               <h3 className="font-serif text-lg text-[#040d1f] mb-4">
                 At a Glance
               </h3>
               <div className="space-y-3">
-                {[
-                  ["Experience", profile.stats.experience + " years"],
-                  ["Degrees", profile.stats.degrees],
-                  ["Certificates", profile.stats.certificates + "+"],
-                  ["Research Projects", profile.stats.research],
-                  ["Publications", profile.stats.publications],
-                  ["Technical Skills", profile.stats.skills],
-                ].map(([label, value]) => (
+                {glance.map(([label, value]) => (
                   <div
                     key={label}
                     className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0"
@@ -259,6 +301,7 @@ export default function About() {
                 ))}
               </div>
             </Card>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               {[

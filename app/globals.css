@@ -455,3 +455,20 @@ button {
   border-radius: var(--radius-md);
   padding: 0.75rem 1rem;
 }
+
+/* ── Print (resume "Download PDF" via Save as PDF) ─────────────────────────
+   A4 pages; site chrome is hidden with Tailwind's print: variant in the
+   components. .print-color keeps dark resume headers in the printout. */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+@media print {
+  body {
+    background: #fff !important;
+  }
+  .print-color {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

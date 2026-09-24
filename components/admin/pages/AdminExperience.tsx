@@ -1,37 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, Calendar, Briefcase } from "lucide-react";
-import type { experiences as initialExps } from "@/lib/data";
+import { Plus, Pencil, Search, ChevronDown, ChevronUp, Calendar, Briefcase } from "lucide-react";
+import type { Experience } from "@/lib/data";
+import { deleteExperience, saveExperience } from "@/lib/actions/content";
+import { ConfirmDelete } from "@/components/admin/confirm-delete";
+import { ImageSourceField } from "@/components/admin/image-source-field";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { dateRange } from "@/lib/data/format";
 
-type Exp = typeof initialExps[0];
+type Exp = Experience;
+
+const emptyExp: Omit<Exp, "id"> = {
+  company: "",
+  position: "",
+  type: "Full-time",
+  startDate: "",
+  endDate: "",
+  location: "",
+  description: "",
+  responsibilities: [],
+  achievements: [],
+  skills: [],
+  logo: "",
+};
+
+const lines = (v: string) => v.split("\n").map((s) => s.trim()).filter(Boolean);
 
 function ExpForm({
   initial,
   onSave,
-  onCancel }: {
-  initial?: Partial<Exp>;
-  onSave: (d: Partial<Exp>) => void;
+  onCancel,
+  pending }: {
+  initial?: Exp;
+  onSave: (d: Omit<Exp, "id"> & { id?: number }) => void;
   onCancel: () => void;
+  pending: boolean;
 }) {
-  const [f, setF] = useState<Partial<Exp>>(
-    initial ?? {
-      company: "",
-      position: "",
-      type: "Full-time",
-      startDate: "",
-      endDate: "",
-      location: "",
-      description: "",
-      responsibilities: [],
-      achievements: [],
-      skills: [] }
-  );
+  const [f, setF] = useState<Omit<Exp, "id"> & { id?: number }>(initial ?? emptyExp);
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
@@ -58,6 +69,30 @@ function ExpForm({
           className="w-full resize-none"
         />
       </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div>
+          <Label variant="admin-label" className="mb-1">Responsibilities (one per line)</Label>
+          <Textarea variant="admin-field"
+            rows={4}
+            defaultValue={f.responsibilities.join("\n")}
+            onChange={(e) => set("responsibilities", lines(e.target.value))}
+            className="w-full resize-none"
+          />
+        </div>
+        <div>
+          <Label variant="admin-label" className="mb-1">Key Achievements (one per line)</Label>
+          <Textarea variant="admin-field"
+            rows={4}
+            defaultValue={f.achievements.join("\n")}
+            onChange={(e) => set("achievements", lines(e.target.value))}
+            className="w-full resize-none"
+          />
+        </div>
+      </div>
+      <div>
+        <Label variant="admin-label" className="mb-1">Company Logo</Label>
+        <ImageSourceField value={f.logo} onChange={(v) => set("logo", v)} showPreview />
+      </div>
       <div>
         <Label variant="admin-label" className="mb-1">Skills (comma-separated)</Label>
         <Input variant="admin-field"
@@ -71,9 +106,10 @@ function ExpForm({
         <Button variant="admin-primary"
           type="button"
           onClick={() => onSave(f)}
-          className="px-5 py-2.5"
+          disabled={pending}
+          className="px-5 py-2.5 disabled:opacity-50"
         >
-          Save
+          {pending ? "Saving…" : "Save"}
         </Button>
         <Button variant="admin-secondary"
           type="button"
@@ -87,8 +123,9 @@ function ExpForm({
   );
 }
 
-export default function AdminExperience() {
-  const [exps, setExps] = useState<(typeof initialExps)[number][]>([]);
+export default function AdminExperience({ initial }: { initial: Exp[] }) {
+  const [exps, setExps] = useState<Exp[]>(initial);
+  const { pending, run } = useAction();
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
@@ -100,14 +137,31 @@ export default function AdminExperience() {
       e.position.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAdd = (data: Partial<typeof initialExps[0]>) => {
-    setExps((prev) => [{ id: Date.now(), logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=80&h=80&fit=crop", responsibilities: [], achievements: [], ...data } as (typeof prev)[number], ...prev]);
-    setShowAdd(false);
+  const handleAdd = (data: Omit<Exp, "id">) => {
+    run(() => saveExperience(data), {
+      success: "Experience added.",
+      onSuccess: (saved) => {
+        setExps((prev) => [saved, ...prev]);
+        setShowAdd(false);
+      },
+    });
   };
 
-  const handleEdit = (id: number, data: Partial<typeof initialExps[0]>) => {
-    setExps((prev) => prev.map((e) => (e.id === id ? { ...e, ...data } : e)));
-    setEditing(null);
+  const handleEdit = (id: number, data: Omit<Exp, "id">) => {
+    run(() => saveExperience({ ...data, id }), {
+      success: "Experience updated.",
+      onSuccess: (saved) => {
+        setExps((prev) => prev.map((e) => (e.id === id ? saved : e)));
+        setEditing(null);
+      },
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    run(() => deleteExperience(id), {
+      success: "Experience deleted.",
+      onSuccess: () => setExps((prev) => prev.filter((x) => x.id !== id)),
+    });
   };
 
   return (
@@ -125,7 +179,7 @@ export default function AdminExperience() {
         </Button>
       </div>
 
-      {showAdd && <ExpForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
+      {showAdd && <ExpForm onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}
 
       <div className="relative max-w-sm mb-6">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -152,6 +206,7 @@ export default function AdminExperience() {
                   initial={exp}
                   onSave={(data) => handleEdit(exp.id, data)}
                   onCancel={() => setEditing(null)}
+                  pending={pending}
                 />
               </div>
             ) : (
@@ -160,27 +215,26 @@ export default function AdminExperience() {
                   className="flex items-center gap-4 p-5 cursor-pointer"
                   onClick={() => setExpanded(expanded === exp.id ? null : exp.id)}
                 >
-                  <img src={exp.logo} alt={exp.company} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
+                  {exp.logo ? (
+                    <img src={exp.logo} alt={exp.company} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0"><Briefcase size={16} className="text-slate-600" /></div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-slate-200 font-medium text-sm">{exp.position}</p>
                     <div className="flex gap-3 text-slate-500 text-xs mt-0.5">
                       <span>{exp.company}</span>
-                      <span className="flex items-center gap-1"><Calendar size={11} /> {exp.startDate} – {exp.endDate}</span>
+                      <span className="flex items-center gap-1"><Calendar size={11} /> {dateRange(exp.startDate, exp.endDate)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button variant="admin-icon-edit"
+                    <Button variant="admin-icon-edit" aria-label={`Edit ${exp.position}`}
                       onClick={(e) => { e.stopPropagation(); setEditing(exp.id); }}
                       
 >
                       <Pencil size={14} />
                     </Button>
-                    <Button variant="admin-icon-danger"
-                      onClick={(e) => { e.stopPropagation(); setExps((prev) => prev.filter((x) => x.id !== exp.id)); }}
-                      
->
-                      <Trash2 size={14} />
-                    </Button>
+                    <ConfirmDelete label={exp.position} pending={pending} onConfirm={() => handleDelete(exp.id)} />
                     {expanded === exp.id ? <ChevronUp size={15} className="text-slate-500" /> : <ChevronDown size={15} className="text-slate-500" />}
                   </div>
                 </div>

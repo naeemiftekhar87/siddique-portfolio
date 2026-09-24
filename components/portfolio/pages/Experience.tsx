@@ -2,13 +2,33 @@
 
 import { MapPin, Calendar, Briefcase, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
-import { experiences, profile } from "@/lib/data";
+import type { Experience as ExperienceEntry, SiteProfile } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { dateRange } from "@/lib/data/format";
 
-export default function Experience() {
-  const [expanded, setExpanded] = useState<number | null>(1);
+function CompanyLogo({ exp, className }: { exp: ExperienceEntry; className: string }) {
+  return exp.logo ? (
+    <img src={exp.logo} alt={exp.company} className={className} />
+  ) : (
+    <span className={`${className} bg-blue-50 flex items-center justify-center`} aria-hidden>
+      <Briefcase size={16} className="text-blue-600" />
+    </span>
+  );
+}
+
+export default function Experience({ experiences, profile }: { experiences: ExperienceEntry[]; profile: SiteProfile }) {
+  // The latest role starts open; "Expand all" opens every card.
+  const [expanded, setExpanded] = useState<Set<number>>(() => new Set(experiences.slice(0, 1).map((e) => e.id)));
+  const allOpen = experiences.length > 0 && expanded.size === experiences.length;
+  const toggle = (id: number) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const companies = new Set(experiences.map((e) => e.company)).size;
 
@@ -27,7 +47,7 @@ export default function Experience() {
             Professional<br /><span className="italic text-cyan-300">Experience</span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl leading-relaxed mb-10">
-            Over {profile.stats.experience} years of professional experience. Replace this placeholder with a sentence about your career focus.
+            {profile.stats.experience ? `Over ${profile.stats.experience} years of professional experience — ` : ""}roles, responsibilities, and key achievements across my career.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
@@ -37,7 +57,7 @@ export default function Experience() {
               { value: profile.stats.skills, label: "Skills" },
             ].map(({ value, label }) => (
               <Card variant="site-glass-dark" key={label} className="p-4">
-                <div className="font-serif text-3xl text-white">{value}</div>
+                <div className="font-serif text-3xl text-white">{value || "—"}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
               </Card>
             ))}
@@ -46,6 +66,17 @@ export default function Experience() {
       </section>
 
       <div className="max-w-5xl mx-auto px-6 py-12">
+        {experiences.length === 0 ? (
+          <div className="text-center py-16 text-slate-400">No experience entries yet.</div>
+        ) : (
+        <>
+        <div className="flex justify-end mb-4">
+          <Button variant="unstyled"
+            onClick={() => setExpanded(allOpen ? new Set() : new Set(experiences.map((e) => e.id)))}
+            className="flex items-center gap-1.5 text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors">
+            {allOpen ? <><ChevronUp size={15} /> Collapse all</> : <><ChevronDown size={15} /> Expand all</>}
+          </Button>
+        </div>
         {/* Timeline */}
         <div className="relative">
           {/* Vertical line */}
@@ -58,48 +89,57 @@ export default function Experience() {
                 <div className={`hidden md:flex absolute left-0 w-12 h-12 rounded-2xl items-center justify-center shadow-sm border ${
                   idx === 0 ? "bg-blue-600 border-blue-600" : "bg-white border-slate-200"
                 }`}>
-                  <img src={exp.logo} alt={exp.company} className="w-8 h-8 rounded-xl object-cover" />
+                  <CompanyLogo exp={exp} className="w-8 h-8 rounded-xl object-cover" />
                 </div>
 
                 <div
                   className={`bg-white rounded-2xl border transition-all cursor-pointer ${
-                    expanded === exp.id ? "border-blue-200 shadow-md" : "border-slate-100 hover:border-slate-200 hover:shadow-sm"
+                    expanded.has(exp.id) ? "border-blue-200 shadow-md" : "border-slate-100 hover:border-slate-200 hover:shadow-sm"
                   }`}
-                  onClick={() => setExpanded(expanded === exp.id ? null : exp.id)}
+                  onClick={() => toggle(exp.id)}
                 >
                   <div className="p-6">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4">
-                        <img src={exp.logo} alt={exp.company} className="w-12 h-12 rounded-xl object-cover flex-shrink-0 md:hidden" />
+                        <CompanyLogo exp={exp} className="w-12 h-12 rounded-xl object-cover flex-shrink-0 md:hidden" />
                         <div>
                           <h3 className="font-semibold text-slate-900 text-lg">{exp.position}</h3>
                           <div className="flex flex-wrap items-center gap-3 mt-1">
                             <span className="text-blue-600 font-medium text-sm">{exp.company}</span>
-                            <Badge variant="unstyled" className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md font-mono">
-                              {exp.type}
-                            </Badge>
+                            {exp.type && (
+                              <Badge variant="unstyled" className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md font-mono">
+                                {exp.type}
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex flex-wrap gap-4 mt-2">
                             <span className="flex items-center gap-1 text-slate-400 text-xs">
-                              <Calendar size={12} /> {exp.startDate} – {exp.endDate}
+                              <Calendar size={12} /> {dateRange(exp.startDate, exp.endDate)}
                             </span>
-                            <span className="flex items-center gap-1 text-slate-400 text-xs">
-                              <MapPin size={12} /> {exp.location}
-                            </span>
+                            {exp.location && (
+                              <span className="flex items-center gap-1 text-slate-400 text-xs">
+                                <MapPin size={12} /> {exp.location}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
-                      <Button variant="unstyled" className="text-slate-400 hover:text-slate-600 flex-shrink-0 mt-1">
-                        {expanded === exp.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                      <Button variant="unstyled"
+                        onClick={(e) => { e.stopPropagation(); toggle(exp.id); }}
+                        aria-expanded={expanded.has(exp.id)}
+                        aria-label={`${expanded.has(exp.id) ? "Collapse" : "Expand"} ${exp.position}`}
+                        className="text-slate-400 hover:text-slate-600 flex-shrink-0 mt-1">
+                        {expanded.has(exp.id) ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                       </Button>
                     </div>
                   </div>
 
-                  {expanded === exp.id && (
+                  {expanded.has(exp.id) && (
                     <div className="px-6 pb-6 border-t border-slate-50 pt-5">
                       <p className="text-slate-600 mb-6 leading-relaxed">{exp.description}</p>
 
                       <div className="grid md:grid-cols-2 gap-6">
+                        {exp.responsibilities.length > 0 && (
                         <div>
                           <h4 className="text-slate-900 font-semibold text-sm mb-3">Key Responsibilities</h4>
                           <ul className="space-y-2">
@@ -111,6 +151,8 @@ export default function Experience() {
                             ))}
                           </ul>
                         </div>
+                        )}
+                        {exp.achievements.length > 0 && (
                         <div>
                           <h4 className="text-slate-900 font-semibold text-sm mb-3">Achievements</h4>
                           <ul className="space-y-2">
@@ -122,6 +164,7 @@ export default function Experience() {
                             ))}
                           </ul>
                         </div>
+                        )}
                       </div>
 
                       <div className="mt-5 flex flex-wrap gap-2">
@@ -138,6 +181,8 @@ export default function Experience() {
             ))}
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

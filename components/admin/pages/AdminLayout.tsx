@@ -7,9 +7,10 @@ import {
   LayoutDashboard, Globe, User, Award, FolderOpen, FileText,
   Settings, Menu, ChevronDown, ChevronRight,
   Library, Image,
-  Search, Bell, LogOut
+  Search, LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { logout } from "@/lib/auth/actions";
 
 type NavItem = {
   label: string;
@@ -80,6 +81,8 @@ function NavGroup({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
     return (
       <Link
         href={item.to}
+        aria-label={collapsed ? item.label : undefined}
+        aria-current={active ? "page" : undefined}
         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
           active ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white hover:bg-slate-800"
         }`}
@@ -94,6 +97,8 @@ function NavGroup({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
     <div>
       <Button variant="unstyled"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label={collapsed ? item.label : undefined}
         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
           isChildActive ? "text-white" : "text-slate-400 hover:text-white hover:bg-slate-800"
         }`}
@@ -128,7 +133,7 @@ function NavGroup({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   );
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children, email }: { children: React.ReactNode; email: string }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
@@ -158,14 +163,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Footer */}
         <div className="border-t border-slate-800 px-2 py-3">
-          <Link href="/" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
+          <Link href="/" aria-label={sidebarOpen ? undefined : "View Website"} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
             <Globe size={16} />
             {sidebarOpen && <span>View Website</span>}
           </Link>
-          <Button variant="unstyled" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-all">
-            <LogOut size={16} />
-            {sidebarOpen && <span>Sign Out</span>}
-          </Button>
+          <form action={logout}>
+            <Button variant="unstyled" type="submit" aria-label={sidebarOpen ? undefined : "Sign Out"} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-all">
+              <LogOut size={16} />
+              {sidebarOpen && <span>Sign Out</span>}
+            </Button>
+          </form>
         </div>
       </aside>
 
@@ -174,17 +181,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Top bar */}
         <header className="h-16 bg-slate-950 border-b border-slate-800 flex items-center justify-between px-6 flex-shrink-0">
           <Button variant="unstyled"
+            aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            aria-expanded={sidebarOpen}
             onClick={() => setSidebarOpen((v) => !v)}
             className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
           >
             <Menu size={18} />
           </Button>
           <div className="flex items-center gap-3">
-            <Button variant="unstyled" className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
-              <Bell size={18} />
-            </Button>
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
-              A
+            <div title={email} className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium uppercase">
+              {email.charAt(0) || "A"}
             </div>
           </div>
         </header>

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { Save, GraduationCap, BarChart2, RefreshCw } from "lucide-react";
-import { emptyProfile as profile } from "@/lib/data";
+import type { ResearchProfileSettings } from "@/lib/data";
+import { saveSettings } from "@/lib/actions/settings";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,14 +12,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
 
-export default function AdminResearchProfile() {
-  const [metrics, setMetrics] = useState({ ...profile.scholarMetrics });
-  const [bio, setBio] = useState("");
+export default function AdminResearchProfile({ initial }: { initial: ResearchProfileSettings }) {
+  const { bio: initialBio, ...initialMetrics } = initial;
+  const [metrics, setMetrics] = useState(initialMetrics);
+  const [bio, setBio] = useState(initialBio);
   const [saved, setSaved] = useState(false);
+  const { pending, run } = useAction();
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    run(() => saveSettings("research_profile", { ...metrics, bio }), {
+      onSuccess: () => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      },
+    });
   };
 
   return (
@@ -49,8 +57,10 @@ export default function AdminResearchProfile() {
               <Label variant="admin-label" className="mb-1.5">{label}</Label>
               <Input variant="admin-field"
                 type="number"
+                min={0}
+                aria-label={label}
                 value={metrics[key as keyof typeof metrics]}
-                onChange={e => setMetrics({ ...metrics, [key]: Number(e.target.value) })}
+                onChange={e => setMetrics({ ...metrics, [key]: Math.max(0, Number(e.target.value)) })}
                 className="w-full font-mono text-center"
               />
             </div>
@@ -82,11 +92,12 @@ export default function AdminResearchProfile() {
 
       <Button variant="unstyled"
         onClick={handleSave}
-        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${
+        disabled={pending}
+        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all disabled:opacity-50 ${
           saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"
         }`}
       >
-        <Save size={15} /> {saved ? "Saved!" : "Save Research Profile"}
+        <Save size={15} /> {pending ? "Saving…" : saved ? "Saved!" : "Save Research Profile"}
       </Button>
     </div>
   );

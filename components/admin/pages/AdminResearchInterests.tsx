@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Save, Plus, X, GripVertical, Tag } from "lucide-react";
-import { emptyProfile as profile } from "@/lib/data";
+import { Save, Plus, X, Tag } from "lucide-react";
+import { saveSettings } from "@/lib/actions/settings";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-export default function AdminResearchInterests() {
-  const [interests, setInterests] = useState<string[]>([...profile.researchInterests]);
+export default function AdminResearchInterests({ initial }: { initial: string[] }) {
+  const [interests, setInterests] = useState<string[]>(initial);
   const [newInterest, setNewInterest] = useState("");
   const [saved, setSaved] = useState(false);
+  const { pending, run } = useAction();
 
   const add = () => {
     const trimmed = newInterest.trim();
@@ -22,8 +24,12 @@ export default function AdminResearchInterests() {
   const remove = (interest: string) => setInterests(prev => prev.filter(i => i !== interest));
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    run(() => saveSettings("research_interests", { items: interests }), {
+      onSuccess: () => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      },
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -56,6 +62,7 @@ export default function AdminResearchInterests() {
             onChange={e => setNewInterest(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="e.g. Research Interest"
+            aria-label="New research interest"
             className="flex-1"
           />
           <Button variant="admin-primary"
@@ -81,12 +88,12 @@ export default function AdminResearchInterests() {
               key={interest}
               className="flex items-center gap-2 px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl group hover:border-slate-600 transition-all"
             >
-              <GripVertical size={12} className="text-slate-600 cursor-grab" />
               <span className="text-slate-300 text-sm">{interest}</span>
               <Button variant="unstyled"
                 onClick={() => remove(interest)}
                 className="text-slate-600 hover:text-red-400 transition-colors"
                 title="Remove"
+                aria-label={`Remove ${interest}`}
               >
                 <X size={13} />
               </Button>
@@ -114,13 +121,16 @@ export default function AdminResearchInterests() {
         </div>
       </Card>
 
+      <p className="text-slate-500 text-xs">These interests are also the Research Area options for papers and upcoming topics.</p>
+
       <Button variant="unstyled"
         onClick={handleSave}
-        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${
+        disabled={pending}
+        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all disabled:opacity-50 ${
           saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"
         }`}
       >
-        <Save size={15} /> {saved ? "Saved!" : "Save Interests"}
+        <Save size={15} /> {pending ? "Saving…" : saved ? "Saved!" : "Save Interests"}
       </Button>
     </div>
   );

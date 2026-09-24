@@ -205,7 +205,7 @@ Combined page with a 3-section toggle.
 - **P0** Professional Resume (the only document variant; the Academic and Research CVs were removed on 2026-09-23). A link/button leads to the Infographic Resume.
 - **P0** White-paper resume document with gradient navy header.
 - **P0** Sections: Summary, Experience, Education, Technical Skills, Certifications, Languages (flag, name, level, progress bar).
-- **P0** PDF export that is exactly what the site shows: the server renders the same resume route in headless Chromium (A4 print CSS) and returns the PDF, so on-screen and PDF output share one source.
+- **P0** PDF export of what the site shows: _Download PDF_ opens the browser print dialog (Save as PDF) with an A4 print stylesheet that hides the site chrome (owner decision 2026-09-25; replaces the server-side headless-Chromium plan).
 - **P1** Sections, counts, accent colour, and font are controlled by the admin Resume Editor.
 
 ### 5.18 Infographic Resume (`/resume/infographic`)
@@ -344,7 +344,7 @@ Combined page with a 3-section toggle.
 | **Database**       | Supabase Postgres (hosted) for content; Supabase Storage (S3-compatible) for media                                                                                                                                                                             |
 | **Auth**           | Supabase Auth: email/password + server-side sessions, brute-force protection                                                                                                                                                                                   |
 | **Media storage**  | Supabase Storage (object storage) for images, covers, documents                                                                                                                                                                                                |
-| **PDF generation** | Headless Chromium renders the resume route server-side (`app/api/resume/export`) so the PDF matches the site exactly                                                                                                                                           |
+| **PDF generation** | Browser print (Save as PDF) with an A4 print stylesheet (owner decision 2026-09-25) |
 | **Email**          | Resend (delivers contact-form submissions to the owner's inbox)                                                                                                                                                                                                 |
 | **Hosting**        | Vercel (Next.js serverless/Node runtime + CDN); Supabase for DB/storage/auth; custom domain registered at Namecheap                                                                                                                                            |
 
@@ -448,7 +448,7 @@ Combined page with a 3-section toggle.
 - The product is a full-stack **Next.js 16 App Router** application (SSR for public pages, Route Handlers/Server Actions for the backend) in a single repository — not a static SPA.
 - **eBooks:** free, no payments; owner uploads a PDF that is read on the site and downloadable. **No multi-language** (English only).
 - **Branding:** no logo; the owner's name is the wordmark. Colours and fonts follow `docs/design.md`.
-- **Resume PDF:** server-side headless-Chromium rendering of the resume routes so the PDF matches the site exactly.
+- **Resume PDF:** browser print (Save as PDF) with an A4 print stylesheet (2026-09-25; replaces the server-side headless-Chromium plan).
 - **Email:** Resend (contact notifications and replies), sending from the owner's Namecheap domain once its DNS records are verified. The domain has no mailbox; notifications go to the owner's personal address, with Reply-To set to the visitor.
 - **Hosting:** Vercel, with the Namecheap custom domain pointed at it.
 - **Database:** the Supabase database is empty; the schema is created from migrations, and only the single admin user is seeded (no sample content).

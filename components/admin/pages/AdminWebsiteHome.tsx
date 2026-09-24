@@ -7,30 +7,24 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
+import type { HomeSettings } from "@/lib/data";
+import { saveSettings } from "@/lib/actions/settings";
+import { useAction } from "@/components/admin/use-action";
 
-export default function AdminWebsiteHome() {
-  const [hero, setHero] = useState({
-    cta1Label: "Explore My Work",
-    cta1Link: "/portfolio",
-    cta2Label: "View Resume",
-    cta2Link: "/resume",
-    floatingCard1: "",
-    floatingCard2: "Analytics Growth",
-  });
-
-  const [sections, setSections] = useState({
-    showStats: true,
-    showProfileCards: true,
-    showFeatured: true,
-    showExperience: true,
-    showResearchInterests: true,
-  });
-
+export default function AdminWebsiteHome({ initial }: { initial: HomeSettings }) {
+  const { sections: initialSections, ...initialHero } = initial;
+  const [hero, setHero] = useState(initialHero);
+  const [sections, setSections] = useState(initialSections);
   const [saved, setSaved] = useState(false);
+  const { pending, run } = useAction();
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    run(() => saveSettings("home", { ...hero, sections }), {
+      onSuccess: () => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      },
+    });
   };
 
   const inputClass = "w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500";
@@ -66,8 +60,8 @@ export default function AdminWebsiteHome() {
             { key: "cta2Link", label: "Secondary CTA Link" },
           ].map(({ key, label }) => (
             <div key={key}>
-              <Label variant="admin-label" className="mb-1.5">{label}</Label>
-              <Input variant="unstyled" value={hero[key as keyof typeof hero] as string}
+              <Label variant="admin-label" htmlFor={`home-${key}`} className="mb-1.5">{label}</Label>
+              <Input variant="unstyled" id={`home-${key}`} value={hero[key as keyof typeof hero] as string}
                 onChange={e => setHero({ ...hero, [key]: e.target.value })}
                 className={key.includes("Link") ? `${inputClass} font-mono` : inputClass} />
             </div>
@@ -86,7 +80,7 @@ export default function AdminWebsiteHome() {
             { key: "showProfileCards",    label: "Profile Cards",           desc: "Experience, Education, Skills, Achievements" },
             { key: "showFeatured",        label: "Featured Sections",       desc: "Research, Portfolio, Certificates cards" },
             { key: "showExperience",      label: "Recent Experience",       desc: "2 latest experience cards" },
-            { key: "showResearchInterests", label: "Research Interests",    desc: "Interest tag cloud" },
+            { key: "showResearchInterests", label: "Recent Research",       desc: "3 latest research papers" },
           ].map(({ key, label, desc }) => (
             <div key={key} className="flex items-center justify-between py-2 border-b border-slate-800 last:border-0">
               <div>
@@ -94,6 +88,9 @@ export default function AdminWebsiteHome() {
                 <p className="text-slate-500 text-xs">{desc}</p>
               </div>
               <Button variant="unstyled"
+                role="switch"
+                aria-checked={sections[key as keyof typeof sections]}
+                aria-label={label}
                 onClick={() => setSections(prev => ({ ...prev, [key]: !prev[key as keyof typeof sections] }))}
                 className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0 ${sections[key as keyof typeof sections] ? "bg-blue-600" : "bg-slate-700"}`}
               >
@@ -104,9 +101,9 @@ export default function AdminWebsiteHome() {
         </div>
       </Card>
 
-      <Button variant="unstyled" onClick={handleSave}
-        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
-        <Save size={15} /> {saved ? "Saved!" : "Save Home Page"}
+      <Button variant="unstyled" onClick={handleSave} disabled={pending}
+        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all disabled:opacity-50 ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
+        <Save size={15} /> {pending ? "Saving…" : saved ? "Saved!" : "Save Home Page"}
       </Button>
     </div>
   );

@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Eye, Search, CheckCircle } from "lucide-react";
-import { certificateCategories, type certificates as initialCerts } from "@/lib/data";
+import Link from "next/link";
+import { Plus, Pencil, Eye, Search, CheckCircle, Award } from "lucide-react";
+import { certificateCategories, type Certificate } from "@/lib/data";
+import { deleteCertificate, saveCertificate } from "@/lib/actions/content";
+import { ConfirmDelete } from "@/components/admin/confirm-delete";
+import { ImageSourceField } from "@/components/admin/image-source-field";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,15 +16,28 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function AdminCertificates() {
-  const [certs, setCerts] = useState<(typeof initialCerts)[number][]>([]);
+type Form = {
+  id?: number;
+  title: string; issuer: string; category: Certificate["category"]; completionDate: string;
+  grade: string; duration: string; credentialId: string; skills: string; description: string;
+  image: string; verified: boolean; verifyUrl: string;
+};
+
+const emptyForm: Form = {
+  title: "", issuer: "", category: "Professional Certificates", completionDate: "",
+  grade: "", duration: "", credentialId: "", skills: "", description: "",
+  image: "", verified: false, verifyUrl: "",
+};
+
+const toForm = (c: Certificate): Form => ({ ...c, skills: c.skills.join(", ") });
+
+export default function AdminCertificates({ initial }: { initial: Certificate[] }) {
+  const [certs, setCerts] = useState<Certificate[]>(initial);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({
-    title: "", issuer: "", category: "Professional Certificates", completionDate: "",
-    grade: "", duration: "", credentialId: "", skills: "", description: "",
-  });
+  const [form, setForm] = useState<Form>(emptyForm);
+  const { pending, run } = useAction();
 
   const filtered = certs.filter((c) =>
     (categoryFilter === "All" || c.category === categoryFilter) &&
@@ -27,18 +45,31 @@ export default function AdminCertificates() {
       c.issuer.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const handleAdd = (e: React.FormEvent) => {
+  const closeForm = () => { setShowForm(false); setForm(emptyForm); };
+
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    const newCert = {
-      id: Date.now(),
-      ...form,
-      skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean),
-      image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=280&fit=crop",
-      verified: true,
-    };
-    setCerts((prev) => [newCert, ...prev]);
-    setShowForm(false);
-    setForm({ title: "", issuer: "", category: "Professional Certificates", completionDate: "", grade: "", duration: "", credentialId: "", skills: "", description: "" });
+    const payload = { ...form, skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean) };
+    run(() => saveCertificate(payload), {
+      success: form.id ? "Certificate updated." : "Certificate added.",
+      onSuccess: (saved) => {
+        setCerts((prev) => (form.id ? prev.map((c) => (c.id === saved.id ? saved : c)) : [saved, ...prev]));
+        closeForm();
+      },
+    });
+  };
+
+  const startEdit = (cert: Certificate) => {
+    setForm(toForm(cert));
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = (id: number) => {
+    run(() => deleteCertificate(id), {
+      success: "Certificate deleted.",
+      onSuccess: () => setCerts((prev) => prev.filter((c) => c.id !== id)),
+    });
   };
 
   return (
@@ -49,31 +80,31 @@ export default function AdminCertificates() {
           <p className="text-slate-400 text-sm">{certs.length} total certificates</p>
         </div>
         <Button variant="admin-primary"
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => (showForm ? closeForm() : setShowForm(true))}
           className="flex items-center gap-2 px-4 py-2.5"
         >
           <Plus size={16} /> Add Certificate
         </Button>
       </div>
 
-      {/* Add form */}
+      {/* Add / edit form */}
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 mb-6 space-y-4">
-          <h3 className="font-serif text-lg text-white mb-2">Add Certificate</h3>
+        <form onSubmit={handleSave} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 mb-6 space-y-4">
+          <h3 className="font-serif text-lg text-white mb-2">{form.id ? "Edit Certificate" : "Add Certificate"}</h3>
           <div className="grid sm:grid-cols-2 gap-4">
-            {[
-              ["title", "Certificate Title *", "text"],
-              ["issuer", "Issuer / Institution *", "text"],
-              ["completionDate", "Completion Date", "text"],
-              ["grade", "Grade / Score", "text"],
-              ["duration", "Duration", "text"],
-              ["credentialId", "Credential ID", "text"],
-            ].map(([key, label, type]) => (
+            {([
+              ["title", "Certificate Title *"],
+              ["issuer", "Issuer / Institution *"],
+              ["completionDate", "Completion Date"],
+              ["grade", "Grade / Score"],
+              ["duration", "Duration"],
+              ["credentialId", "Credential ID"],
+            ] as const).map(([key, label]) => (
               <div key={key}>
-                <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">{label}</Label>
+                <Label variant="unstyled" htmlFor={`cert-${key}`} className="block text-sm text-slate-400 mb-1">{label}</Label>
                 <Input variant="admin-field"
-                  type={type}
-                  value={form[key as keyof typeof form]}
+                  id={`cert-${key}`}
+                  value={form[key]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                   className="w-full"
                 />
@@ -81,10 +112,11 @@ export default function AdminCertificates() {
             ))}
           </div>
           <div>
-            <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">Category</Label>
+            <Label variant="unstyled" htmlFor="cert-category" className="block text-sm text-slate-400 mb-1">Category</Label>
             <NativeSelect variant="admin-field"
+              id="cert-category"
               value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              onChange={(e) => setForm({ ...form, category: e.target.value as Form["category"] })}
               className="w-full"
             >
               {certificateCategories.map((c) => (
@@ -93,8 +125,9 @@ export default function AdminCertificates() {
             </NativeSelect>
           </div>
           <div>
-            <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">Skills (comma-separated)</Label>
+            <Label variant="unstyled" htmlFor="cert-skills" className="block text-sm text-slate-400 mb-1">Skills (comma-separated)</Label>
             <Input variant="admin-field"
+              id="cert-skills"
               value={form.skills}
               onChange={(e) => setForm({ ...form, skills: e.target.value })}
               className="w-full"
@@ -102,17 +135,43 @@ export default function AdminCertificates() {
             />
           </div>
           <div>
-            <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">Description</Label>
+            <Label variant="unstyled" htmlFor="cert-description" className="block text-sm text-slate-400 mb-1">Description</Label>
             <Textarea variant="admin-field"
+              id="cert-description"
               rows={3}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               className="w-full resize-none"
             />
           </div>
+          <div>
+            <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">Certificate Image</Label>
+            <ImageSourceField value={form.image} onChange={(v) => setForm({ ...form, image: v })} showPreview />
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4 items-end">
+            <div>
+              <Label variant="unstyled" htmlFor="cert-verify" className="block text-sm text-slate-400 mb-1">Verification URL</Label>
+              <Input variant="admin-field"
+                id="cert-verify"
+                type="url"
+                value={form.verifyUrl}
+                onChange={(e) => setForm({ ...form, verifyUrl: e.target.value })}
+                className="w-full font-mono"
+                placeholder="https://..."
+              />
+            </div>
+            <Label variant="unstyled" className="flex items-center gap-2 text-sm text-slate-300 py-2.5 cursor-pointer">
+              <Input variant="unstyled" type="checkbox" checked={form.verified}
+                onChange={(e) => setForm({ ...form, verified: e.target.checked })}
+                className="w-4 h-4 accent-blue-600" />
+              Verified credential
+            </Label>
+          </div>
           <div className="flex gap-3">
-            <Button variant="admin-primary" type="submit" className="px-5 py-2.5">Save Certificate</Button>
-            <Button variant="admin-secondary" type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5">Cancel</Button>
+            <Button variant="admin-primary" type="submit" disabled={pending} className="px-5 py-2.5 disabled:opacity-50">
+              {pending ? "Saving…" : "Save Certificate"}
+            </Button>
+            <Button variant="admin-secondary" type="button" onClick={closeForm} className="px-5 py-2.5">Cancel</Button>
           </div>
         </form>
       )}
@@ -125,6 +184,7 @@ export default function AdminCertificates() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search certificates..."
+            aria-label="Search certificates"
             className="w-full pl-9 pr-4 py-2.5"
           />
         </div>
@@ -153,7 +213,7 @@ export default function AdminCertificates() {
           <TableBody variant="unstyled" className="divide-y divide-slate-800">
             {filtered.length === 0 && (
               <TableRow variant="unstyled">
-                <TableCell variant="unstyled" colSpan={6} className="text-center py-16 text-slate-500 text-sm">
+                <TableCell variant="unstyled" colSpan={5} className="text-center py-16 text-slate-500 text-sm">
                   {certs.length === 0 ? "No certificates yet." : "No certificates match your filters."}
                 </TableCell>
               </TableRow>
@@ -162,7 +222,11 @@ export default function AdminCertificates() {
               <TableRow variant="unstyled" key={cert.id} className="hover:bg-slate-800/50 transition-colors">
                 <TableCell variant="unstyled" className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <img src={cert.image} alt={cert.title} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+                    {cert.image ? (
+                      <img src={cert.image} alt={cert.title} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0"><Award size={14} className="text-slate-600" /></div>
+                    )}
                     <div>
                       <p className="text-slate-200 text-sm font-medium">{cert.title}</p>
                       {cert.verified && (
@@ -178,18 +242,15 @@ export default function AdminCertificates() {
                 <TableCell variant="unstyled" className="px-5 py-4 text-slate-500 text-xs font-mono hidden lg:table-cell">{cert.completionDate}</TableCell>
                 <TableCell variant="unstyled" className="px-5 py-4">
                   <div className="flex items-center justify-end gap-2">
-                    <Button variant="admin-icon-info">
-                      <Eye size={14} />
+                    <Button asChild variant="admin-icon-info">
+                      <Link href={`/certificates/${cert.id}`} target="_blank" aria-label={`View ${cert.title} on the site`}>
+                        <Eye size={14} />
+                      </Link>
                     </Button>
-                    <Button variant="admin-icon-edit">
+                    <Button variant="admin-icon-edit" aria-label={`Edit ${cert.title}`} onClick={() => startEdit(cert)}>
                       <Pencil size={14} />
                     </Button>
-                    <Button variant="admin-icon-danger"
-                      onClick={() => setCerts((prev) => prev.filter((c) => c.id !== cert.id))}
-                      
->
-                      <Trash2 size={14} />
-                    </Button>
+                    <ConfirmDelete label={cert.title} pending={pending} onConfirm={() => handleDelete(cert.id)} />
                   </div>
                 </TableCell>
               </TableRow>

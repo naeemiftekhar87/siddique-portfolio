@@ -1,6 +1,6 @@
-// Site-wide public colours, edited at /admin/website/colours.
-// Until Phase 5 persists them (Supabase), the public site always renders
-// defaultSiteColors, which are the ported design's exact colours.
+// Site-wide public colours, edited at /admin/website/colours and saved in
+// site_settings ("colors"). defaultSiteColors are the ported design's exact
+// colours, used until the owner saves a change.
 
 export type SiteColors = {
   /** Fixed top navigation bar (white text on top). */

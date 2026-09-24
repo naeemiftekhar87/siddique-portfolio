@@ -1,4 +1,4 @@
-import { achievements } from "@/lib/data";
+import type { Achievement } from "@/lib/data";
 import { Trophy, Calendar, Building, Star, Award, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -12,22 +12,26 @@ const categoryConfig: Record<string, { color: string; bg: string; dot: string; i
   Awards:       { color: "text-amber-700",  bg: "bg-amber-50 border-amber-100",  dot: "bg-amber-500",   icon: <Trophy size={14} className="text-amber-500" /> },
 };
 
-const allAchievements = achievements;
+export default function Achievements({ achievements: allAchievements }: { achievements: Achievement[] }) {
+  const categoryGroups = allAchievements.reduce((acc, a) => {
+    if (!acc[a.category]) acc[a.category] = [];
+    acc[a.category].push(a);
+    return acc;
+  }, {} as Record<string, Achievement[]>);
 
-const categoryGroups = allAchievements.reduce((acc, a) => {
-  if (!acc[a.category]) acc[a.category] = [];
-  acc[a.category].push(a);
-  return acc;
-}, {} as Record<string, typeof allAchievements>);
+  const years = allAchievements.flatMap((a) => a.date.match(/\d{4}/g) ?? []).map(Number).sort((a, b) => a - b);
+  const span = years.length === 0 ? "—" : years[0] === years[years.length - 1] ? String(years[0]) : `${years[0]}–${years[years.length - 1]}`;
+  const statItems = [
+    { value: allAchievements.length.toString(), label: "Total Achievements" },
+    { value: Object.keys(categoryGroups).length.toString(), label: "Categories" },
+    { value: span, label: "Time Span" },
+    { value: new Set(allAchievements.map((a) => a.organization).filter(Boolean)).size.toString(), label: "Institutions" },
+  ];
 
-const statItems = [
-  { value: allAchievements.length.toString(), label: "Total Achievements" },
-  { value: Object.keys(categoryGroups).length.toString(), label: "Categories" },
-  { value: "2024–2026", label: "Time Span" },
-  { value: "3+", label: "Institutions" },
-];
+  const byDateDesc = [...allAchievements].sort((a, b) => b.date.localeCompare(a.date));
+  // A pinned achievement is featured; otherwise the most recent one.
+  const featured = allAchievements.find((a) => a.pinned) ?? byDateDesc[0];
 
-export default function Achievements() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -43,7 +47,7 @@ export default function Achievements() {
             Achievements &<br /><span className="italic text-amber-300">Milestones</span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl leading-relaxed">
-            Academic honors, professional recognitions, and research milestones earned across your professional and academic career.
+            Academic honors, professional recognitions, and research milestones earned across my professional and academic career.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12">
@@ -57,7 +61,12 @@ export default function Achievements() {
         </div>
       </section>
 
+      {allAchievements.length === 0 && (
+        <p className="text-center py-20 text-slate-400">No achievements yet.</p>
+      )}
+
       {/* Featured / pinned achievement */}
+      {featured && (
       <section className="max-w-5xl mx-auto px-6 -mt-8">
         <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-3xl p-8 shadow-xl">
           <div className="flex items-start gap-6">
@@ -65,17 +74,18 @@ export default function Achievements() {
               <Trophy size={28} className="text-white" />
             </div>
             <div>
-              <span className="text-white/70 text-xs font-semibold uppercase tracking-wider">Most Recent</span>
-              <h2 className="font-serif text-2xl text-white mt-1 mb-2">{allAchievements[allAchievements.length - 1].title}</h2>
-              <p className="text-white/80 text-sm leading-relaxed mb-3">{allAchievements[allAchievements.length - 1].description}</p>
+              <span className="text-white/70 text-xs font-semibold uppercase tracking-wider">{featured.pinned ? "Featured" : "Most Recent"}</span>
+              <h2 className="font-serif text-2xl text-white mt-1 mb-2">{featured.title}</h2>
+              <p className="text-white/80 text-sm leading-relaxed mb-3">{featured.description}</p>
               <div className="flex flex-wrap gap-4 text-white/70 text-xs">
-                <span className="flex items-center gap-1.5"><Building size={12} /> {allAchievements[allAchievements.length - 1].organization}</span>
-                <span className="flex items-center gap-1.5"><Calendar size={12} /> {allAchievements[allAchievements.length - 1].date}</span>
+                {featured.organization && <span className="flex items-center gap-1.5"><Building size={12} /> {featured.organization}</span>}
+                {featured.date && <span className="flex items-center gap-1.5"><Calendar size={12} /> {featured.date}</span>}
               </div>
             </div>
           </div>
         </div>
       </section>
+      )}
 
       {/* All achievements by category */}
       <section className="max-w-5xl mx-auto px-6 py-16 space-y-12">
@@ -106,8 +116,8 @@ export default function Achievements() {
                           {ach.title}
                         </h3>
                         <div className="flex flex-wrap gap-3 text-xs text-slate-400 mb-3">
-                          <span className="flex items-center gap-1"><Building size={11} /> {ach.organization}</span>
-                          <span className="flex items-center gap-1"><Calendar size={11} /> {ach.date}</span>
+                          {ach.organization && <span className="flex items-center gap-1"><Building size={11} /> {ach.organization}</span>}
+                          {ach.date && <span className="flex items-center gap-1"><Calendar size={11} /> {ach.date}</span>}
                         </div>
                         <p className="text-slate-500 text-sm leading-relaxed">{ach.description}</p>
                       </div>
@@ -121,6 +131,7 @@ export default function Achievements() {
       </section>
 
       {/* Timeline strip */}
+      {allAchievements.length > 0 && (
       <section className="bg-blue-50/30 border-t border-blue-100/40 py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-serif text-2xl text-[#040d1f] mb-10 text-center">Achievement Timeline</h2>
@@ -128,7 +139,7 @@ export default function Achievements() {
             {/* Line */}
             <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-px bg-slate-200 hidden sm:block" />
             <div className="space-y-6">
-              {[...allAchievements].sort((a, b) => b.date.localeCompare(a.date)).map((ach, idx) => {
+              {byDateDesc.map((ach, idx) => {
                 const cfg = categoryConfig[ach.category] ?? { color: "text-slate-600", bg: "bg-slate-50 border-slate-100", dot: "bg-slate-400", icon: <Star size={14} /> };
                 const isLeft = idx % 2 === 0;
                 return (
@@ -153,6 +164,7 @@ export default function Achievements() {
           </div>
         </div>
       </section>
+      )}
     </div>
   );
 }

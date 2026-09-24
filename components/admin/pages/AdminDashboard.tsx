@@ -2,9 +2,11 @@ import Link from "next/link";
 import {
   Briefcase, GraduationCap, Award, FolderOpen, BookOpen, FileText,
   BarChart2, TrendingUp, ArrowUpRight, Clock,
-  Plus, CheckCircle, Eye
+  Plus, CheckCircle
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { DashboardCharts } from "@/components/admin/dashboard-charts";
+import type { Activity, DownloadPoint } from "@/lib/data/dashboard";
 
 function StatCard({ label, value, icon: Icon, color, to }: {
   label: string; value: string | number; icon: React.ElementType; color: string; to: string;
@@ -23,16 +25,26 @@ function StatCard({ label, value, icon: Icon, color, to }: {
   );
 }
 
-// The admin starts empty: counts and activity come from the database in
-// Phase 5, so nothing sample-based is shown here.
-const counts = {
-  experiences: 0, education: 0, skills: 0, certificates: 0, projects: 0,
-  researchPapers: 0, ebooks: 0,
-};
+function timeAgo(iso: string) {
+  const minutes = Math.round((Date.now() - Date.parse(iso)) / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.round(hours / 24)}d ago`;
+}
 
-const recentActivity: { action: string; detail: string; time: string; type: string }[] = [];
-
-export default function AdminDashboard() {
+export default function AdminDashboard({ counts: sectionCounts, activity: recentActivity, downloads }: {
+  counts: { section: string; table: string; count: number }[];
+  activity: Activity[];
+  downloads: DownloadPoint[];
+}) {
+  const count = (table: string) => sectionCounts.find((c) => c.table === table)?.count ?? 0;
+  const counts = {
+    experiences: count("experiences"), education: count("education"), skills: count("skills"),
+    certificates: count("certificates"), projects: count("projects"), researchPapers: count("research_papers"),
+    ebooks: count("ebooks"),
+  };
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header */}
@@ -52,12 +64,14 @@ export default function AdminDashboard() {
         <StatCard label="eBooks" value={counts.ebooks} icon={BookOpen} color="bg-orange-500" to="/admin/ebooks" />
       </div>
 
+      <DashboardCharts counts={sectionCounts} downloads={downloads} />
+
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Recent activity */}
         <Card variant="admin-panel" className="lg:col-span-2 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-serif text-lg text-white">Recent Activity</h2>
-            <span className="text-xs text-slate-500">Last 7 days</span>
+            <span className="text-xs text-slate-500">Latest changes</span>
           </div>
           <div className="space-y-4">
             {recentActivity.length === 0 && (
@@ -66,20 +80,16 @@ export default function AdminDashboard() {
             {recentActivity.map((item, i) => (
               <div key={i} className="flex items-start gap-4">
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  item.type === "add" ? "bg-green-950 text-green-400" :
-                  item.type === "publish" ? "bg-blue-950 text-blue-400" :
-                  "bg-slate-800 text-slate-400"
+                  item.type === "add" ? "bg-green-950 text-green-400" : "bg-slate-800 text-slate-400"
                 }`}>
-                  {item.type === "add" ? <Plus size={14} /> :
-                   item.type === "publish" ? <Eye size={14} /> :
-                   <CheckCircle size={14} />}
+                  {item.type === "add" ? <Plus size={14} /> : <CheckCircle size={14} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-slate-300 text-sm">{item.action}</p>
                   <p className="text-slate-500 text-xs truncate mt-0.5">{item.detail}</p>
                 </div>
                 <span className="text-slate-600 text-xs flex-shrink-0 flex items-center gap-1">
-                  <Clock size={11} /> {item.time}
+                  <Clock size={11} /> {timeAgo(item.at)}
                 </span>
               </div>
             ))}
@@ -96,6 +106,7 @@ export default function AdminDashboard() {
               { label: "Add Research Paper", to: "/admin/research/papers", icon: FileText, color: "text-indigo-400" },
               { label: "Add eBook", to: "/admin/ebooks", icon: BookOpen, color: "text-orange-400" },
               { label: "Edit Resume", to: "/admin/resume/professional", icon: TrendingUp, color: "text-cyan-400" },
+              { label: "Upload Media", to: "/admin/media", icon: Plus, color: "text-teal-400" },
             ].map(({ label, to, icon: Icon, color }) => (
               <Link
                 key={to}

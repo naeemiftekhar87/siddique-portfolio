@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, Download, ExternalLink, Copy, BookOpen, Users, Calendar, Hash, ArrowRight } from "lucide-react";
-import { researchPapers, profile } from "@/lib/data";
+import { ArrowLeft, Download, ExternalLink, BookOpen, Users, Calendar, Hash, ArrowRight } from "lucide-react";
+import type { Paper, SiteProfile } from "@/lib/data";
+import { apaCitation, bibtexCitation } from "@/lib/data/citation";
+import { CopyButton } from "@/components/portfolio/copy-button";
+import { paperLink } from "@/lib/data/research";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,13 +17,9 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   Accepted:       { label: "Accepted",       color: "bg-teal-50 text-teal-700 border-teal-200" },
 };
 
-export default function ResearchDetail({ id }: { id: string }) {
-  const paper = researchPapers.find((p) => p.id === Number(id));
-  const others = researchPapers.filter((p) => p.id !== Number(id)).slice(0, 2);
-
-  if (!paper) return (
-    <div className="min-h-screen pt-32 text-center text-slate-400">Paper not found.</div>
-  );
+export default function ResearchDetail({ paper, others, profile }: { paper: Paper; others: Paper[]; profile: SiteProfile }) {
+  const readUrl = paperLink(paper);
+  const apa = apaCitation(paper);
 
   const status = statusConfig[paper.status] ?? { label: paper.status, color: "bg-slate-100 text-slate-600 border-slate-200" };
 
@@ -36,14 +35,14 @@ export default function ResearchDetail({ id }: { id: string }) {
             <Badge variant="unstyled" className={`px-3 py-1 rounded-full text-xs font-medium border ${status.color}`}>
               {status.label}
             </Badge>
-            <Badge variant="unstyled" className="text-slate-400 text-xs px-3 py-1 bg-white/10 rounded-full">{paper.area}</Badge>
+            {paper.area && <Badge variant="unstyled" className="text-slate-400 text-xs px-3 py-1 bg-white/10 rounded-full">{paper.area}</Badge>}
             <span className="text-slate-400 text-xs font-mono">{paper.year}</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl text-white leading-snug mb-6">{paper.title}</h1>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-400">
-            <span className="flex items-center gap-1.5"><Users size={14} /> {paper.authors.join(", ")}</span>
-            <span className="flex items-center gap-1.5"><BookOpen size={14} /> {paper.journal}</span>
-            <span className="flex items-center gap-1.5"><Calendar size={14} /> {paper.year}</span>
+            {paper.authors.length > 0 && <span className="flex items-center gap-1.5"><Users size={14} /> {paper.authors.join(", ")}</span>}
+            {paper.journal && <span className="flex items-center gap-1.5"><BookOpen size={14} /> {paper.journal}</span>}
+            {paper.year && <span className="flex items-center gap-1.5"><Calendar size={14} /> {paper.year}</span>}
           </div>
         </div>
       </div>
@@ -69,10 +68,12 @@ export default function ResearchDetail({ id }: { id: string }) {
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left: abstract + keywords */}
           <div className="lg:col-span-2 space-y-8">
-            <div>
-              <h2 className="font-serif text-xl text-[#040d1f] mb-4">Abstract</h2>
-              <p className="text-slate-600 leading-relaxed text-base">{paper.abstract}</p>
-            </div>
+            {paper.abstract && (
+              <div>
+                <h2 className="font-serif text-xl text-[#040d1f] mb-4">Abstract</h2>
+                <p className="text-slate-600 leading-relaxed text-base whitespace-pre-line">{paper.abstract}</p>
+              </div>
+            )}
 
             {paper.keywords.length > 0 && (
               <div>
@@ -94,10 +95,9 @@ export default function ResearchDetail({ id }: { id: string }) {
               <div>
                 <h2 className="font-serif text-xl text-[#040d1f] mb-4">Digital Object Identifier</h2>
                 <Card variant="site-panel" className="flex items-center gap-3 p-4">
-                  <code className="text-slate-800 text-sm font-mono flex-1">{paper.doi}</code>
-                  <Button variant="unstyled" className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 transition-colors px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-cyan-300">
-                    <Copy size={12} /> Copy
-                  </Button>
+                  <code className="text-slate-800 text-sm font-mono flex-1 break-all">{paper.doi}</code>
+                  <CopyButton text={paper.doi} label="Copy" iconSize={12}
+                    className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 transition-colors px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-cyan-300" />
                 </Card>
               </div>
             )}
@@ -106,13 +106,13 @@ export default function ResearchDetail({ id }: { id: string }) {
             <div>
               <h2 className="font-serif text-xl text-[#040d1f] mb-4">How to Cite</h2>
               <Card variant="site-panel" className="p-5">
-                <p className="text-sm text-slate-600 font-mono leading-relaxed">
-                  {paper.authors.join(", ")} ({paper.year}). {paper.title}. <em>{paper.journal}</em>
-                  {paper.doi ? `. https://doi.org/${paper.doi}` : "."}
-                </p>
-                <Button variant="unstyled" className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 mt-3 transition-colors">
-                  <Copy size={11} /> Copy APA citation
-                </Button>
+                <p className="text-sm text-slate-600 font-mono leading-relaxed break-words">{apa}</p>
+                <div className="flex flex-wrap gap-4 mt-3">
+                  <CopyButton text={apa} label="Copy APA citation"
+                    className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 transition-colors" />
+                  <CopyButton text={bibtexCitation(paper)} label="Copy BibTeX"
+                    className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 transition-colors" />
+                </div>
               </Card>
             </div>
           </div>
@@ -120,24 +120,36 @@ export default function ResearchDetail({ id }: { id: string }) {
           {/* Sidebar */}
           <div className="space-y-5">
             {/* Actions */}
-            <div className="space-y-2.5">
-              <Button variant="site-primary" className="w-full flex items-center justify-center gap-2 py-3 text-sm transition-colors shadow-sm">
-                <ExternalLink size={15} /> Read Full Paper
-              </Button>
-              <Button variant="site-outline" className="w-full flex items-center justify-center gap-2 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
-                <Download size={15} /> Download PDF
-              </Button>
-            </div>
+            {(readUrl || paper.pdfUrl || paper.preprintUrl) && (
+              <div className="space-y-2.5">
+                {readUrl && (
+                  <Button asChild variant="site-primary" className="w-full flex items-center justify-center gap-2 py-3 text-sm transition-colors shadow-sm">
+                    <a href={readUrl} target="_blank" rel="noopener noreferrer"><ExternalLink size={15} /> Read Full Paper</a>
+                  </Button>
+                )}
+                {paper.pdfUrl && (
+                  <Button asChild variant="site-outline" className="w-full flex items-center justify-center gap-2 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
+                    <a href={paper.pdfUrl} target="_blank" rel="noopener noreferrer"><Download size={15} /> Download PDF</a>
+                  </Button>
+                )}
+                {paper.preprintUrl && (
+                  <Button asChild variant="site-outline" className="w-full flex items-center justify-center gap-2 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
+                    <a href={paper.preprintUrl} target="_blank" rel="noopener noreferrer"><ExternalLink size={15} /> Preprint</a>
+                  </Button>
+                )}
+              </div>
+            )}
 
             {/* Details card */}
             <Card variant="site-panel" className="p-5 space-y-3">
               <h4 className="text-xs text-slate-400 uppercase tracking-wider">Publication Details</h4>
               {[
                 { label: "Journal", value: paper.journal },
-                { label: "Year", value: String(paper.year) },
+                { label: "Year", value: paper.year ? String(paper.year) : "" },
                 { label: "Research Area", value: paper.area },
                 { label: "Status", value: paper.status },
-              ].map(({ label, value }) => (
+                { label: "Version", value: paper.status !== "Published" && paper.status !== "Accepted" ? paper.version : "" },
+              ].filter(({ value }) => value).map(({ label, value }) => (
                 <div key={label} className="flex flex-col gap-0.5 py-2 border-b border-slate-100 last:border-0">
                   <span className="text-xs text-slate-400">{label}</span>
                   <span className="text-sm text-slate-700 font-medium">{value}</span>
@@ -146,6 +158,7 @@ export default function ResearchDetail({ id }: { id: string }) {
             </Card>
 
             {/* Scholar link */}
+            {profile.scholar && (
             <a
               href={profile.scholar}
               target="_blank"
@@ -161,6 +174,7 @@ export default function ResearchDetail({ id }: { id: string }) {
               </div>
               <ExternalLink size={13} className="ml-auto text-slate-300 group-hover:text-cyan-400 transition-colors" />
             </a>
+            )}
           </div>
         </div>
 

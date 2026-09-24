@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Upload, Link2, X, ImageIcon } from "lucide-react";
+import { useRef, useState } from "react";
+import { Upload, Link2, X, ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatSize, uploadMedia } from "./upload";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -11,54 +12,43 @@ const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 type Mode = "upload" | "url";
 
 type ImageSourceFieldProps = {
-  /** Current image: an http(s) URL or a local preview (blob:) URL. */
+  /** Current image URL (a pasted URL or a media-library upload). */
   value: string;
-  /** Called with the new image URL, plus the File when uploaded from the device. */
-  onChange: (value: string, file?: File) => void;
+  /** Called with the new image URL. */
+  onChange: (value: string) => void;
   /** Show a small thumbnail of the current image (for forms without their own preview). */
   showPreview?: boolean;
   urlPlaceholder?: string;
 };
 
-function formatSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  return bytes < 1024 * 1024 ? `${Math.round(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
 /**
  * Pick an image either by uploading from the device or by pasting a URL.
- * Until Phase 5 (Supabase Storage), an uploaded file is only previewed in the
- * browser via an object URL; the File is passed to onChange for later upload.
+ * Uploads go straight to the media library (Supabase Storage via /api/media)
+ * and the field receives the stored file's public URL.
  */
 export function ImageSourceField({ value, onChange, showPreview = false, urlPlaceholder = "https://..." }: ImageSourceFieldProps) {
-  const [mode, setMode] = useState<Mode>(value && !value.startsWith("blob:") ? "url" : "upload");
+  const [mode, setMode] = useState<Mode>(value ? "url" : "upload");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const objectUrl = useRef<string | null>(null);
 
-  // Release the last local preview URL when the field unmounts.
-  useEffect(() => () => { if (objectUrl.current) URL.revokeObjectURL(objectUrl.current); }, []);
-
-  const releasePreview = () => {
-    if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
-    objectUrl.current = null;
-  };
-
-  const acceptFile = (f: File | undefined) => {
-    if (!f) return;
+  const acceptFile = async (f: File | undefined) => {
+    if (!f || uploading) return;
     if (!ACCEPTED.includes(f.type)) { setError("Please choose a JPG, PNG, WebP, GIF, or AVIF image."); return; }
     if (f.size > MAX_BYTES) { setError(`Image is ${formatSize(f.size)}; the limit is 5 MB.`); return; }
     setError("");
-    releasePreview();
-    objectUrl.current = URL.createObjectURL(f);
+    setUploading(true);
+    const result = await uploadMedia(f);
+    setUploading(false);
+    if (inputRef.current) inputRef.current.value = "";
+    if (!result.ok) { setError(result.error); return; }
     setFile(f);
-    onChange(objectUrl.current, f);
+    onChange(result.data.url);
   };
 
   const clear = () => {
-    releasePreview();
     setFile(null);
     setError("");
     if (inputRef.current) inputRef.current.value = "";
@@ -87,7 +77,6 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
       {mode === "upload" ? (
         file && value ? (
           <div className="flex items-center gap-3 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl">
-            {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
             <img src={value} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-slate-200 text-sm truncate">{file.name}</p>
@@ -98,14 +87,14 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
             </Button>
           </div>
         ) : (
-          <Button variant="unstyled" type="button"
+          <Button variant="unstyled" type="button" disabled={uploading}
             onClick={() => inputRef.current?.click()}
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={(e) => { e.preventDefault(); setDragging(false); acceptFile(e.dataTransfer.files[0]); }}
             className={`w-full border-2 border-dashed rounded-xl p-6 text-center text-sm transition-colors cursor-pointer ${dragging ? "border-blue-600 text-blue-400" : "border-slate-700 text-slate-500 hover:border-blue-600 hover:text-blue-400"}`}>
-            <Upload size={18} className="mx-auto mb-2" />
-            Drag & drop or click to upload
+            {uploading ? <Loader2 size={18} className="mx-auto mb-2 animate-spin" /> : <Upload size={18} className="mx-auto mb-2" />}
+            {uploading ? "Uploading…" : "Drag & drop or click to upload"}
             <span className="block text-xs text-slate-600 mt-1">JPG, PNG, WebP, GIF, or AVIF · up to 5 MB</span>
           </Button>
         )
@@ -113,7 +102,6 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
         <div className="flex items-center gap-3">
           {showPreview && (
             value ? (
-              // eslint-disable-next-line @next/next/no-img-element -- arbitrary remote URL preview
               <img src={value} alt="" className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0" />
             ) : (
               <div className="w-10 h-10 rounded-lg border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0">
@@ -121,7 +109,7 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
               </div>
             )
           )}
-          <Input variant="admin-field" type="url" value={value.startsWith("blob:") ? "" : value}
+          <Input variant="admin-field" type="url" value={value}
             onChange={(e) => { setError(""); onChange(e.target.value.trim()); }}
             placeholder={urlPlaceholder} aria-label="Image URL" className="w-full font-mono" />
         </div>

@@ -3,7 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Save, User, MapPin, Plus } from "lucide-react";
-import { emptyProfile as initialProfile } from "@/lib/data";
+import type { Language, ProfileSettings } from "@/lib/data";
+import { saveSettings } from "@/lib/actions/settings";
+import { LanguagesCard } from "@/components/admin/languages-card";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,17 +14,23 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 
-export default function AdminProfile() {
-  const [p, setP] = useState({ ...initialProfile });
+export default function AdminProfile({ initial, languages }: { initial: ProfileSettings; languages: Language[] }) {
+  const [p, setP] = useState<ProfileSettings>(initial);
   const [showPhoto, setShowPhoto] = useState(false);
   const [saved, setSaved] = useState(false);
+  const { pending, run } = useAction();
 
   const set = (k: string, v: unknown) => setP((prev) => ({ ...prev, [k]: v }));
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    run(() => saveSettings("profile", p), {
+      onSuccess: (value) => {
+        setP(value);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      },
+    });
   };
 
   return (
@@ -139,11 +148,16 @@ export default function AdminProfile() {
 
         <Button variant="unstyled"
           type="submit"
-          className={`flex items-center gap-2 px-6 py-3 text-sm font-medium rounded-xl transition-all ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}
+          disabled={pending}
+          className={`flex items-center gap-2 px-6 py-3 text-sm font-medium rounded-xl transition-all disabled:opacity-50 ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}
         >
-          <Save size={16} /> {saved ? "Saved!" : "Save Profile"}
+          <Save size={16} /> {pending ? "Saving…" : saved ? "Saved!" : "Save Profile"}
         </Button>
       </form>
+
+      <div className="mt-6">
+        <LanguagesCard initial={languages} />
+      </div>
     </div>
   );
 }

@@ -1,18 +1,12 @@
 import Link from "next/link";
 import { ArrowLeft, CheckCircle, Clock, Award, ExternalLink, Download, Copy, Tag, ArrowRight } from "lucide-react";
-import { certificates } from "@/lib/data";
+import type { Certificate } from "@/lib/data";
+import { CopyButton } from "@/components/portfolio/copy-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export default function CertificateDetail({ id }: { id: string }) {
-  const cert = certificates.find((c) => c.id === Number(id));
-  const related = certificates.filter((c) => c.id !== Number(id) && c.category === cert?.category).slice(0, 2);
-
-  if (!cert) return (
-    <div className="min-h-screen pt-32 text-center text-slate-400">Certificate not found.</div>
-  );
-
+export default function CertificateDetail({ cert, related }: { cert: Certificate; related: Certificate[] }) {
   return (
     <div className="min-h-screen">
       {/* Dark header */}
@@ -40,16 +34,32 @@ export default function CertificateDetail({ id }: { id: string }) {
           {/* Certificate image */}
           <div className="lg:col-span-3 space-y-4">
             <Card variant="site-white-card" className="overflow-hidden shadow-md">
-              <img src={cert.image} alt={cert.title} className="w-full object-cover" />
+              {cert.image ? (
+                <img src={cert.image} alt={cert.title} className="w-full object-cover" />
+              ) : (
+                <div className="h-64 flex items-center justify-center bg-gradient-to-br from-amber-50 to-slate-100" aria-hidden>
+                  <Award size={56} className="text-amber-400" />
+                </div>
+              )}
             </Card>
-            <div className="flex gap-3">
-              <Button variant="site-primary" className="flex-1 flex items-center justify-center gap-2 py-3 text-sm transition-colors shadow-sm">
-                <Download size={15} /> Download Certificate
-              </Button>
-              <Button variant="site-outline" className="flex items-center gap-2 px-5 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
-                <ExternalLink size={15} /> Verify
-              </Button>
-            </div>
+            {(cert.image || cert.verifyUrl) && (
+              <div className="flex gap-3">
+                {cert.image && (
+                  <Button asChild variant="site-primary" className="flex-1 flex items-center justify-center gap-2 py-3 text-sm transition-colors shadow-sm">
+                    <a href={cert.image} target="_blank" rel="noopener noreferrer" download>
+                      <Download size={15} /> Download Certificate
+                    </a>
+                  </Button>
+                )}
+                {cert.verifyUrl && (
+                  <Button asChild variant="site-outline" className="flex items-center gap-2 px-5 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
+                    <a href={cert.verifyUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink size={15} /> Verify
+                    </a>
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Details sidebar */}
@@ -73,12 +83,15 @@ export default function CertificateDetail({ id }: { id: string }) {
             </Card>
 
             {/* Description */}
-            <div>
-              <h4 className="font-serif text-lg text-[#040d1f] mb-3">About This Certificate</h4>
-              <p className="text-slate-600 text-sm leading-relaxed">{cert.description}</p>
-            </div>
+            {cert.description && (
+              <div>
+                <h4 className="font-serif text-lg text-[#040d1f] mb-3">About This Certificate</h4>
+                <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">{cert.description}</p>
+              </div>
+            )}
 
             {/* Skills */}
+            {cert.skills.length > 0 && (
             <div>
               <h4 className="font-serif text-lg text-[#040d1f] mb-3 flex items-center gap-2">
                 <Tag size={16} className="text-teal-600" /> Skills Covered
@@ -91,14 +104,14 @@ export default function CertificateDetail({ id }: { id: string }) {
                 ))}
               </div>
             </div>
+            )}
 
             {/* Share / copy credential */}
             {cert.credentialId && (
               <Card variant="site-panel" className="flex items-center gap-3 p-4">
                 <code className="text-xs text-slate-600 font-mono flex-1 truncate">{cert.credentialId}</code>
-                <Button variant="unstyled" className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600 transition-colors px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-cyan-300 flex-shrink-0">
-                  <Copy size={11} /> Copy ID
-                </Button>
+                <CopyButton text={cert.credentialId} label="Copy ID"
+                  className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600 transition-colors px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-cyan-300 flex-shrink-0" />
               </Card>
             )}
           </div>
@@ -115,7 +128,11 @@ export default function CertificateDetail({ id }: { id: string }) {
                   href={`/certificates/${c.id}`}
                   className="group flex gap-4 bg-slate-50 rounded-2xl border border-slate-100 p-5 hover:border-blue-200 hover:shadow-sm transition-all"
                 >
-                  <img src={c.image} alt={c.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                  {c.image ? (
+                    <img src={c.image} alt={c.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0" aria-hidden><Award size={22} className="text-amber-400" /></div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-serif text-base text-[#040d1f] group-hover:text-blue-600 transition-colors leading-snug mb-1 line-clamp-2">{c.title}</h4>
                     <p className="text-slate-400 text-xs mb-1">{c.issuer}</p>

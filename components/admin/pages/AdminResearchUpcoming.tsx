@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Plus, Edit2, Trash2, Save, X, Microscope, ChevronDown, ChevronUp } from "lucide-react";
+import { upcomingStatuses, type UpcomingResearch } from "@/lib/data";
+import { deleteUpcomingResearch, saveUpcomingResearch } from "@/lib/actions/content";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,20 +12,11 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
-type Topic = {
-  id: number;
-  title: string;
-  area: string;
-  status: string;
-  question: string;
-  contribution: string;
-  methodology: string;
-  keywords: string;
-  expectedYear: string;
-};
+type Topic = UpcomingResearch;
+/** Form state: keywords are edited as one comma-separated string. */
+type Draft = Omit<Topic, "id" | "keywords"> & { id?: number; keywords: string };
 
-const AREAS = ["Research Area A", "Research Area B", "Research Area C", "Research Area D", "Research Area E"];
-const STATUSES = ["Idea", "Conceptualized", "Literature Review", "Data Collection", "In Progress"];
+const STATUSES = upcomingStatuses;
 
 const statusColors: Record<string, string> = {
   Idea:               "bg-violet-900/40 text-violet-400 border-violet-800",
@@ -32,34 +26,44 @@ const statusColors: Record<string, string> = {
   "In Progress":      "bg-green-900/40 text-green-400 border-green-800",
 };
 
-const initialTopics: Topic[] = [];
-
-const emptyTopic: Omit<Topic, "id"> = {
-  title: "", area: "Research Area A", status: "Idea",
+const emptyTopic: Draft = {
+  title: "", area: "", status: "Idea",
   question: "", contribution: "", methodology: "", keywords: "", expectedYear: "",
 };
 
-export default function AdminResearchUpcoming() {
-  const [topics, setTopics] = useState<Topic[]>(initialTopics);
-  const [editing, setEditing] = useState<Topic | null>(null);
+export default function AdminResearchUpcoming({ initial, areas }: { initial: Topic[]; areas: string[] }) {
+  const [topics, setTopics] = useState<Topic[]>(initial);
+  const [editing, setEditing] = useState<Draft | null>(null);
+  const { pending, run } = useAction();
   const [isNew, setIsNew] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [saved, setSaved] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
-  const startNew = () => { setEditing({ id: Date.now(), ...emptyTopic }); setIsNew(true); };
-  const startEdit = (t: Topic) => { setEditing({ ...t }); setIsNew(false); setExpanded(null); };
+  const startNew = () => { setEditing({ ...emptyTopic, area: areas[0] ?? "" }); setIsNew(true); };
+  const startEdit = (t: Topic) => { setEditing({ ...t, keywords: t.keywords.join(", ") }); setIsNew(false); setExpanded(null); };
+  const areaOptions = editing?.area && !areas.includes(editing.area) ? [editing.area, ...areas] : areas;
   const cancelEdit = () => { setEditing(null); setIsNew(false); };
 
   const saveEdit = () => {
     if (!editing) return;
-    if (isNew) setTopics(prev => [editing, ...prev]);
-    else setTopics(prev => prev.map(t => t.id === editing.id ? editing : t));
-    setEditing(null); setIsNew(false);
-    setSaved(true); setTimeout(() => setSaved(false), 2500);
+    const payload = { ...editing, keywords: editing.keywords.split(",").map(k => k.trim()).filter(Boolean) };
+    run(() => saveUpcomingResearch(payload), {
+      onSuccess: (saved) => {
+        if (isNew) setTopics(prev => [saved, ...prev]);
+        else setTopics(prev => prev.map(t => t.id === saved.id ? saved : t));
+        setEditing(null); setIsNew(false);
+        setSaved(true); setTimeout(() => setSaved(false), 2500);
+      },
+    });
   };
 
-  const deleteTopic = (id: number) => { setTopics(prev => prev.filter(t => t.id !== id)); setDeleteConfirm(null); };
+  const deleteTopic = (id: number) => {
+    run(() => deleteUpcomingResearch(id), {
+      success: "Topic deleted.",
+      onSuccess: () => { setTopics(prev => prev.filter(t => t.id !== id)); setDeleteConfirm(null); },
+    });
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -94,12 +98,13 @@ export default function AdminResearchUpcoming() {
               <Label variant="admin-label" className="mb-1.5">Research Area</Label>
               <NativeSelect variant="admin-field" value={editing.area} onChange={e => setEditing({ ...editing, area: e.target.value })}
                 className="w-full">
-                {AREAS.map(a => <option key={a}>{a}</option>)}
+                <option value="">None</option>
+                {areaOptions.map(a => <option key={a}>{a}</option>)}
               </NativeSelect>
             </div>
             <div>
               <Label variant="admin-label" className="mb-1.5">Status</Label>
-              <NativeSelect variant="admin-field" value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value })}
+              <NativeSelect variant="admin-field" value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value as Draft["status"] })}
                 className="w-full">
                 {STATUSES.map(s => <option key={s}>{s}</option>)}
               </NativeSelect>
@@ -136,8 +141,8 @@ export default function AdminResearchUpcoming() {
             </div>
           </div>
           <div className="flex gap-3 pt-1">
-            <Button variant="admin-primary" onClick={saveEdit} className="flex items-center gap-2 px-5 py-2.5">
-              <Save size={14} /> Save
+            <Button variant="admin-primary" onClick={saveEdit} disabled={pending} className="flex items-center gap-2 px-5 py-2.5 disabled:opacity-50">
+              <Save size={14} /> {pending ? "Saving…" : "Save"}
             </Button>
             <Button variant="admin-outline" onClick={cancelEdit} className="flex items-center gap-2 px-5 py-2.5">
               <X size={14} /> Cancel
@@ -168,20 +173,20 @@ export default function AdminResearchUpcoming() {
                   {!isOpen && <p className="text-slate-500 text-xs mt-1 line-clamp-1">{t.question}</p>}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button variant="admin-ghost" onClick={() => startEdit(t)}>
+                  <Button variant="admin-ghost" aria-label={`Edit ${t.title}`} onClick={() => startEdit(t)}>
                     <Edit2 size={13} />
                   </Button>
                   {deleteConfirm === t.id ? (
                     <div className="flex gap-1.5">
-                      <Button variant="admin-danger-sm" onClick={() => deleteTopic(t.id)}>Confirm</Button>
+                      <Button variant="admin-danger-sm" disabled={pending} onClick={() => deleteTopic(t.id)}>Confirm</Button>
                       <Button variant="unstyled" onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700">Cancel</Button>
                     </div>
                   ) : (
-                    <Button variant="admin-ghost-danger" onClick={() => setDeleteConfirm(t.id)}>
+                    <Button variant="admin-ghost-danger" aria-label={`Delete ${t.title}`} onClick={() => setDeleteConfirm(t.id)}>
                       <Trash2 size={13} />
                     </Button>
                   )}
-                  <Button variant="admin-ghost" onClick={() => setExpanded(isOpen ? null : t.id)}>
+                  <Button variant="admin-ghost" aria-expanded={isOpen} aria-label={isOpen ? "Collapse" : "Expand"} onClick={() => setExpanded(isOpen ? null : t.id)}>
                     {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                   </Button>
                 </div>
@@ -193,9 +198,9 @@ export default function AdminResearchUpcoming() {
                     <div><p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Contribution</p><p className="text-slate-300 text-sm">{t.contribution}</p></div>
                     <div><p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Methodology</p><p className="text-slate-300 text-sm">{t.methodology}</p></div>
                   </div>
-                  {t.keywords && (
+                  {t.keywords.length > 0 && (
                     <div className="flex flex-wrap gap-2 pt-1">
-                      {t.keywords.split(",").map(k => k.trim()).filter(Boolean).map(k => (
+                      {t.keywords.map(k => (
                         <span key={k} className="px-2.5 py-1 bg-slate-800 text-slate-400 text-xs rounded-lg border border-slate-700">{k}</span>
                       ))}
                     </div>

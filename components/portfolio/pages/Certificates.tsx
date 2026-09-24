@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle, Clock, Award } from "lucide-react";
-import { certificates, certificateCategories } from "@/lib/data";
+import { certificateCategories, type Certificate } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const tabs = ["All", ...certificateCategories];
 
-export default function Certificates() {
+export default function Certificates({ certificates }: { certificates: Certificate[] }) {
   const [activeTab, setActiveTab] = useState("All");
 
   const filtered =
@@ -37,7 +37,7 @@ export default function Certificates() {
             Certificates &<br /><span className="italic text-amber-300">Credentials</span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl leading-relaxed">
-            A curated collection of academic and professional certifications reflecting continuous learning across your fields of study and practice.
+            A curated collection of academic and professional certifications reflecting continuous learning across my fields of study and practice.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12">
             {[
@@ -62,6 +62,7 @@ export default function Certificates() {
             <Button variant="unstyled"
               key={tab}
               onClick={() => setActiveTab(tab)}
+              aria-pressed={activeTab === tab}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === tab
                   ? "bg-[#040d1f] text-white"
@@ -75,6 +76,11 @@ export default function Certificates() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
+        {filtered.length === 0 && (
+          <p className="text-center py-16 text-slate-400">
+            {certificates.length === 0 ? "No certificates yet." : "No certificates in this category yet."}
+          </p>
+        )}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((cert) => (
             <Link
@@ -84,11 +90,17 @@ export default function Certificates() {
             >
               {/* Image */}
               <div className="relative h-44 overflow-hidden bg-slate-100">
-                <img
-                  src={cert.image}
-                  alt={cert.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+                {cert.image ? (
+                  <img
+                    src={cert.image}
+                    alt={cert.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-slate-100" aria-hidden>
+                    <Award size={40} className="text-amber-400" />
+                  </div>
+                )}
                 {cert.verified && (
                   <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full border border-green-100">
                     <CheckCircle size={12} className="text-green-500" />
@@ -111,7 +123,7 @@ export default function Certificates() {
 
                 <div className="flex items-center justify-between text-xs text-slate-400 mb-4">
                   <span className="flex items-center gap-1">
-                    <Clock size={11} /> {cert.completionDate}
+                    {cert.completionDate && <><Clock size={11} /> {cert.completionDate}</>}
                   </span>
                   {cert.grade && (
                     <span className="flex items-center gap-1">

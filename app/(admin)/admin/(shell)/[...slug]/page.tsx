@@ -1,6 +1,6 @@
-import AdminGeneric from "@/components/admin/pages/AdminGeneric";
+import { notFound } from "next/navigation";
 
-// Unknown /admin/* paths render the generic module page, as in the source app.
+// Unknown /admin/* paths (including removed modules) are a 404 inside the admin shell.
 export default function Page() {
-  return <AdminGeneric />;
+  notFound();
 }

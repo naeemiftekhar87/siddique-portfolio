@@ -1,7 +1,6 @@
 import { defaultSiteColors, siteColorCss, type SiteColors } from "@/lib/site-colors";
 
-// Emits the admin-editable public colours as CSS variables. Phase 5 passes the
-// colours saved at /admin/website/colours; until then the defaults are used.
+// Emits the colours saved at /admin/website/colours as CSS variables.
 export default function SiteColorStyle({ colors = defaultSiteColors }: { colors?: SiteColors }) {
   return <style>{siteColorCss(colors)}</style>;
 }

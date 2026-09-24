@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Download, Link2, GitFork, GraduationCap, Mail, SquareArrowOutUpRight, Briefcase, BarChart2, Trophy } from "lucide-react";
+import { ArrowRight, Download, Link2, GitFork, GraduationCap, Mail, SquareArrowOutUpRight, Briefcase, BarChart2, Trophy, User } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
-import { profile, experiences, education, skills, achievements, researchPapers, certificates, projects } from "@/lib/data";
+import type { Achievement, Certificate, Education, Experience, HomeSettings, Paper, Project, SiteProfile, Skill } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { dateRange } from "@/lib/data/format";
 
 const sparkData = [
   { v: 10 }, { v: 22 }, { v: 18 }, { v: 35 }, { v: 28 }, { v: 42 },
@@ -16,13 +17,33 @@ const sparkData = [
 function StatCard({ value, label }: { value: string; label: string }) {
   return (
     <div className="text-center px-6 py-5">
-      <div className="font-serif text-3xl font-medium text-blue-600 mb-1">{value}</div>
+      <div className="font-serif text-3xl font-medium text-blue-600 mb-1">{value || "—"}</div>
       <div className="text-xs text-slate-500 uppercase tracking-wider font-medium">{label}</div>
     </div>
   );
 }
 
-export default function Home() {
+type HomeProps = {
+  profile: SiteProfile;
+  home: HomeSettings;
+  experiences: Experience[];
+  education: Education[];
+  skills: Skill[];
+  achievements: Achievement[];
+  researchPapers: Paper[];
+  certificates: Certificate[];
+  projects: Project[];
+};
+
+export default function Home({ profile, home, experiences, education, skills, achievements, researchPapers, certificates, projects }: HomeProps) {
+  const { sections } = home;
+  const socials = [
+    { href: profile.linkedin, label: "LinkedIn", Icon: Link2, hover: "hover:text-blue-600" },
+    { href: profile.scholar, label: "Scholar", Icon: GraduationCap, hover: "hover:text-teal-600" },
+    { href: profile.github, label: "GitHub", Icon: GitFork, hover: "hover:text-slate-800" },
+    { href: profile.email && `mailto:${profile.email}`, label: "Email", Icon: Mail, hover: "hover:text-slate-800" },
+  ].filter((s) => s.href);
+  const field = profile.badge.split(/[•|·]/)[0]?.trim();
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -45,51 +66,47 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left */}
             <div>
-              <Badge variant="unstyled" className="inline-block font-mono text-xs text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full mb-6 tracking-widest">
-                {profile.badge}
-              </Badge>
+              {profile.badge && (
+                <Badge variant="unstyled" className="inline-block font-mono text-xs text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full mb-6 tracking-widest">
+                  {profile.badge}
+                </Badge>
+              )}
               <h1 className="font-serif text-5xl md:text-6xl text-slate-900 mb-5 leading-tight">
                 {profile.name}
               </h1>
               <p className="text-lg text-slate-600 mb-5 font-medium leading-relaxed">
                 {profile.headline}
               </p>
-              <p className="text-slate-500 mb-8 leading-relaxed max-w-lg">
-                {profile.summary.slice(0, 200)}...
-              </p>
+              {profile.summary && (
+                <p className="text-slate-500 mb-8 leading-relaxed max-w-lg">
+                  {profile.summary.length > 200 ? `${profile.summary.slice(0, 200)}...` : profile.summary}
+                </p>
+              )}
 
               <div className="flex flex-wrap gap-3 mb-8">
-                <Button asChild variant="site-primary" className="flex items-center gap-2 px-6 py-3 transition-all shadow-sm hover:shadow-md"><Link
-                  href="/portfolio"
-                 
-                >
-                  Explore My Work <ArrowRight size={16} />
-                </Link></Button>
-                <Button asChild variant="site-outline" className="flex items-center gap-2 px-6 py-3 text-slate-700 font-medium hover:border-slate-300 hover:bg-slate-50 transition-all"><Link
-                  href="/resume"
-                 
-                >
-                  <Download size={16} /> View Resume
-                </Link></Button>
+                {home.cta1Label && home.cta1Link && (
+                  <Button asChild variant="site-primary" className="flex items-center gap-2 px-6 py-3 transition-all shadow-sm hover:shadow-md"><Link
+                    href={home.cta1Link}
+                  >
+                    {home.cta1Label} <ArrowRight size={16} />
+                  </Link></Button>
+                )}
+                {home.cta2Label && home.cta2Link && (
+                  <Button asChild variant="site-outline" className="flex items-center gap-2 px-6 py-3 text-slate-700 font-medium hover:border-slate-300 hover:bg-slate-50 transition-all"><Link
+                    href={home.cta2Link}
+                  >
+                    <Download size={16} /> {home.cta2Label}
+                  </Link></Button>
+                )}
               </div>
 
-              <div className="flex items-center gap-4">
-                <a href={profile.linkedin} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600 transition-colors">
-                  <Link2 size={16} /> LinkedIn
-                </a>
-                <a href={profile.scholar} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-slate-500 hover:text-teal-600 transition-colors">
-                  <GraduationCap size={16} /> Scholar
-                </a>
-                <a href={profile.github} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors">
-                  <GitFork size={16} /> GitHub
-                </a>
-                <a href={`mailto:${profile.email}`}
-                  className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors">
-                  <Mail size={16} /> Email
-                </a>
+              <div className="flex flex-wrap items-center gap-4">
+                {socials.map(({ href, label, Icon, hover }) => (
+                  <a key={label} href={href} {...(label === "Email" ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                    className={`flex items-center gap-2 text-sm text-slate-500 ${hover} transition-colors`}>
+                    <Icon size={16} /> {label}
+                  </a>
+                ))}
               </div>
             </div>
 
@@ -97,11 +114,17 @@ export default function Home() {
             <div className="flex justify-center lg:justify-end">
               <div className="relative">
                 <div className="w-72 h-72 lg:w-80 lg:h-80 rounded-3xl overflow-hidden border-4 border-white shadow-2xl relative z-10">
-                  <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&auto=format"
-                    alt={profile.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {profile.photo ? (
+                    <img
+                      src={profile.photo}
+                      alt={profile.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-slate-100 flex items-center justify-center" aria-hidden>
+                      <User size={64} className="text-slate-300" />
+                    </div>
+                  )}
                 </div>
                 {/* Decorative ring */}
                 <div className="absolute -top-4 -right-4 w-full h-full rounded-3xl border-2 border-blue-200 z-0" />
@@ -122,10 +145,12 @@ export default function Home() {
                     </AreaChart>
                   </ResponsiveContainer>
                 </Card>
-                <Card variant="site-white-card" className="absolute -top-6 right-4 shadow-lg px-4 py-3 z-20">
-                  <div className="font-mono text-xs text-blue-600 font-medium">Your Field</div>
-                  <div className="text-xs text-slate-500 mt-0.5">{profile.stats.experience} Yrs Experience</div>
-                </Card>
+                {(field || profile.stats.experience) && (
+                  <Card variant="site-white-card" className="absolute -top-6 right-4 shadow-lg px-4 py-3 z-20">
+                    {field && <div className="font-mono text-xs text-blue-600 font-medium">{field}</div>}
+                    {profile.stats.experience && <div className="text-xs text-slate-500 mt-0.5">{profile.stats.experience} Yrs Experience</div>}
+                  </Card>
+                )}
               </div>
             </div>
           </div>
@@ -133,6 +158,7 @@ export default function Home() {
       </section>
 
       {/* Stats strip */}
+      {sections.showStats && Object.values(profile.stats).some(Boolean) && (
       <section className="bg-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-3 md:grid-cols-6 divide-x divide-slate-100">
@@ -145,8 +171,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Profile overview cards — Experience, Education, Skills, Achievements */}
+      {sections.showProfileCards && (
       <section className="py-16 max-w-7xl mx-auto px-6">
         <div className="flex items-end justify-between mb-10">
           <div>
@@ -164,7 +192,11 @@ export default function Home() {
               <Briefcase size={20} className="text-blue-600" />
             </div>
             <h3 className="font-serif text-xl text-slate-900 mb-1">Experience</h3>
-            <p className="text-blue-600 font-mono text-2xl font-semibold mb-2">{profile.stats.experience}<span className="text-sm font-normal text-slate-400 ml-1">yrs</span></p>
+            <p className="text-blue-600 font-mono text-2xl font-semibold mb-2">
+              {profile.stats.experience
+                ? <>{profile.stats.experience}<span className="text-sm font-normal text-slate-400 ml-1">yrs</span></>
+                : <>{experiences.length}<span className="text-sm font-normal text-slate-400 ml-1">roles</span></>}
+            </p>
             <p className="text-slate-500 text-sm leading-relaxed flex-1">
               {experiences.length} roles across your professional career so far.
             </p>
@@ -200,7 +232,7 @@ export default function Home() {
               <BarChart2 size={20} className="text-blue-600" />
             </div>
             <h3 className="font-serif text-xl text-slate-900 mb-1">Skills</h3>
-            <p className="text-blue-600 font-mono text-2xl font-semibold mb-2">{profile.stats.skills}<span className="text-sm font-normal text-slate-400 ml-1">skills</span></p>
+            <p className="text-blue-600 font-mono text-2xl font-semibold mb-2">{profile.stats.skills || skills.length}<span className="text-sm font-normal text-slate-400 ml-1">skills</span></p>
             <p className="text-slate-500 text-sm leading-relaxed flex-1">
               Technical, professional, and interpersonal skills across {new Set(skills.map(s => s.category)).size} domains.
             </p>
@@ -228,8 +260,10 @@ export default function Home() {
           </Link>
         </div>
       </section>
+      )}
 
       {/* Featured sections */}
+      {sections.showFeatured && (
       <section className="py-20 max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-8">
           {/* Research */}
@@ -267,7 +301,7 @@ export default function Home() {
             </div>
             <h3 className="font-serif text-xl text-slate-900 mb-3">Certificates</h3>
             <p className="text-slate-500 text-sm mb-5 leading-relaxed">
-              {certificates.length}+ professional and academic certificates.
+              {certificates.length} professional and academic certificates.
             </p>
             <Link href="/certificates" className="flex items-center gap-1 text-sm text-blue-600 font-medium group-hover:gap-2 transition-all">
               View Certificates <ArrowRight size={15} />
@@ -275,8 +309,10 @@ export default function Home() {
           </Card>
         </div>
       </section>
+      )}
 
       {/* Recent experience teaser */}
+      {sections.showExperience && experiences.length > 0 && (
       <section className="py-16 bg-blue-50/40">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-end justify-between mb-10">
@@ -292,11 +328,15 @@ export default function Home() {
             {experiences.slice(0, 2).map((exp) => (
               <Card variant="site-glass-card" key={exp.id} className="p-6 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
-                  <img src={exp.logo} alt={exp.company} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                  {exp.logo ? (
+                    <img src={exp.logo} alt={exp.company} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0"><Briefcase size={20} className="text-blue-600" /></div>
+                  )}
                   <div>
                     <h4 className="font-semibold text-slate-900">{exp.position}</h4>
                     <p className="text-slate-600 text-sm">{exp.company}</p>
-                    <p className="text-slate-400 text-xs mt-1 font-mono">{exp.startDate} – {exp.endDate} · {exp.location}</p>
+                    <p className="text-slate-400 text-xs mt-1 font-mono">{[dateRange(exp.startDate, exp.endDate), exp.location].filter(Boolean).join(" · ")}</p>
                     <p className="text-slate-500 text-sm mt-3 line-clamp-2">{exp.description}</p>
                   </div>
                 </div>
@@ -305,8 +345,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Recent Research */}
+      {sections.showResearchInterests && researchPapers.length > 0 && (
       <section className="py-20 max-w-7xl mx-auto px-6">
         <div className="flex items-end justify-between mb-10">
           <div>
@@ -339,13 +381,14 @@ export default function Home() {
                 <h3 className="font-serif text-lg text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mb-1">
                   {paper.title}
                 </h3>
-                <p className="text-slate-500 text-sm">{paper.authors?.join(", ")} · {paper.journal}</p>
+                <p className="text-slate-500 text-sm">{[paper.authors.join(", "), paper.journal].filter(Boolean).join(" · ")}</p>
               </div>
               <ArrowRight size={16} className="text-slate-300 group-hover:text-cyan-400 flex-shrink-0 mt-1 transition-colors" />
             </Link>
           ))}
         </div>
       </section>
+      )}
 
       {/* CTA band */}
       <section className="bg-gradient-to-br from-[#040d1f] via-[#071428] to-[#040d1f] py-20 px-6 relative overflow-hidden">

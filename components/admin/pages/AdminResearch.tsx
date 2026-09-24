@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search, ExternalLink, Download, Copy, BookOpen } from "lucide-react";
-import { paperStatuses as statuses, type publications as initialPubs } from "@/lib/data";
+import Link from "next/link";
+import { Plus, Pencil, Search, ExternalLink, Download, Copy, BookOpen, Check } from "lucide-react";
+import { toast } from "sonner";
+import { paperStatuses as statuses, type Paper } from "@/lib/data";
+import { deletePaper, savePaper } from "@/lib/actions/content";
+import { ConfirmDelete } from "@/components/admin/confirm-delete";
+import { PdfUploadField } from "@/components/admin/pdf-upload-field";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,11 +18,15 @@ import { Textarea } from "@/components/ui/textarea";
 
 // Working-paper fields (merged in from the former Working Papers screen) apply
 // only while a paper is not yet accepted or published.
-type Pub = typeof initialPubs[0] & { version?: string; submissionDate?: string; preprintUrl?: string };
+type Pub = Paper;
+type PubInput = Omit<Pub, "id"> & { id?: number };
 
 const isInProgress = (status?: string) => status !== "Accepted" && status !== "Published";
 
-const areas = ["Research Area A", "Research Area B", "Research Area C", "Research Area D", "Research Area E", "Research Area F"];
+const emptyPub: PubInput = {
+  title: "", authors: [], year: new Date().getFullYear(), area: "", status: "Working Paper", journal: "",
+  abstract: "", keywords: [], doi: "", url: "", pdfUrl: "", version: "", submissionDate: null, preprintUrl: "",
+};
 
 const statusColors: Record<string, string> = {
   Published: "bg-green-900/40 text-green-400 border-green-800",
@@ -27,10 +37,10 @@ const statusColors: Record<string, string> = {
   Accepted: "bg-teal-900/40 text-teal-400 border-teal-800",
 };
 
-function PubForm({ initial, onSave, onCancel }: { initial?: Partial<Pub>; onSave: (d: Partial<Pub>) => void; onCancel: () => void }) {
-  const [f, setF] = useState<Partial<Pub>>(
-    initial ?? { title: "", authors: ["Your Name"], year: 2026, area: "Research Area A", status: "Working Paper", journal: "", abstract: "", keywords: [], doi: "", version: "", submissionDate: "", preprintUrl: "" }
-  );
+function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub; areas: string[]; onSave: (d: PubInput) => void; onCancel: () => void; pending: boolean }) {
+  const [f, setF] = useState<PubInput>(initial ?? { ...emptyPub, area: areas[0] ?? "" });
+  // Keep an area that is no longer in the interests list selectable.
+  const areaOptions = f.area && !areas.includes(f.area) ? [f.area, ...areas] : areas;
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
@@ -57,7 +67,7 @@ function PubForm({ initial, onSave, onCancel }: { initial?: Partial<Pub>; onSave
         </div>
         <div>
           <Label variant="admin-label" className="mb-1">Year</Label>
-          <Input variant="admin-field" type="number" value={f.year ?? 2026} onChange={(e) => set("year", Number(e.target.value))}
+          <Input variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
             className="w-full" />
         </div>
         <div>
@@ -69,10 +79,16 @@ function PubForm({ initial, onSave, onCancel }: { initial?: Partial<Pub>; onSave
         </div>
         <div>
           <Label variant="admin-label" className="mb-1">Research Area</Label>
-          <NativeSelect variant="admin-field" value={f.area ?? ""} onChange={(e) => set("area", e.target.value)}
+          <NativeSelect variant="admin-field" value={f.area} onChange={(e) => set("area", e.target.value)}
             className="w-full">
-            {areas.map((a) => <option key={a}>{a}</option>)}
+            <option value="">None</option>
+            {areaOptions.map((a) => <option key={a}>{a}</option>)}
           </NativeSelect>
+          {areas.length === 0 && (
+            <p className="text-slate-500 text-xs mt-1">
+              Areas come from <Link href="/admin/research/interests" className="text-blue-400 hover:underline">Research Interests</Link>.
+            </p>
+          )}
         </div>
         <div>
           <Label variant="admin-label" className="mb-1">DOI</Label>
@@ -103,7 +119,7 @@ function PubForm({ initial, onSave, onCancel }: { initial?: Partial<Pub>; onSave
           </div>
           <div>
             <Label variant="admin-label" className="mb-1">Submission Date</Label>
-            <Input variant="admin-field" type="date" value={f.submissionDate ?? ""} onChange={(e) => set("submissionDate", e.target.value)}
+            <Input variant="admin-field" type="date" value={f.submissionDate ?? ""} onChange={(e) => set("submissionDate", e.target.value || null)}
               className="w-full" />
           </div>
           <div>
@@ -114,24 +130,30 @@ function PubForm({ initial, onSave, onCancel }: { initial?: Partial<Pub>; onSave
         </div>
       )}
 
+      <div>
+        <Label variant="admin-label" className="mb-1">Paper URL (journal page)</Label>
+        <Input variant="admin-field" value={f.url} onChange={(e) => set("url", e.target.value)}
+          className="w-full font-mono" placeholder="https://..." />
+      </div>
+
       {/* PDF upload */}
       <div>
         <Label variant="admin-label" className="mb-1">PDF Upload</Label>
-        <div className="border-2 border-dashed border-slate-700 rounded-xl p-4 text-center text-slate-500 text-sm hover:border-blue-600 hover:text-blue-400 transition-colors cursor-pointer">
-          Drag & drop PDF or click to upload
-        </div>
+        <PdfUploadField value={f.pdfUrl} onChange={(v) => set("pdfUrl", v)} />
       </div>
 
       <div className="flex gap-3">
-        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} className="px-5 py-2.5">Save Paper</Button>
+        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} disabled={pending} className="px-5 py-2.5 disabled:opacity-50">{pending ? "Saving…" : "Save Paper"}</Button>
         <Button variant="admin-secondary" type="button" onClick={onCancel} className="px-5 py-2.5">Cancel</Button>
       </div>
     </div>
   );
 }
 
-export default function AdminResearch() {
-  const [pubs, setPubs] = useState<Pub[]>([]);
+export default function AdminResearch({ initial, areas }: { initial: Pub[]; areas: string[] }) {
+  const [pubs, setPubs] = useState<Pub[]>(initial);
+  const [copied, setCopied] = useState<number | null>(null);
+  const { pending, run } = useAction();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [showAdd, setShowAdd] = useState(false);
@@ -143,14 +165,41 @@ export default function AdminResearch() {
     return matchSearch && matchStatus;
   });
 
-  const handleAdd = (data: Partial<Pub>) => {
-    setPubs((prev) => [{ id: Date.now(), authors: ["Your Name"], keywords: [], doi: "", ...data } as (typeof prev)[number], ...prev]);
-    setShowAdd(false);
+  const handleAdd = (data: PubInput) => {
+    run(() => savePaper(data), {
+      success: "Paper added.",
+      onSuccess: (saved) => {
+        setPubs((prev) => [saved, ...prev]);
+        setShowAdd(false);
+      },
+    });
   };
 
-  const handleEdit = (id: number, data: Partial<Pub>) => {
-    setPubs((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
-    setEditing(null);
+  const handleEdit = (id: number, data: PubInput) => {
+    run(() => savePaper({ ...data, id }), {
+      success: "Paper updated.",
+      onSuccess: (saved) => {
+        setPubs((prev) => prev.map((p) => (p.id === id ? saved : p)));
+        setEditing(null);
+      },
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    run(() => deletePaper(id), {
+      success: "Paper deleted.",
+      onSuccess: () => setPubs((prev) => prev.filter((x) => x.id !== id)),
+    });
+  };
+
+  const copyDoi = async (pub: Pub) => {
+    try {
+      await navigator.clipboard.writeText(pub.doi);
+      setCopied(pub.id);
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      toast.error("Could not copy to the clipboard.");
+    }
   };
 
   return (
@@ -168,7 +217,7 @@ export default function AdminResearch() {
         </Button>
       </div>
 
-      {showAdd && <PubForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
+      {showAdd && <PubForm areas={areas} onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}
 
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative max-w-sm flex-1">
@@ -197,7 +246,7 @@ export default function AdminResearch() {
           <Card variant="admin-panel" key={pub.id}>
             {editing === pub.id ? (
               <div className="p-6">
-                <PubForm initial={pub} onSave={(d) => handleEdit(pub.id, d)} onCancel={() => setEditing(null)} />
+                <PubForm initial={pub} areas={areas} onSave={(d) => handleEdit(pub.id, d)} onCancel={() => setEditing(null)} pending={pending} />
               </div>
             ) : (
               <div className="p-5 flex items-start gap-4">
@@ -223,25 +272,27 @@ export default function AdminResearch() {
                     <div className="flex items-center gap-1.5 mt-1.5">
                       <span className="text-slate-600 text-xs font-mono">DOI:</span>
                       <span className="text-teal-500 text-xs font-mono">{pub.doi}</span>
-                      <Button variant="unstyled" className="text-slate-600 hover:text-slate-400 transition-colors"><Copy size={11} /></Button>
+                      <Button variant="unstyled" onClick={() => copyDoi(pub)} aria-label="Copy DOI" className="text-slate-600 hover:text-slate-400 transition-colors">{copied === pub.id ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}</Button>
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <Button variant="admin-icon-info"  title="View">
-                    <ExternalLink size={14} />
+                  <Button asChild variant="admin-icon-info">
+                    <Link href={`/research/${pub.id}`} target="_blank" title="View" aria-label={`View ${pub.title} on the site`}>
+                      <ExternalLink size={14} />
+                    </Link>
                   </Button>
-                  <Button variant="admin-icon-teal"  title="Download PDF">
-                    <Download size={14} />
-                  </Button>
-                  <Button variant="admin-icon-edit" onClick={() => setEditing(pub.id)}
->
+                  {pub.pdfUrl && (
+                    <Button asChild variant="admin-icon-teal">
+                      <a href={pub.pdfUrl} target="_blank" rel="noopener noreferrer" title="Download PDF" aria-label="Download PDF">
+                        <Download size={14} />
+                      </a>
+                    </Button>
+                  )}
+                  <Button variant="admin-icon-edit" aria-label={`Edit ${pub.title}`} onClick={() => setEditing(pub.id)}>
                     <Pencil size={14} />
                   </Button>
-                  <Button variant="admin-icon-danger" onClick={() => setPubs((prev) => prev.filter((x) => x.id !== pub.id))}
->
-                    <Trash2 size={14} />
-                  </Button>
+                  <ConfirmDelete label={pub.title} pending={pending} onConfirm={() => handleDelete(pub.id)} />
                 </div>
               </div>
             )}

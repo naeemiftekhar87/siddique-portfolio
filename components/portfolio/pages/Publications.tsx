@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ExternalLink, Download, Copy, BookOpen, Hash } from "lucide-react";
+import { Search, ExternalLink, Download, BookOpen, Hash } from "lucide-react";
 import Link from "next/link";
-import { publications, profile } from "@/lib/data";
+import type { Paper, SiteProfile } from "@/lib/data";
+import { CopyButton } from "@/components/portfolio/copy-button";
+import { paperLink } from "@/lib/data/research";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,9 +20,8 @@ const statusConfig: Record<string, { color: string }> = {
   Accepted:        { color: "bg-teal-50 text-teal-700 border-teal-200" },
 };
 
-const allStatuses = ["All", ...Array.from(new Set(publications.map((p) => p.status)))];
-
-export default function Publications() {
+export default function Publications({ publications, profile }: { publications: Paper[]; profile: SiteProfile }) {
+  const allStatuses = ["All", ...Array.from(new Set(publications.map((p) => p.status)))];
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
@@ -46,7 +47,7 @@ export default function Publications() {
             Publications &<br /><span className="italic text-cyan-300">Research Output</span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl leading-relaxed mb-10">
-            Peer-reviewed articles, conference papers, and working papers spanning your research areas.
+            Peer-reviewed articles, conference papers, and working papers spanning my research areas.
           </p>
 
           {/* Scholar metrics strip */}
@@ -74,6 +75,7 @@ export default function Publications() {
             <Input variant="site-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search publications"
               placeholder="Search by title, area, journal…"
               className="w-full focus:ring-blue-100"
             />
@@ -110,9 +112,11 @@ export default function Publications() {
                       <Badge variant="unstyled" className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${status.color}`}>
                         {pub.status}
                       </Badge>
-                      <Badge variant="unstyled" className="text-xs text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-100">
-                        {pub.area}
-                      </Badge>
+                      {pub.area && (
+                        <Badge variant="unstyled" className="text-xs text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-100">
+                          {pub.area}
+                        </Badge>
+                      )}
                       <span className="text-xs text-slate-400 font-mono">{pub.year}</span>
                     </div>
 
@@ -121,13 +125,9 @@ export default function Publications() {
                     </h3>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500 mb-3">
-                      <span>{pub.authors.join(", ")}</span>
-                      {pub.journal && (
-                        <>
-                          <span className="text-slate-300">·</span>
-                          <span className="text-blue-600 font-medium">{pub.journal}</span>
-                        </>
-                      )}
+                      {pub.authors.length > 0 && <span>{pub.authors.join(", ")}</span>}
+                      {pub.journal && pub.authors.length > 0 && <span className="text-slate-300">·</span>}
+                      {pub.journal && <span className="text-blue-600 font-medium">{pub.journal}</span>}
                     </div>
 
                     <p className="text-slate-500 text-sm line-clamp-2 mb-4 leading-relaxed">{pub.abstract}</p>
@@ -135,20 +135,34 @@ export default function Publications() {
                     {pub.doi && (
                       <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
                         <Hash size={11} />
-                        <code className="text-teal-600">{pub.doi}</code>
-                        <Button variant="unstyled" className="hover:text-slate-600 transition-colors">
-                          <Copy size={11} />
-                        </Button>
+                        <code className="text-teal-600 break-all">{pub.doi}</code>
+                        <CopyButton text={pub.doi} label="Copy DOI" className="flex items-center gap-1 hover:text-slate-600 transition-colors" />
+                      </div>
+                    )}
+
+                    {pub.keywords.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {pub.keywords.slice(0, 6).map((k) => (
+                          <Badge variant="unstyled" key={k} className="px-2.5 py-1 bg-slate-50 text-slate-500 text-xs rounded-lg border border-slate-100">{k}</Badge>
+                        ))}
                       </div>
                     )}
 
                     <div className="flex flex-wrap gap-2 pt-1">
-                      <Button variant="site-primary" className="flex items-center gap-1.5 px-3.5 py-2 text-xs transition-colors">
-                        <ExternalLink size={12} /> Read Paper
-                      </Button>
-                      <Button variant="site-outline" className="flex items-center gap-1.5 px-3.5 py-2 text-slate-600 text-xs font-medium hover:border-slate-300 transition-colors">
-                        <Download size={12} /> PDF
-                      </Button>
+                      {paperLink(pub) && (
+                        <Button asChild variant="site-primary" className="flex items-center gap-1.5 px-3.5 py-2 text-xs transition-colors">
+                          <a href={paperLink(pub)} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink size={12} /> Read Paper
+                          </a>
+                        </Button>
+                      )}
+                      {pub.pdfUrl && (
+                        <Button asChild variant="site-outline" className="flex items-center gap-1.5 px-3.5 py-2 text-slate-600 text-xs font-medium hover:border-slate-300 transition-colors">
+                          <a href={pub.pdfUrl} target="_blank" rel="noopener noreferrer">
+                            <Download size={12} /> PDF
+                          </a>
+                        </Button>
+                      )}
                       <Link
                         href={`/research/${pub.id}`}
                         className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 border border-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-100 transition-colors"
@@ -166,7 +180,7 @@ export default function Publications() {
         {filtered.length === 0 && (
           <div className="text-center py-20">
             <BookOpen size={40} className="mx-auto mb-4 text-slate-200" />
-            <p className="text-slate-400">No publications match your search.</p>
+            <p className="text-slate-400">{publications.length === 0 ? "No publications yet." : "No publications match your search."}</p>
           </div>
         )}
 

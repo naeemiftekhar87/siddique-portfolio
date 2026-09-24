@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search, ExternalLink, ChevronDown, ChevronUp, Tag } from "lucide-react";
-import type { projects as initialProjects } from "@/lib/data";
+import Link from "next/link";
+import { Plus, Pencil, Search, ExternalLink, ChevronDown, ChevronUp, Tag } from "lucide-react";
+import { projectStatuses, type PortfolioCategory, type Project } from "@/lib/data";
+import { deleteProject, saveProject } from "@/lib/actions/content";
+import { ConfirmDelete } from "@/components/admin/confirm-delete";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,10 +15,9 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 
-type Project = typeof initialProjects[0];
+type ProjectInput = Omit<Project, "id" | "category"> & { id?: number };
 
-const categories = ["Sample Category A", "Sample Category B", "Sample Category C", "Sample Category D", "Other"];
-const statuses = ["Completed", "Research", "In Progress", "Planned", "On Hold"];
+const statuses = projectStatuses;
 
 const statusColors: Record<string, string> = {
   Completed: "bg-green-900/40 text-green-400 border-green-800",
@@ -24,39 +27,48 @@ const statusColors: Record<string, string> = {
   "On Hold": "bg-slate-800 text-slate-400 border-slate-700",
 };
 
+// Category chip colours follow the colour chosen in Portfolio → Categories.
 const categoryColors: Record<string, string> = {
-  "Sample Category A": "bg-teal-900/30 text-teal-400",
-  "Sample Category B": "bg-blue-900/30 text-blue-400",
-  "Sample Category C": "bg-violet-900/30 text-violet-400",
-  "Sample Category D": "bg-amber-900/30 text-amber-400",
-  Other: "bg-slate-800 text-slate-400",
+  blue: "bg-blue-900/30 text-blue-400",
+  teal: "bg-teal-900/30 text-teal-400",
+  violet: "bg-violet-900/30 text-violet-400",
+  amber: "bg-amber-900/30 text-amber-400",
+  green: "bg-green-900/30 text-green-400",
+  rose: "bg-rose-900/30 text-rose-400",
+  orange: "bg-orange-900/30 text-orange-400",
+  sky: "bg-sky-900/30 text-sky-400",
+};
+
+const emptyProject: ProjectInput = {
+  title: "",
+  categoryId: null,
+  shortDescription: "",
+  description: "",
+  technologies: [],
+  tools: [],
+  image: "",
+  problem: "",
+  objective: "",
+  methodology: "",
+  results: "",
+  status: "Completed",
+  link: "",
 };
 
 function ProjectForm({
   initial,
+  categories,
   onSave,
   onCancel,
+  pending,
 }: {
-  initial?: Partial<Project>;
-  onSave: (d: Partial<Project>) => void;
+  initial?: Project;
+  categories: PortfolioCategory[];
+  onSave: (d: ProjectInput) => void;
   onCancel: () => void;
+  pending: boolean;
 }) {
-  const [f, setF] = useState<Partial<Project>>(
-    initial ?? {
-      title: "",
-      category: "Sample Category A",
-      shortDescription: "",
-      description: "",
-      technologies: [],
-      tools: [],
-      image: "",
-      problem: "",
-      objective: "",
-      methodology: "",
-      results: "",
-      status: "Completed",
-    }
-  );
+  const [f, setF] = useState<ProjectInput>(initial ?? { ...emptyProject, categoryId: categories[0]?.id ?? null });
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
@@ -78,17 +90,23 @@ function ProjectForm({
         <div>
           <Label variant="admin-label" className="mb-1">Category</Label>
           <NativeSelect variant="admin-field"
-            value={f.category ?? "Sample Category A"}
-            onChange={(e) => set("category", e.target.value)}
+            value={f.categoryId ?? ""}
+            onChange={(e) => set("categoryId", e.target.value ? Number(e.target.value) : null)}
             className="w-full"
           >
-            {categories.map((c) => <option key={c}>{c}</option>)}
+            <option value="">Uncategorized</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </NativeSelect>
+          {categories.length === 0 && (
+            <p className="text-slate-500 text-xs mt-1">
+              Add categories in <Link href="/admin/portfolio/categories" className="text-blue-400 hover:underline">Portfolio → Categories</Link>.
+            </p>
+          )}
         </div>
         <div>
           <Label variant="admin-label" className="mb-1">Status</Label>
           <NativeSelect variant="admin-field"
-            value={f.status ?? "Completed"}
+            value={f.status}
             onChange={(e) => set("status", e.target.value)}
             className="w-full"
           >
@@ -114,6 +132,16 @@ function ProjectForm({
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
           className="w-full resize-none"
+        />
+      </div>
+
+      <div>
+        <Label variant="admin-label" className="mb-1">Project Link (optional)</Label>
+        <Input variant="admin-field"
+          value={f.link}
+          onChange={(e) => set("link", e.target.value)}
+          placeholder="https://... or /path"
+          className="w-full font-mono"
         />
       </div>
 
@@ -188,9 +216,10 @@ function ProjectForm({
         <Button variant="admin-primary"
           type="button"
           onClick={() => onSave(f)}
-          className="px-5 py-2.5"
+          disabled={pending}
+          className="px-5 py-2.5 disabled:opacity-50"
         >
-          Save Project
+          {pending ? "Saving…" : "Save Project"}
         </Button>
         <Button variant="admin-secondary"
           type="button"
@@ -204,8 +233,9 @@ function ProjectForm({
   );
 }
 
-export default function AdminProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
+export default function AdminProjects({ initial, categories }: { initial: Project[]; categories: PortfolioCategory[] }) {
+  const [projects, setProjects] = useState<Project[]>(initial);
+  const { pending, run } = useAction();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -221,20 +251,35 @@ export default function AdminProjects() {
     return matchSearch && matchCat && matchStatus;
   });
 
-  const handleAdd = (data: Partial<Project>) => {
-    setProjects((prev) => [
-      { id: Date.now(), ...data } as Project,
-      ...prev,
-    ]);
-    setShowAdd(false);
+  const handleAdd = (data: ProjectInput) => {
+    run(() => saveProject(data), {
+      success: "Project added.",
+      onSuccess: (saved) => {
+        setProjects((prev) => [saved, ...prev]);
+        setShowAdd(false);
+      },
+    });
   };
 
-  const handleEdit = (id: number, data: Partial<Project>) => {
-    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
-    setEditing(null);
+  const handleEdit = (id: number, data: ProjectInput) => {
+    run(() => saveProject({ ...data, id }), {
+      success: "Project updated.",
+      onSuccess: (saved) => {
+        setProjects((prev) => prev.map((p) => (p.id === id ? saved : p)));
+        setEditing(null);
+      },
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    run(() => deleteProject(id), {
+      success: "Project deleted.",
+      onSuccess: () => setProjects((prev) => prev.filter((x) => x.id !== id)),
+    });
   };
 
   const allCats = Array.from(new Set(projects.map((p) => p.category)));
+  const colorOf = (name: string) => categories.find((c) => c.name === name)?.color;
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -251,7 +296,7 @@ export default function AdminProjects() {
         </Button>
       </div>
 
-      {showAdd && <ProjectForm onSave={handleAdd} onCancel={() => setShowAdd(false)} />}
+      {showAdd && <ProjectForm categories={categories} onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -293,7 +338,7 @@ export default function AdminProjects() {
         {filtered.map((project) => {
           const isExpanded = expanded === project.id;
           const statusStyle = statusColors[project.status] ?? "bg-slate-800 text-slate-400 border-slate-700";
-          const catStyle = categoryColors[project.category] ?? "bg-slate-800 text-slate-400";
+          const catStyle = categoryColors[colorOf(project.category) ?? ""] ?? "bg-slate-800 text-slate-400";
 
           return (
             <Card variant="admin-panel" key={project.id} className="overflow-hidden">
@@ -301,8 +346,10 @@ export default function AdminProjects() {
                 <div className="p-6">
                   <ProjectForm
                     initial={project}
+                    categories={categories}
                     onSave={(d) => handleEdit(project.id, d)}
                     onCancel={() => setEditing(null)}
+                    pending={pending}
                   />
                 </div>
               ) : (
@@ -346,25 +393,18 @@ export default function AdminProjects() {
                     </div>
 
                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <Button variant="admin-icon-info"
-                        
-                        title="View live"
-                        onClick={(e) => e.stopPropagation()}
->
-                        <ExternalLink size={14} />
+                      <Button asChild variant="admin-icon-info">
+                        <Link href={`/portfolio/${project.id}`} target="_blank" title="View live"
+                          aria-label={`View ${project.title} on the site`} onClick={(e) => e.stopPropagation()}>
+                          <ExternalLink size={14} />
+                        </Link>
                       </Button>
-                      <Button variant="admin-icon-edit"
+                      <Button variant="admin-icon-edit" aria-label={`Edit ${project.title}`}
                         onClick={(e) => { e.stopPropagation(); setEditing(project.id); setExpanded(null); }}
-                        
 >
                         <Pencil size={14} />
                       </Button>
-                      <Button variant="admin-icon-danger"
-                        onClick={(e) => { e.stopPropagation(); setProjects((prev) => prev.filter((x) => x.id !== project.id)); }}
-                        
->
-                        <Trash2 size={14} />
-                      </Button>
+                      <ConfirmDelete label={project.title} pending={pending} onConfirm={() => handleDelete(project.id)} />
                       <div className="text-slate-600 ml-1">
                         {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                       </div>
@@ -408,7 +448,7 @@ export default function AdminProjects() {
       {filtered.length === 0 && (
         <div className="text-center py-20 text-slate-500">
           <Tag size={32} className="mx-auto mb-4 text-slate-700" />
-          <p>No projects match your filters.</p>
+          <p>{projects.length === 0 ? "No projects yet." : "No projects match your filters."}</p>
         </div>
       )}
     </div>

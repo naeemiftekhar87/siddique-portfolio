@@ -4,20 +4,19 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, GraduationCap, GitFork, Link2 } from "lucide-react";
-import { profile } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 
-const navLinks = [
-  { label: "Home", to: "/" },
-  { label: "About", to: "/about" },
-  { label: "Certificates", to: "/certificates" },
-  { label: "Portfolio", to: "/portfolio" },
-  { label: "Research", to: "/research" },
-  { label: "eBooks", to: "/ebooks" },
-  { label: "Contact", to: "/contact" },
-];
+type NavbarProps = {
+  name: string;
+  /** Visible links, in order, from Website → Navigation. */
+  navLinks: { label: string; to: string }[];
+  /** Social links from Settings; empty ones are hidden. */
+  social: { scholar: string; linkedin: string; github: string };
+};
 
-export default function Navbar() {
+const isExternal = (to: string) => /^https?:\/\//i.test(to);
+
+export default function Navbar({ name, navLinks, social }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -39,9 +38,15 @@ export default function Navbar() {
   const isActive = (to: string) =>
     to === "/" ? pathname === "/" : pathname.startsWith(to);
 
+  const socialLinks = [
+    { href: social.scholar, title: "Google Scholar", Icon: GraduationCap },
+    { href: social.linkedin, title: "LinkedIn", Icon: Link2 },
+    { href: social.github, title: "GitHub", Icon: GitFork },
+  ].filter((s) => s.href);
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 print:hidden ${
         scrolled ? "bg-(color:--site-navbar)/95 backdrop-blur-xl shadow-lg border-b border-white/10" : "bg-(color:--site-navbar)/80 backdrop-blur-md"
       }`}
     >
@@ -50,7 +55,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <span className="font-serif text-lg font-medium tracking-tight text-white">
-              {profile.name}
+              {name}
             </span>
           </Link>
 
@@ -60,6 +65,8 @@ export default function Navbar() {
               <Link
                 key={link.to}
                 href={link.to}
+                {...(isExternal(link.to) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                aria-current={isActive(link.to) ? "page" : undefined}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all ${
                   isActive(link.to)
                     ? "text-white bg-white/15 border border-white/20"
@@ -73,33 +80,19 @@ export default function Navbar() {
 
           {/* Right side — social icons only */}
           <div className="hidden lg:flex items-center gap-1">
-            <a
-              href={profile.scholar}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-white/50 hover:text-cyan-400 transition-colors"
-              title="Google Scholar"
-            >
-              <GraduationCap size={18} />
-            </a>
-            <a
-              href={profile.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-white/50 hover:text-cyan-400 transition-colors"
-              title="LinkedIn"
-            >
-              <Link2 size={18} />
-            </a>
-            <a
-              href={profile.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-white/50 hover:text-cyan-400 transition-colors"
-              title="GitHub"
-            >
-              <GitFork size={18} />
-            </a>
+            {socialLinks.map(({ href, title, Icon }) => (
+              <a
+                key={title}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-white/50 hover:text-cyan-400 transition-colors"
+                title={title}
+                aria-label={title}
+              >
+                <Icon size={18} />
+              </a>
+            ))}
           </div>
 
           {/* Mobile toggle */}
@@ -107,6 +100,7 @@ export default function Navbar() {
             className="lg:hidden p-2 text-white/70 hover:text-white"
             onClick={() => setOpen((v) => !v)}
             aria-label="Toggle menu"
+            aria-expanded={open}
           >
             {open ? <X size={22} /> : <Menu size={22} />}
           </Button>
@@ -121,6 +115,8 @@ export default function Navbar() {
               <Link
                 key={link.to}
                 href={link.to}
+                {...(isExternal(link.to) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                aria-current={isActive(link.to) ? "page" : undefined}
                 className={`px-4 py-2.5 text-sm rounded-lg font-medium transition-all ${
                   isActive(link.to)
                     ? "text-white bg-white/15 border border-white/20"
@@ -131,15 +127,11 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/10 px-4">
-              <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-cyan-400 transition-colors">
-                <Link2 size={20} />
-              </a>
-              <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-cyan-400 transition-colors">
-                <GitFork size={20} />
-              </a>
-              <a href={profile.scholar} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-cyan-400 transition-colors">
-                <GraduationCap size={20} />
-              </a>
+              {socialLinks.map(({ href, title, Icon }) => (
+                <a key={title} href={href} target="_blank" rel="noopener noreferrer" aria-label={title} className="text-white/50 hover:text-cyan-400 transition-colors">
+                  <Icon size={20} />
+                </a>
+              ))}
             </div>
           </div>
         </div>

@@ -3,24 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Microscope, BookOpen, GraduationCap, ExternalLink, Download, Copy,
+  Microscope, BookOpen, GraduationCap, ExternalLink, Download,
   Hash, Search, ChevronDown, ChevronUp, Lightbulb, FlaskConical,
   Calendar, Tag, ArrowRight,
 } from "lucide-react";
-import { researchPapers, publications, profile } from "@/lib/data";
+import type { Paper, SiteProfile, UpcomingResearch } from "@/lib/data";
+import { CopyButton } from "@/components/portfolio/copy-button";
+import { paperLink, researchSections, type ResearchSectionId } from "@/lib/data/research";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 // ── Section IDs for internal navigation ──────────────────────────────────────
-const SECTIONS = [
-  { id: "interests", label: "Research Interests" },
-  { id: "published", label: "Published Research" },
-  { id: "upcoming", label: "Upcoming Topics" },
-] as const;
-
-type SectionId = typeof SECTIONS[number]["id"];
+const SECTIONS = researchSections;
+type SectionId = ResearchSectionId;
 
 // ── Status colour maps ────────────────────────────────────────────────────────
 const paperStatusColor: Record<string, string> = {
@@ -40,78 +37,31 @@ const upcomingStatusConfig: Record<string, { color: string; icon: React.ReactNod
   "In Progress":     { color: "bg-green-900/40 text-green-400 border-green-800",   icon: <FlaskConical size={11} /> },
 };
 
-// ── Upcoming research topics (inline, matches UpcomingResearch.tsx) ───────────
-const upcomingTopics = [
-  {
-    id: 1,
-    title: "Example Upcoming Research Topic 1",
-    area: "Research Area A",
-    status: "Conceptualized",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2027",
-  },
-  {
-    id: 2,
-    title: "Example Upcoming Research Topic 2",
-    area: "Research Area B",
-    status: "Literature Review",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2026",
-  },
-  {
-    id: 3,
-    title: "Example Upcoming Research Topic 3",
-    area: "Research Area A",
-    status: "Idea",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2027",
-  },
-  {
-    id: 4,
-    title: "Example Upcoming Research Topic 4",
-    area: "Research Area C",
-    status: "Data Collection",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2026",
-  },
-  {
-    id: 5,
-    title: "Example Upcoming Research Topic 5",
-    area: "Research Area D",
-    status: "Conceptualized",
-    question: "Placeholder research question. Replace it with the question this study sets out to answer.",
-    contribution: "Placeholder expected contribution. Replace it with what this work will add to the field.",
-    methodology: "Placeholder methodology. Replace it with the planned data, methods, and evaluation approach.",
-    keywords: ["Keyword 1", "Keyword 2", "Keyword 3"],
-    expectedYear: "2028",
-  },
-];
+type ResearchProps = {
+  papers: Paper[];
+  upcomingTopics: UpcomingResearch[];
+  profile: SiteProfile;
+  initialSection: SectionId;
+};
 
-export default function Research() {
-  const [activeSection, setActiveSection] = useState<SectionId>("interests");
+export default function Research({ papers, upcomingTopics, profile, initialSection }: ResearchProps) {
+  const [activeSection, setSection] = useState<SectionId>(initialSection);
+
+  // The active tab lives in the URL (?tab=) so it survives refresh and can be shared.
+  const setActiveSection = (id: SectionId) => {
+    setSection(id);
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", id);
+    window.history.replaceState(null, "", url);
+  };
 
   // Published papers state
   const [paperSearch, setPaperSearch] = useState("");
   const [paperStatus, setPaperStatus] = useState("All");
-  const allPaperStatuses = ["All", ...Array.from(new Set([...researchPapers.map(p => p.status), ...publications.map(p => p.status)]))];
+  const allPaperStatuses = ["All", ...Array.from(new Set(papers.map(p => p.status)))];
 
-  // Combine researchPapers + publications into one deduplicated list
-  const allPublished = [
-    ...researchPapers.map(p => ({ ...p, source: "paper" as const })),
-    ...publications.filter(pub => !researchPapers.some(rp => rp.id === pub.id)).map(p => ({ ...p, source: "pub" as const })),
-  ];
+  // One paper list (working paper → published); ids are unique, so no duplicates.
+  const allPublished = papers;
   const filteredPublished = allPublished.filter(p => {
     const q = paperSearch.toLowerCase();
     const matchSearch = !q || p.title.toLowerCase().includes(q) || (p.authors?.join(" ") ?? "").toLowerCase().includes(q);
@@ -122,7 +72,7 @@ export default function Research() {
   // Upcoming topics state
   const [topicExpanded, setTopicExpanded] = useState<number | null>(null);
   const [topicArea, setTopicArea] = useState("All");
-  const allAreas = ["All", ...Array.from(new Set(upcomingTopics.map(t => t.area)))];
+  const allAreas = ["All", ...Array.from(new Set(upcomingTopics.map(t => t.area).filter(Boolean)))];
   const filteredTopics = topicArea === "All" ? upcomingTopics : upcomingTopics.filter(t => t.area === topicArea);
 
   return (
@@ -140,12 +90,12 @@ export default function Research() {
             Research &<br /><span className="italic text-cyan-300">Publications</span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl leading-relaxed mb-10">
-            Placeholder research introduction. Replace it with a sentence about your research agenda — from published papers to upcoming work in the pipeline.
+            My research agenda — from published papers to upcoming work in the pipeline.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
             {[
-              { value: researchPapers.length + publications.length, label: "Total Publications" },
+              { value: papers.length, label: "Total Publications" },
               { value: profile.scholarMetrics.citations, label: "Citations" },
               { value: profile.scholarMetrics.hIndex, label: "h-Index" },
               { value: upcomingTopics.length, label: "Pipeline Topics" },
@@ -163,6 +113,7 @@ export default function Research() {
               <Button variant="unstyled"
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
+                aria-pressed={activeSection === s.id}
                 className={`px-5 py-2 rounded-xl text-sm font-medium transition-all border ${
                   activeSection === s.id
                     ? "bg-white text-[#040d1f] border-white"
@@ -186,6 +137,9 @@ export default function Research() {
             </p>
           </div>
 
+          {profile.researchInterests.length === 0 && (
+            <p className="text-slate-400 mb-14">Research interests will appear here soon.</p>
+          )}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14">
             {profile.researchInterests.map((interest, i) => (
               <Card variant="site-glass-card"
@@ -223,14 +177,16 @@ export default function Research() {
                 ))}
               </div>
             </div>
-            <a
-              href={profile.scholar}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 text-sm font-semibold rounded-xl hover:bg-blue-50 transition-colors flex-shrink-0"
-            >
-              View Scholar Profile <ExternalLink size={14} />
-            </a>
+            {profile.scholar && (
+              <a
+                href={profile.scholar}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 text-sm font-semibold rounded-xl hover:bg-blue-50 transition-colors flex-shrink-0"
+              >
+                View Scholar Profile <ExternalLink size={14} />
+              </a>
+            )}
           </div>
 
           <div className="flex justify-end mt-8">
@@ -262,6 +218,7 @@ export default function Research() {
                 value={paperSearch}
                 onChange={e => setPaperSearch(e.target.value)}
                 placeholder="Search title or author…"
+                aria-label="Search papers"
                 className="w-full focus:ring-violet-100"
               />
             </div>
@@ -270,6 +227,7 @@ export default function Research() {
                 <Button variant="unstyled"
                   key={s}
                   onClick={() => setPaperStatus(s)}
+                  aria-pressed={paperStatus === s}
                   className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                     paperStatus === s ? "bg-[#040d1f] text-white" : "bg-white text-slate-600 border border-slate-200 hover:border-slate-300"
                   }`}
@@ -285,7 +243,7 @@ export default function Research() {
           <div className="space-y-5">
             {filteredPublished.map((paper, idx) => (
               <Card variant="site-white-card"
-                key={`${paper.source}-${paper.id}`}
+                key={paper.id}
                 className="p-7 hover:shadow-md hover:border-slate-200 transition-all group"
               >
                 <div className="flex items-start gap-5">
@@ -297,7 +255,7 @@ export default function Research() {
                       <Badge variant="unstyled" className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${paperStatusColor[paper.status] ?? "bg-slate-50 text-slate-600 border-slate-100"}`}>
                         {paper.status}
                       </Badge>
-                      {"area" in paper && paper.area && (
+                      {paper.area && (
                         <Badge variant="unstyled" className="px-2.5 py-0.5 bg-slate-50 text-slate-500 text-xs rounded-full border border-slate-100">
                           {paper.area}
                         </Badge>
@@ -310,46 +268,49 @@ export default function Research() {
                     </h3>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500 mb-3">
-                      <span>{paper.authors?.join(", ")}</span>
-                      {paper.journal && (
+                      {paper.authors.length > 0 && <span>{paper.authors.join(", ")}</span>}
+                      {paper.journal && paper.authors.length > 0 && (
                         <>
                           <span className="text-slate-300">·</span>
-                          <span className="text-blue-600 font-medium">{paper.journal}</span>
                         </>
                       )}
+                      {paper.journal && <span className="text-blue-600 font-medium">{paper.journal}</span>}
                     </div>
 
                     <p className="text-slate-500 text-sm line-clamp-2 mb-4 leading-relaxed">{paper.abstract}</p>
 
-                    {"doi" in paper && paper.doi && (
+                    {paper.doi && (
                       <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
                         <Hash size={11} />
-                        <code className="text-teal-600">{paper.doi}</code>
-                        <Button variant="unstyled"
-                          onClick={() => navigator.clipboard?.writeText(paper.doi)}
-                          className="hover:text-slate-600 transition-colors"
-                          title="Copy DOI"
-                        >
-                          <Copy size={11} />
-                        </Button>
+                        <code className="text-teal-600 break-all">{paper.doi}</code>
+                        <CopyButton text={paper.doi} label="Copy DOI"
+                          className="flex items-center gap-1 hover:text-slate-600 transition-colors" />
                       </div>
                     )}
 
-                    {"keywords" in paper && paper.keywords?.length > 0 && (
+                    {paper.keywords.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {paper.keywords.slice(0, 5).map((k: string) => (
+                        {paper.keywords.slice(0, 5).map((k) => (
                           <Badge variant="unstyled" key={k} className="px-2.5 py-1 bg-slate-50 text-slate-500 text-xs rounded-lg border border-slate-100">{k}</Badge>
                         ))}
                       </div>
                     )}
 
                     <div className="flex flex-wrap gap-2 pt-1">
-                      <Button variant="site-primary" className="flex items-center gap-1.5 px-3.5 py-2 text-xs transition-colors">
-                        <ExternalLink size={12} /> Read Paper
-                      </Button>
-                      <Button variant="site-outline" className="flex items-center gap-1.5 px-3.5 py-2 text-slate-600 text-xs font-medium hover:border-slate-300 transition-colors">
-                        <Download size={12} /> PDF
-                      </Button>
+                      {paperLink(paper) && (
+                        <Button asChild variant="site-primary" className="flex items-center gap-1.5 px-3.5 py-2 text-xs transition-colors">
+                          <a href={paperLink(paper)} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink size={12} /> Read Paper
+                          </a>
+                        </Button>
+                      )}
+                      {paper.pdfUrl && (
+                        <Button asChild variant="site-outline" className="flex items-center gap-1.5 px-3.5 py-2 text-slate-600 text-xs font-medium hover:border-slate-300 transition-colors">
+                          <a href={paper.pdfUrl} target="_blank" rel="noopener noreferrer">
+                            <Download size={12} /> PDF
+                          </a>
+                        </Button>
+                      )}
                       <Link
                         href={`/research/${paper.id}`}
                         className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 border border-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-100 transition-colors"
@@ -366,7 +327,7 @@ export default function Research() {
           {filteredPublished.length === 0 && (
             <div className="text-center py-20">
               <BookOpen size={40} className="mx-auto mb-4 text-slate-200" />
-              <p className="text-slate-400">No publications match your search.</p>
+              <p className="text-slate-400">{papers.length === 0 ? "No papers yet." : "No publications match your search."}</p>
             </div>
           )}
 
@@ -397,6 +358,7 @@ export default function Research() {
               <Button variant="unstyled"
                 key={a}
                 onClick={() => setTopicArea(a)}
+                aria-pressed={topicArea === a}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   topicArea === a ? "bg-[#040d1f] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
@@ -414,6 +376,7 @@ export default function Research() {
                 <div key={topic.id} className="border border-gray-200 rounded-2xl overflow-hidden hover:border-blue-200 transition-colors">
                   <Button variant="unstyled"
                     onClick={() => setTopicExpanded(isOpen ? null : topic.id)}
+                    aria-expanded={isOpen}
                     className="w-full flex items-start gap-5 p-6 text-left hover:bg-gray-50/60 transition-colors"
                   >
                     <div className="flex-1 min-w-0">
@@ -421,7 +384,7 @@ export default function Research() {
                         <Badge variant="unstyled" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border font-medium ${sc.color}`}>
                           {sc.icon} {topic.status}
                         </Badge>
-                        <Badge variant="unstyled" className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs">{topic.area}</Badge>
+                        {topic.area && <Badge variant="unstyled" className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs">{topic.area}</Badge>}
                         {topic.expectedYear && (
                           <span className="flex items-center gap-1 text-gray-400 text-xs">
                             <Calendar size={11} /> Est. {topic.expectedYear}
@@ -472,7 +435,7 @@ export default function Research() {
           {filteredTopics.length === 0 && (
             <div className="text-center py-20">
               <Microscope size={40} className="text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-400">No topics match the current filter.</p>
+              <p className="text-gray-400">{upcomingTopics.length === 0 ? "No upcoming topics yet." : "No topics match the current filter."}</p>
             </div>
           )}
 

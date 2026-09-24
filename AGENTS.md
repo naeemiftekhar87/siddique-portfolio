@@ -41,10 +41,10 @@ Before writing code, also read the relevant Next.js guide under `node_modules/ne
 - The application code is currently under `app/`; there is no `src/` directory.
 - **The owner's design source has been ported** (2026-09-23) from the Vite project at `/mnt/FR-project/Build Website from Shard File/`. Public page UIs live in `components/portfolio/pages/` (plus `Navbar.tsx`, `Footer.tsx`), admin UIs in `components/admin/pages/`, and route files in `app/(public)/` and `app/(admin)/admin/` are thin wrappers. Admin modules sit under the `(shell)` group (sidebar layout); `/admin/login` is outside it. **The owner requires the ported design to stay exactly as the source**: do not restyle these components, and keep `app/globals.css`'s base layer mirroring the source `index.css`. See `docs/memory.md` §2.
 - The target is a full-stack Next.js application. The Phase 5 backend must be implemented inside this application with Route Handlers, Server Actions where appropriate, and server-only data/auth modules; do not introduce a separate Express or Vite backend.
-- shadcn/ui is initialized (`components.json`: Radix base, Nova preset, Lucide icons) with the design.md component set in `components/ui/`. In this shadcn version `form` is replaced by `field`. There is no backend implementation, database client, authentication layer, or configured test framework yet.
-- `lib/data/index.ts` holds TEMPORARY, obviously fake placeholder data with the source design's shape and item counts. Never put real-looking personal or research data there; the owner enters real content via the admin once Phase 5 exists.
-- Supabase is the chosen Phase 5 platform (Postgres, Storage, Auth). Credentials exist in the gitignored `.env`, but `@supabase/supabase-js` is installed (used by the admin seed script); no `lib/db` clients or schema exist yet.
-- The PRD's long-term goal is to replace static content with persistent data in Phase 5. Do not pretend that admin edits persist before that work exists.
+- shadcn/ui is initialized (`components.json`: Radix base, Nova preset, Lucide icons) with the design.md component set in `components/ui/`. In this shadcn version `form` is replaced by `field`. There is no configured test framework.
+- **The Supabase backend exists (2026-09-25)** and the whole site is database-driven; see `docs/memory.md` §2a. The schema is in `supabase/migrations/`. Server-only clients are in `lib/db/` (`public.ts`, `server.ts`, `admin.ts`), with types generated from the live schema into `lib/db/database.types.ts` (`npm run db:types`). Auth is in `lib/auth/` plus `proxy.ts`. Reads are in `lib/data/queries.ts`, writes in the `lib/actions/` Server Actions, and there are Route Handlers for media, contact and eBook downloads. Media uploads go browser → Supabase Storage through a signed URL (`/api/media/sign`), then `/api/media` verifies the file; never stream file bodies through a Route Handler or Server Action (Vercel caps request bodies at ~4.5 MB). Required env vars are listed in `.env.example`.
+- `lib/data/index.ts` exports only client-safe types and constants. The placeholder seed data is gone, and **the database starts empty**: the owner enters all content through the admin. Never add real-looking personal or research data.
+- Every admin write goes through `mutate()` (`lib/actions/helpers.ts`): `requireAdmin()` → zod → write → `revalidatePath("/", "layout")`. New content screens should follow the same pattern: load the data in the server `page.tsx`, pass it as props, and save through a Server Action.
 
 ## Product scope
 
@@ -64,6 +64,9 @@ npm run dev       # Start the Next.js development server
 npm run build     # Run a production build
 npm run lint      # Run ESLint
 npx tsc --noEmit  # Run the TypeScript check; there is no package script for it
+npm run db:push   # Apply supabase/migrations to the hosted DB (reads .env)
+npm run db:types  # Regenerate lib/db/database.types.ts from the live schema
+npm run seed:admin # Create/update the single admin user from ADMIN_EMAIL/ADMIN_PASSWORD
 ```
 
 There is no configured test command and no test framework. Do not claim that tests pass unless a test command has been added and run. Do not use commands from the copied guide that are not present in `package.json`, such as `npm run typecheck`, `npm run format`, or `npm run icons:generate`.

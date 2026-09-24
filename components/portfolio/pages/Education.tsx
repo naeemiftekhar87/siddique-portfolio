@@ -1,9 +1,10 @@
 import { Calendar, Star, BookOpen, GraduationCap } from "lucide-react";
-import { education, profile } from "@/lib/data";
+import type { Education as EducationEntry, SiteProfile } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { dateRange } from "@/lib/data/format";
 
-export default function Education() {
+export default function Education({ education, profile }: { education: EducationEntry[]; profile: SiteProfile }) {
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -19,7 +20,7 @@ export default function Education() {
             Education &<br /><span className="italic text-teal-300">Degrees</span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl leading-relaxed mb-10">
-            Placeholder introduction to your academic background. Replace it with a sentence about your degrees and how they shape your work.
+            Degrees, coursework, and the skills gained along my academic path.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
@@ -29,7 +30,7 @@ export default function Education() {
               { value: profile.stats.certificates, label: "Certificates" },
             ].map(({ value, label }) => (
               <Card variant="site-glass-dark" key={label} className="p-4">
-                <div className="font-serif text-3xl text-white">{value}</div>
+                <div className="font-serif text-3xl text-white">{value || (value === 0 ? 0 : "—")}</div>
                 <div className="text-slate-400 text-xs mt-1">{label}</div>
               </Card>
             ))}
@@ -39,6 +40,9 @@ export default function Education() {
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="space-y-8">
+          {education.length === 0 && (
+            <div className="text-center py-16 text-slate-400">No education entries yet.</div>
+          )}
           {education.map((edu) => (
             <Card variant="site-white-card" key={edu.id} className="overflow-hidden hover:shadow-lg hover:border-slate-200 transition-all">
               {/* Header gradient bar */}
@@ -48,7 +52,13 @@ export default function Education() {
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="flex-shrink-0">
                     <div className="w-16 h-16 rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-                      <img src={edu.logo} alt={edu.university} className="w-full h-full object-cover" />
+                      {edu.logo ? (
+                        <img src={edu.logo} alt={edu.university} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-teal-50 flex items-center justify-center" aria-hidden>
+                          <GraduationCap size={24} className="text-teal-600" />
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex-1">
@@ -68,17 +78,22 @@ export default function Education() {
                     </div>
 
                     <div className="flex flex-wrap gap-4 mb-4 text-slate-400 text-sm">
-                      <span className="flex items-center gap-1.5">
-                        <Calendar size={14} /> {edu.startDate} – {edu.endDate}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Star size={14} /> GPA: {edu.gpa}
-                      </span>
+                      {(edu.startDate || edu.endDate) && (
+                        <span className="flex items-center gap-1.5">
+                          <Calendar size={14} /> {dateRange(edu.startDate, edu.endDate)}
+                        </span>
+                      )}
+                      {edu.gpa && (
+                        <span className="flex items-center gap-1.5">
+                          <Star size={14} /> GPA: {edu.gpa}
+                        </span>
+                      )}
                     </div>
 
                     <p className="text-slate-600 leading-relaxed mb-6">{edu.description}</p>
 
                     <div className="grid md:grid-cols-2 gap-6">
+                      {edu.coursework.length > 0 && (
                       <div>
                         <h4 className="text-slate-900 font-semibold text-sm mb-3 flex items-center gap-2">
                           <BookOpen size={14} className="text-blue-600" /> Coursework
@@ -91,6 +106,8 @@ export default function Education() {
                           ))}
                         </div>
                       </div>
+                      )}
+                      {edu.skills.length > 0 && (
                       <div>
                         <h4 className="text-slate-900 font-semibold text-sm mb-3 flex items-center gap-2">
                           <GraduationCap size={14} className="text-teal-600" /> Skills Gained
@@ -103,6 +120,7 @@ export default function Education() {
                           ))}
                         </div>
                       </div>
+                      )}
                     </div>
                   </div>
                 </div>

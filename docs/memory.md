@@ -2,7 +2,7 @@
 
 > **Read this first.** It is the canonical handoff file: it should give a new agent enough context to start work without re-reading the whole repo. Update it at the end of every work session (the "Session log" and any section whose facts changed).
 >
-> **Last updated:** 2026-09-25
+> **Last updated:** 2026-09-25 (Phase 5/6 build)
 
 ---
 
@@ -44,7 +44,7 @@ A personal **academic + professional portfolio** for a single owner (Siddique), 
   - `/admin/login` sits outside the shell.
   - `(shell)/[...slug]` renders `AdminGeneric` for unknown admin paths, as in the source.
   - Added `/admin/certificates/training` and `/awards` (owner decision).
-- **Data:** `lib/data/index.ts` is **obviously fake placeholder data** with the source's exact shape and item counts ("Your Name", "Sample Company A", "Example Paper Title 1", "Sample Category A"–E, "Research Area A"–F, scholar metrics 0). Real values: LinkedIn, Scholar and ResearchGate URLs. `github` is `https://github.com/` until the owner provides theirs. All hard-coded prose about the source person (bios, employer, degrees, research topics, SEO entries, editor defaults, working papers, gallery, media names, eBook chapters) was replaced with placeholders. A final grep for his name, employers, institutions and fields is clean. Stock Unsplash images, including a stock portrait as the profile photo, are kept as design placeholders.
+- **Data (historical, Phases 1–4):** `lib/data/index.ts` was **obviously fake placeholder data** with the source's exact shape and item counts ("Your Name", "Sample Company A", "Example Paper Title 1", "Sample Category A"–E, "Research Area A"–F, scholar metrics 0). Real values: LinkedIn, Scholar and ResearchGate URLs. `github` is `https://github.com/` until the owner provides theirs. All hard-coded prose about the source person (bios, employer, degrees, research topics, SEO entries, editor defaults, working papers, gallery, media names, eBook chapters) was replaced with placeholders. A final grep for his name, employers, institutions and fields is clean. Stock Unsplash images, including a stock portrait as the profile photo, are kept as design placeholders.
 - **Scope edits vs. source:** the Analytics admin page, sidebar link, dashboard "Visitors" card and "View Analytics" quick action are removed (no-analytics decision); the quick action became "Edit Resume". Gallery/Categories sidebar links point to the PRD URLs `/admin/portfolio/...`. The admin avatar initial is "A".
 - **`app/globals.css`:** brand and shadcn tokens from design.md, but the base layer and unlayered rules **mirror the source `index.css`** so the ported pages render identically:
   - No global link colour, no forced heading weight, `html`-level thin scrollbar at 6 px.
@@ -54,13 +54,61 @@ A personal **academic + professional portfolio** for a single owner (Siddique), 
   - The design.md `.admin-theme` class remains in CSS but is **not applied**: the admin HTML-class toggle was removed because the ported admin uses its own slate classes.
 - **Root layout:** design.md fonts via `next/font` (DM Serif Display, Plus Jakarta Sans, Inter, JetBrains Mono) and `TooltipProvider`. Body has no layout classes, matching the source.
 - **shadcn:** installed (Radix base, Nova preset) in `components/ui/`, but **not used by the ported pages**. `sonner.tsx` has no `next-themes`; `hooks/use-mobile.ts` uses `useSyncExternalStore`.
-- **Other:** `scripts/seed-admin.mts` (`npm run seed:admin`, idempotent; `-- --reset-password` updates the password) created the single Supabase Auth admin (`app_metadata.role = "admin"`). **Open concern:** it was created as `admin@gmail.com`, which is probably not the owner's inbox. The owner was advised to set a real `ADMIN_EMAIL` and a longer password, delete that user in Supabase, and re-run the seed. `@supabase/supabase-js` is installed; no `lib/db` clients yet.
-- **Empty folders (`.gitkeep`):** `lib/{api,auth,db,storage,email,resume}/` and `public/{images,documents,icons}/`.
+- **Phase 5 backend (2026-09-25):** the site is fully database-driven; the placeholder data is gone. See §2a.
+- **Other:** `scripts/seed-admin.mts` (`npm run seed:admin`, idempotent; `-- --reset-password` updates the password) created the single Supabase Auth admin (`app_metadata.role = "admin"`). **Open concern:** it was created as `admin@gmail.com`, which is probably not the owner's inbox. The owner was advised to set a real `ADMIN_EMAIL` and a longer password, delete that user in Supabase, and re-run the seed. `@supabase/supabase-js`, `@supabase/ssr`, `zod`, `server-only` and the `supabase` CLI (dev) are installed.
+- **Empty folders (`.gitkeep`):** `public/{images,documents,icons}/` only.
 - **Checks (2026-09-23):**
   - `npx tsc --noEmit` is clean. `npm run lint` has 0 errors and 29 warnings, all `@next/next/no-img-element`, kept on purpose because switching to `next/image` changes layout. `npm run build` passes (51 pages).
   - Playwright screenshots of 26 routes compared at 1440 px and 360 px against the running source app: layouts match, with no horizontal overflow at 360 px and no console errors.
 - `.env` (gitignored) holds all Phase 5 vars (see §7).
 - `.kilo/` (untracked) holds Kilo Code agent state (see §6).
+
+### 2a. Phase 5/6 implementation (2026-09-25)
+
+- **Database** (`supabase/migrations/20260925000000_initial_schema.sql`, applied with `npm run db:push`, which builds the DB URL from `.env`; the direct host is IPv6):
+  - Collections: `experiences`, `education`, `skills`, `achievements`, `certificates`, `portfolio_categories`, `projects` (`category_id` FK, `on delete set null`), `gallery_items`, `research_papers`, `upcoming_research`, `languages`, `ebooks`. Bigint identity ids, `updated_at` triggers.
+  - `site_settings(key, value jsonb)` holds the singletons: `profile`, `links`, `research_profile`, `research_interests`, `home`, `about`, `navigation`, `footer`, `colors`, `resume_professional`, `resume_infographic`. Each is validated by zod (`lib/data/settings.ts`), with defaults in `lib/data/defaults.ts` until first save.
+  - `media_assets`, `download_stats` (day, kind, target_id, count; function `increment_download`), `rate_limits` (salted-hash key; function `hit_rate_limit`).
+  - RLS is on everywhere: public SELECT on content and settings; no policies on media/stats/rate limits; the functions are executable by `service_role` only.
+  - Storage buckets: `images` (public, 5 MB, jpeg/png/webp/gif/avif) and `documents` (public, 50 MB, pdf).
+- **Types:** `lib/db/database.types.ts` is **generated from the live schema** by `npm run db:types` (`scripts/gen-db-types.mts`, which uses the `postgres` dev dependency over the direct DB connection). The output has the same format as `supabase gen types`, with no Docker or `supabase login` needed. Re-run after every migration.
+- **Clients** (`lib/db/`, all `server-only`): `public.ts` (publishable key, no session, for public reads), `server.ts` (cookie session via `@supabase/ssr`), `admin.ts` (secret key; only after `requireAdmin()` or for server-owned counters and limits).
+- **Auth** (`lib/auth/`, `proxy.ts`):
+  - Login, logout and password change are Server Actions.
+  - `requireAdmin()` is called in the `(shell)` layout and in every mutation. It checks the Supabase user with `app_metadata.role === "admin"` plus a signed httpOnly `admin_session_started` cookie, giving an **8-hour absolute session**.
+  - `proxy.ts` refreshes cookies on `/admin/*` and redirects early.
+  - Login rate limit: 10 attempts per 15 minutes per client address and per email, stored in Supabase.
+  - Password change needs the current password (checked with a throwaway client), at least 12 characters, and is rate-limited.
+- **Data layer** (`lib/data/`):
+  - `schemas.ts`: zod schemas and domain types, with camelCase names matching the ported UI.
+  - `mappers.ts`: row ⇄ domain conversion.
+  - `queries.ts`: `server-only` reads wrapped in React `cache()`. `getSiteProfile()` merges profile, links, research profile and interests into the shape the pages use.
+  - `constants.ts` (pick-lists), `citation.ts` (APA/BibTeX), `research.ts` (`?tab=` ids, `paperLink`), `format.ts` (`dateRange`), `resume.ts` (resume data loader), `dashboard.ts`, `contact.ts`.
+  - `index.ts` exports only client-safe types and constants.
+- **Writes** (`lib/actions/`): `content.ts` (save/delete for every collection, plus category reorder), `settings.ts` (`saveSettings(key, value)`) and `media.ts` (`deleteMedia`, which refuses while content still references the file).
+  - All of them go through `mutate()` in `helpers.ts`: `requireAdmin` → zod → write → `revalidatePath("/", "layout")`, with friendly errors (duplicate, missing, validation) and server-side logging.
+- **Route Handlers:**
+  - Uploads are two-step, so files never pass through the app server (Vercel caps function request bodies at ~4.5 MB; PDFs may be 50 MB). `POST /api/media/sign` is admin only: it validates the declared type and size and returns a one-time signed Storage URL. The browser then uploads directly (`components/admin/upload.ts`, using supabase-js `uploadToSignedUrl`). Finally `POST /api/media` (admin) re-checks the stored object's content type, size and magic bytes (read with a Range request), deletes anything that fails, and records it in `media_assets`. Bucket limits also apply at Storage.
+  - `POST /api/contact`: zod, honeypot field `website`, 5 per hour per address, Resend REST via `lib/email/resend.ts`; no SDK and nothing stored.
+  - `GET /api/ebooks/[id]/download`: counts the download, then redirects to the PDF.
+- **Caching:** public pages are static (prerendered at build, so the build needs DB access) and re-rendered on demand by `revalidatePath` after every admin write, plus `revalidate = 3600` on the public layout as a safety net (download counts, copyright year). `/research` is dynamic because it reads `?tab=`. Admin pages are dynamic.
+- **Admin UI:** every screen gets its data from its server `page.tsx` and saves through the actions.
+  - Shared helpers: `components/admin/use-action.ts` (transition plus sonner toasts), `confirm-delete.tsx` (two-step delete) and `upload.ts`.
+  - `image-source-field.tsx` now **uploads on pick** and returns the Storage URL; `pdf-upload-field.tsx` handles PDFs.
+  - Also added: `languages-card.tsx` (Languages on the Profile screen) and `dashboard-charts.tsx`.
+  - Error and loading boundaries live in the `(shell)` group.
+- **Public UI:** page components take props from their server `page.tsx`, and empty values or sections are hidden.
+  - `PublicShell` renders colours, the Navbar (visible nav links, social icons only when set) and the Footer (quick links, tagline, copyright).
+  - Detail routes call `notFound()` on bad or missing ids.
+  - Client helpers: `copy-button.tsx`, `share-button.tsx` and `print-button.tsx`.
+  - `(public)/error.tsx` handles load failures.
+- **Verification (2026-09-25):**
+  - 3 Playwright e2e stages against `next start` on the live DB: 14 + 40 + 26 checks. All pass except one test-harness timing check (DOI copy), which was re-verified manually.
+  - Coverage: auth, guard, logout, expiry, lockout; CRUD for every module; uploads and validation; public pages reflecting edits; `?tab=`; settings; resume toggles; media in-use guard; dashboard.
+  - 360 px: no overflow on any public page or the checked admin pages (the media controls were fixed).
+  - Print-to-PDF renders A4 correctly.
+  - All test rows, files, settings and rate-limit rows were deleted afterwards. **The DB is empty again.**
+  - tsc is clean, lint has 0 errors (the warnings are `no-img-element`, plus an untracked `.kilo/worktrees` copy), and the build passes (45 routes).
 
 ---
 
@@ -181,6 +229,35 @@ These are link targets only: use them for social icons, the footer, and research
     - Not changed (distinct, not duplicates): Portfolio Gallery vs Media Library, Navigation vs Footer quick links, Home "Stats Strip" toggle vs Profile hero stats. Known leftover: removed admin URLs fall through to the `[...slug]` generic page rather than a 404 or redirect.
     - Verified: tsc, lint (0 errors), build pass; browser test of the merged papers form (status-dependent fields, filter), certificate category filter, all trimmed screens, public `/certificates` tabs; no console errors.
 
+21. **Phase 5/6 build choices** (2026-09-25; made by Claude inside the approved architecture, so the owner can review them):
+    - **Kept the ported controlled-state forms** instead of rewriting them to shadcn `Form`/react-hook-form (decision 11 mentioned it). This keeps the design identical and adds no dependency; zod validates on the server (and on the client for the contact form).
+    - **Resend over plain `fetch`** (no `resend` SDK). **Auth as Server Actions**, not `/api/auth/*` Route Handlers.
+    - **Languages** (the resume's Language entity had no admin screen) are edited in a card on `/admin/profile`; no new route.
+    - **Pick-lists now come from owner data:** project categories = Portfolio → Categories (FK), paper and upcoming-topic areas = Research Interests, eBook category = free text with suggestions. The "Sample Category"/"Research Area" placeholder lists are gone.
+    - **Portfolio Gallery** items are shown in a "Gallery" section on public `/portfolio` (only when any exist). The public pages previously had nowhere to show them.
+    - **Removed fabricated or placeholder content:** the eBook detail's fake "4.0 · 48 readers" rating, sample table of contents, stock author photo and bio, and price labels (eBooks are free); stock profile photos (a neutral placeholder icon now shows until a photo is uploaded); Achievements' hard-coded "2024–2026"/"3+" stats (now computed); "Placeholder… Replace it" hero sentences (now neutral first-person copy, and "your X" became "my X").
+    - Inert buttons now work or are hidden when there is no data: certificate Download/Verify/Copy ID, project link, paper Read/PDF/DOI copy/APA + BibTeX, eBook Download/Preview/Share, and the admin View/Download icons.
+    - **Certificates** gained image upload, a "verified" checkbox and a verification URL. **Experience** gained responsibilities, achievements and logo fields; **Education** gained a logo field.
+    - The Home editor's "Research Interests" toggle is relabelled **"Recent Research"**, because that is the section it controls.
+    - **Resume "Download PDF" is browser print** (Save as PDF, A4 print CSS), confirmed by the owner (decision 22).
+    - Security: 8-hour absolute admin session; new passwords need at least 12 characters; login is limited to 10 attempts per 15 minutes; contact to 5 per hour.
+
+22. **Owner answers, 2026-09-25 (after the Phase 5/6 build):**
+    - **Resume PDF = browser print** (Save as PDF with the A4 print stylesheet). No `puppeteer-core`/`@sparticuz/chromium` and no `app/api/resume/export`. This replaces the headless-Chromium plan in decision 12; PRD, architecture and phases were updated.
+    - **Contact email:** the owner only needs to receive the messages. `CONTACT_TO_EMAIL` is the Resend account's own address, so Resend's test sender (`onboarding@resend.dev`) delivers without a verified domain. A real test through `/api/contact` was accepted by Resend. Domain verification (7.6) is optional and only needed for a custom sender address.
+    - **DB types:** "do it yourself". Docker needed sudo and `supabase login` needs a browser, so types are generated from the live schema by `scripts/gen-db-types.mts` (`npm run db:types`; adds `postgres` as a dev dependency).
+    - **Admin account:** the owner set the real `ADMIN_EMAIL` in `.env`. `npm run seed:admin` created it, its login was verified in the browser, and the old `admin@gmail.com` user was **deleted**. Supabase Auth now holds only the owner's account. Note that `ADMIN_PASSWORD` is shorter than the 12 characters the Settings screen requires for *new* passwords; sign-in still works.
+
+23. **Senior code-quality review (2026-09-25)**, requested by the owner. Fixes:
+    - **Uploads work on Vercel:** direct-to-Storage signed uploads (see §2a); the old flow would fail for files over ~4.5 MB in production. Verified with a 6 MB PDF, a spoofed PDF (rejected and removed), a forged path (rejected) and an anonymous request (401).
+    - **Session expiry during a save was a silent failure.** Two causes: `proxy.ts` redirected the Server Action's POST to the login page, and a thrown `redirect()` is lost in event-handler actions. Now the proxy redirects only GET/HEAD navigations, actions return `{ ok: false, code: "unauthenticated" }` (`lib/actions/result.ts`), and `useAction` shows the message and routes to `/admin/login`.
+    - **Security headers** in `next.config.ts` (HSTS, nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy) and `poweredByHeader: false`. There is **no CSP yet**: the pages use inline styles (the site-colour `<style>`, chart CSS), so a strict CSP needs nonce plumbing. This is a Phase 7 follow-up.
+    - **Link fields** reject protocol-relative `//host` and `/\host`, which browsers treat as external links.
+    - **Unknown `/admin/*` paths** show an admin 404 inside the shell (`(shell)/not-found.tsx`); the catch-all "coming soon" `AdminGeneric` page was deleted. Added `app/global-error.tsx` for failures in the root or public layout.
+    - **Accessibility:** eBook cards no longer nest buttons inside a link (stretched-link pattern; Download/Preview are real links). The admin sidebar toggle and the collapsed icon-only links/buttons have accessible names. The non-functional notification bell was removed.
+    - **Lint:** `@next/next/no-img-element` turned off with a documented reason (owner-supplied image URLs from any host), and `.kilo/**` ignored. Lint now reports **0 problems**. Dead exports were removed (`getSettingsMap`, `ContactInput`) and file-local symbols un-exported; `deleteMedia`'s duplicate auth check was removed.
+    - **`.env.example`** was added (variable names only; `.gitignore` now has `!.env.example`).
+
 ---
 
 ## 6. Rejected: Kilo "Prisma + TanStack" plan
@@ -191,6 +268,7 @@ These are link targets only: use them for social icons, the footer, and research
 
 ## 7. Open questions and known doc conflicts
 
+0. **Resolved 2026-09-25** (decision 22): resume PDF (browser print), contact delivery (Resend test sender to the owner's own address), DB types (generated), admin account (real email; old user deleted). **Still open:** the owner should confirm the test message arrived (check spam, since it comes from `onboarding@resend.dev`); optionally lengthen `ADMIN_PASSWORD`; optionally add `.kilo/` to ESLint's ignores.
 1. **GitHub URL:** the owner will create and provide it. Until then, hide the GitHub icon/link; never guess a URL.
 2. **Domain name:** the exact Namecheap domain (needed for the Resend sender, Phase 6, and DNS, Phase 7). The notification address is settled: `mdtarakesiddique@gmail.com` (decision 18).
 3. **Supabase credentials for Phase 5.** The owner keeps them in the gitignored `.env`; never paste them in chat or commit them. The project uses Supabase's **new API keys**: publishable `sb_publishable_…` replaces anon, and secret `sb_secret_…` replaces service_role. Legacy anon/service_role keys are **not used**. Present as of 2026-09-23: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `SUPABASE_DB_PASSWORD`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`. `SUPABASE_SECRET_KEY` added and verified 2026-09-23. **All Phase 5 credentials are present.** Suggestion given to the owner: lengthen `ADMIN_PASSWORD` (currently short) before the Phase 5 admin seed. CLI auth: the owner runs `npx supabase login` in Phase 5 (no `SUPABASE_ACCESS_TOKEN` stored). The same runtime vars go in Vercel project settings.
@@ -204,9 +282,21 @@ These are link targets only: use them for social icons, the footer, and research
 - Decisions recorded: Supabase platform, no analytics, no 2FA.
 - 2026-09-23 doc consistency pass (see the session log).
 
-**Phase 1: 5 of 24 tasks ticked** (project init, tokens and fonts, ESLint and folders, route placeholders, colour tokens). Git branching and `.env` handling are not done yet.
+**Progress (phases.md, 2026-09-25):** Phase 1 17/24 · Phase 2 41/45 · Phase 3 24/26 · Phase 4 11/16 · Phase 5 35/38 · Phase 6 26/30 · Phase 7 3/27. Items were ticked only with e2e or visual evidence.
 
 ## 9. Pending work and next steps
+
+**Current (2026-09-25), after the Phase 5/6 build:**
+
+- Resume PDF: check a multi-page resume with real content (page breaks). Contact: the owner confirms the test email arrived.
+- Not built: animated stat counters (2.1); the About "Resume & CV card" (removed in the owner's refactor); the portfolio card hover overlay with View + Link (2.8); social links in the Contact hero (2.9); i10-index in the Research hero (3.1); a media picker for choosing existing library files inside forms (6.6); image optimisation (P1); generic CRUD table/form components and a design-system demo page (1.2/5.3).
+- The eBook inline PDF viewer is verified only for the fallback in headless Chromium. Confirm inline display in real Chrome, Firefox and Safari (the Storage URL is served inline with no frame restrictions).
+- Experience/Education order is "newest added first" (`sort_order` exists but has no UI). Add up/down ordering if the owner wants a custom order.
+- Review follow-ups: a Content-Security-Policy (needs nonces for inline styles); `loading="lazy"`/dimensions on card images; uploads abandoned before saving a form stay in the Media Library (by design, deletable there); files signed but never finalized can remain in Storage without a library row (rare; add a periodic sweep if needed); the admin expand/collapse rows are `div`s (not keyboard-operable); a real test framework with a separate test database (the Playwright scripts live only in the session scratchpad and write to the live DB).
+- Phase 7: hosting (Vercel env vars; the build needs DB access), Resend domain DNS, security headers, Lighthouse, a11y audit, backups, monitoring, and a real test framework (the e2e scripts live only in the session scratchpad).
+- The owner enters real content through the admin.
+
+**Older notes (before 2026-09-25):**
 
 - **Ported UI vs. the PRD:** the ported pages cover most Phase 1–4 page UIs and the Phase 5–6 admin screens _visually_, but `docs/phases.md` tasks have **not** been ticked. Each needs checking against its PRD requirement first. Known gaps:
   - `/research` tabs are local state, not the P0 `?tab=` deep link.
@@ -271,3 +361,10 @@ Newest last. Add one entry per work session.
 - **2026-09-24 (Claude Code), messages removed:** owner decision 18: contact submissions go straight to `mdtarakesiddique@gmail.com` via Resend; the admin Messages module (route, component, sidebar link, dashboard card and quick action, placeholder data) was removed and the docs updated. Added `CONTACT_TO_EMAIL` to `.env`. Told the owner what Resend needs: an API key, and the domain verified with DNS records at Namecheap for the sender address.
 - **2026-09-25 (Claude Code), site colours:** added the admin Colours editor and the CSS-variable wiring on the public site (decision 19). PRD §6.6/§14, phases 6.x (Phase 6 count 33 → 34), architecture, and AGENTS updated.
 - **2026-09-25 (Claude Code), admin de-duplication:** merged Papers/Publications/Working Papers and the four certificate screens; gave profile, research and link fields one home each (decision 20). PRD §6/§7/§14, phases (Phase 5 count 40 → 38, Phase 6 34 → 33), architecture, and AGENTS updated.
+- **2026-09-25 (Claude Code), Phase 5/6 build:** the owner asked to "make the website functional and complete the phases".
+  - Built the Supabase backend: migration, RLS, buckets and types; server-only clients; auth with proxy, guard, 8-hour session, lockout and password change; zod-validated Server Actions for every admin module; media upload, contact (Resend) and eBook download-counter routes.
+  - Wired all 25 admin screens and all 20 public routes to live data, with dashboard charts and activity, the research `?tab=` deep link, the eBook in-site reader, citations, resume config rendering with print-to-PDF, and error/loading boundaries.
+  - Verified with 3 Playwright e2e stages on the live DB, then deleted all test data (the DB is empty). tsc, lint (0 errors) and build pass.
+  - Updated phases.md (ticks and table), memory (§2a, decision 21, §7, §9), AGENTS.md and architecture.md. Nothing committed.
+- **2026-09-25 (Claude Code), owner answers:** browser print accepted as the resume PDF; contact delivery confirmed via Resend's test sender (a real message was accepted); DB types now generated from the live schema (`scripts/gen-db-types.mts`, `postgres` dev dependency); admin account moved to the owner's real email and the old `admin@gmail.com` deleted. PRD, architecture and phases updated (Phase 4 14/16, Phase 6 27/30). tsc, lint and build pass.
+- **2026-09-25 (Claude Code), senior review:** reviewed the whole codebase and fixed what matters (decision 23): Vercel-safe signed uploads, the silent session-expiry save, security headers, link hardening, admin 404, global error boundary, public revalidate safety net, a11y fixes, lint cleanup (0 problems), dead code, `.env.example`. Verified with a review e2e suite (13 checks) plus the earlier suites; all test data and Storage objects were removed. tsc, lint and build pass.

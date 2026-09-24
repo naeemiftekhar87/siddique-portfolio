@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Plus, Trash2, X, Image as ImageIcon, Save, ExternalLink } from "lucide-react";
+import { galleryCategories, type GalleryItem } from "@/lib/data";
+import { deleteGalleryItem, saveGalleryItem } from "@/lib/actions/content";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,25 +13,15 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 
-type GalleryItem = {
-  id: number;
-  title: string;
-  imageUrl: string;
-  caption: string;
-  category: string;
-  projectLink: string;
-};
-
-const CATEGORIES = ["Data Visualization", "Dashboard", "Model Output", "Report", "Presentation", "Other"];
-
-const initialItems: GalleryItem[] = [];
+const CATEGORIES = galleryCategories;
 
 const emptyItem: Omit<GalleryItem, "id"> = {
   title: "", imageUrl: "", caption: "", category: "Data Visualization", projectLink: "",
 };
 
-export default function AdminPortfolioGallery() {
-  const [items, setItems] = useState<GalleryItem[]>(initialItems);
+export default function AdminPortfolioGallery({ initial }: { initial: GalleryItem[] }) {
+  const [items, setItems] = useState<GalleryItem[]>(initial);
+  const { pending, run } = useAction();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<GalleryItem, "id">>(emptyItem);
   const [filterCat, setFilterCat] = useState("All");
@@ -39,13 +32,22 @@ export default function AdminPortfolioGallery() {
 
   const addItem = () => {
     if (!form.title || !form.imageUrl) return;
-    setItems(prev => [{ id: Date.now(), ...form }, ...prev]);
-    setForm(emptyItem);
-    setShowForm(false);
-    setSaved(true); setTimeout(() => setSaved(false), 2500);
+    run(() => saveGalleryItem(form), {
+      onSuccess: (saved) => {
+        setItems(prev => [saved, ...prev]);
+        setForm(emptyItem);
+        setShowForm(false);
+        setSaved(true); setTimeout(() => setSaved(false), 2500);
+      },
+    });
   };
 
-  const deleteItem = (id: number) => { setItems(prev => prev.filter(i => i.id !== id)); setDeleteConfirm(null); };
+  const deleteItem = (id: number) => {
+    run(() => deleteGalleryItem(id), {
+      success: "Image removed from the gallery.",
+      onSuccess: () => { setItems(prev => prev.filter(i => i.id !== id)); setDeleteConfirm(null); },
+    });
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -73,7 +75,7 @@ export default function AdminPortfolioGallery() {
         <div className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-lg text-white">Add Gallery Image</h2>
-            <Button variant="unstyled" onClick={() => setShowForm(false)} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg">
+            <Button variant="unstyled" onClick={() => setShowForm(false)} aria-label="Close" className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg">
               <X size={15} />
             </Button>
           </div>
@@ -116,9 +118,9 @@ export default function AdminPortfolioGallery() {
             </div>
           )}
           <div className="flex gap-3">
-            <Button variant="admin-primary" onClick={addItem}
-              className="flex items-center gap-2 px-5 py-2.5">
-              <Save size={14} /> Add to Gallery
+            <Button variant="admin-primary" onClick={addItem} disabled={pending || !form.title || !form.imageUrl}
+              className="flex items-center gap-2 px-5 py-2.5 disabled:opacity-50">
+              <Save size={14} /> {pending ? "Saving…" : "Add to Gallery"}
             </Button>
             <Button variant="admin-outline" onClick={() => setShowForm(false)}
               className="px-5 py-2.5">
@@ -144,7 +146,7 @@ export default function AdminPortfolioGallery() {
           <Card variant="admin-panel" key={item.id} className="overflow-hidden group hover:border-slate-700 transition-all">
             <div className="relative h-44 overflow-hidden bg-slate-800">
               <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                 {item.projectLink && (
                   <a href={item.projectLink} target="_blank" rel="noopener noreferrer"
                     className="p-1.5 bg-white/90 text-slate-700 rounded-lg hover:bg-white transition-colors">
@@ -153,11 +155,11 @@ export default function AdminPortfolioGallery() {
                 )}
                 {deleteConfirm === item.id ? (
                   <div className="flex gap-1">
-                    <Button variant="unstyled" onClick={() => deleteItem(item.id)} className="px-2 py-1.5 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">Del</Button>
-                    <Button variant="unstyled" onClick={() => setDeleteConfirm(null)} className="px-2 py-1.5 bg-white/90 text-slate-700 text-xs rounded-lg">✕</Button>
+                    <Button variant="unstyled" disabled={pending} onClick={() => deleteItem(item.id)} className="px-2 py-1.5 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">Del</Button>
+                    <Button variant="unstyled" onClick={() => setDeleteConfirm(null)} aria-label="Cancel delete" className="px-2 py-1.5 bg-white/90 text-slate-700 text-xs rounded-lg">✕</Button>
                   </div>
                 ) : (
-                  <Button variant="unstyled" onClick={() => setDeleteConfirm(item.id)} className="p-1.5 bg-white/90 text-slate-700 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors">
+                  <Button variant="unstyled" onClick={() => setDeleteConfirm(item.id)} aria-label={`Delete ${item.title}`} className="p-1.5 bg-white/90 text-slate-700 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors">
                     <Trash2 size={12} />
                   </Button>
                 )}
@@ -177,7 +179,7 @@ export default function AdminPortfolioGallery() {
       {filtered.length === 0 && (
         <div className="text-center py-16">
           <ImageIcon size={36} className="text-slate-700 mx-auto mb-3" />
-          <p className="text-slate-500 text-sm">No gallery items in this category.</p>
+          <p className="text-slate-500 text-sm">{items.length === 0 ? "No gallery images yet." : "No gallery items in this category."}</p>
         </div>
       )}
     </div>

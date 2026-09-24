@@ -1,27 +1,25 @@
 import Link from "next/link";
-import { ArrowLeft, GitFork, Download, CheckCircle, Tag, Wrench, ArrowRight } from "lucide-react";
-import { projects } from "@/lib/data";
+import { ArrowLeft, GitFork, ExternalLink, CheckCircle, Tag, Wrench, ArrowRight, FolderOpen } from "lucide-react";
+import type { Project } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export default function ProjectDetail({ id }: { id: string }) {
-  const project = projects.find((p) => p.id === Number(id));
-  const others = projects.filter((p) => p.id !== Number(id)).slice(0, 2);
-
-  if (!project) return (
-    <div className="min-h-screen pt-32 text-center text-slate-400">Project not found.</div>
-  );
+export default function ProjectDetail({ project, others }: { project: Project; others: Project[] }) {
+  const tech = [...new Set([...project.technologies, ...project.tools])];
+  const isGitHub = /github\.com/i.test(project.link);
 
   return (
     <div className="min-h-screen">
       {/* Hero */}
       <div className="relative h-80 sm:h-96 overflow-hidden bg-slate-900">
-        <img
-          src={project.image}
-          alt={project.title}
-          className="w-full h-full object-cover opacity-60"
-        />
+        {project.image && (
+          <img
+            src={project.image}
+            alt={project.title}
+            className="w-full h-full object-cover opacity-60"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-8 max-w-5xl mx-auto">
           <Link href="/portfolio" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-5 transition-colors w-fit">
@@ -48,10 +46,12 @@ export default function ProjectDetail({ id }: { id: string }) {
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-10">
-            <div>
-              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">Overview</h2>
-              <p className="text-slate-600 leading-relaxed text-base">{project.description}</p>
-            </div>
+            {(project.description || project.shortDescription) && (
+              <div>
+                <h2 className="font-serif text-2xl text-[#040d1f] mb-4">Overview</h2>
+                <p className="text-slate-600 leading-relaxed text-base whitespace-pre-line">{project.description || project.shortDescription}</p>
+              </div>
+            )}
 
             <div className="grid sm:grid-cols-2 gap-6">
               {[
@@ -63,25 +63,27 @@ export default function ProjectDetail({ id }: { id: string }) {
                 value ? (
                   <div key={label} className={`border-l-4 pl-4 ${accent}`}>
                     <h3 className="font-semibold text-[#040d1f] text-sm mb-2 uppercase tracking-wide">{label}</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed">{value}</p>
+                    <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">{value}</p>
                   </div>
                 ) : null
               )}
             </div>
 
             {/* Technologies used */}
+            {tech.length > 0 && (
             <div>
               <h2 className="font-serif text-2xl text-[#040d1f] mb-4 flex items-center gap-2">
                 <Wrench size={18} className="text-teal-600" /> Technologies & Tools
               </h2>
               <div className="flex flex-wrap gap-2.5">
-                {[...new Set([...(project.technologies || []), ...(project.tools || [])])].map((t) => (
+                {tech.map((t) => (
                   <span key={t} className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 text-slate-700 text-sm rounded-xl border border-slate-200 hover:border-cyan-300 transition-colors">
                     <Tag size={12} className="text-slate-400" /> {t}
                   </span>
                 ))}
               </div>
             </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -105,20 +107,21 @@ export default function ProjectDetail({ id }: { id: string }) {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-500">Stack size</span>
-                  <span className="text-slate-700 font-mono">{(project.tools?.length ?? 0)} tools</span>
+                  <span className="text-slate-700 font-mono">{tech.length} tools</span>
                 </div>
               </div>
             </Card>
 
             {/* Actions */}
-            <div className="space-y-2.5">
-              <Button variant="unstyled" className="w-full flex items-center justify-center gap-2 py-3 bg-[#040d1f] text-white text-sm font-medium rounded-xl hover:bg-blue-900 transition-colors">
-                <GitFork size={15} /> View on GitHub
-              </Button>
-              <Button variant="site-outline" className="w-full flex items-center justify-center gap-2 py-3 text-slate-700 text-sm font-medium hover:border-cyan-300 hover:text-blue-600 transition-colors">
-                <Download size={15} /> Download Report
-              </Button>
-            </div>
+            {project.link && (
+              <div className="space-y-2.5">
+                <Button asChild variant="unstyled" className="w-full flex items-center justify-center gap-2 py-3 bg-[#040d1f] text-white text-sm font-medium rounded-xl hover:bg-blue-900 transition-colors">
+                  <a href={project.link} {...(/^https?:/i.test(project.link) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                    {isGitHub ? <><GitFork size={15} /> View on GitHub</> : <><ExternalLink size={15} /> View Project</>}
+                  </a>
+                </Button>
+              </div>
+            )}
 
             {/* Key results highlight */}
             {project.results && (
@@ -141,7 +144,11 @@ export default function ProjectDetail({ id }: { id: string }) {
                   href={`/portfolio/${p.id}`}
                   className="group flex gap-4 bg-slate-50 rounded-2xl border border-slate-100 p-5 hover:border-blue-200 hover:shadow-sm transition-all"
                 >
-                  <img src={p.image} alt={p.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                  {p.image ? (
+                    <img src={p.image} alt={p.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0" aria-hidden><FolderOpen size={22} className="text-teal-400" /></div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-serif text-base text-[#040d1f] group-hover:text-blue-600 transition-colors leading-snug mb-1">{p.title}</h4>
                     <p className="text-slate-400 text-xs line-clamp-2">{p.shortDescription}</p>

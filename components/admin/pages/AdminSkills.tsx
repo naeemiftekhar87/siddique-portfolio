@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { skillCategories, type skills as initialSkills } from "@/lib/data";
+import { Plus, Pencil, Search } from "lucide-react";
+import { skillCategories, type Skill, type SkillCategory } from "@/lib/data";
+import { deleteSkill, saveSkill } from "@/lib/actions/content";
+import { ConfirmDelete } from "@/components/admin/confirm-delete";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,16 +13,17 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-type Skill = typeof initialSkills[0];
+const emptySkill = { name: "", category: "INDUSTRY KNOWLEDGE" as SkillCategory, level: 80 };
 
-export default function AdminSkills() {
-  const [skillsList, setSkillsList] = useState<(typeof initialSkills)[number][]>([]);
+export default function AdminSkills({ initial }: { initial: Skill[] }) {
+  const [skillsList, setSkillsList] = useState<Skill[]>(initial);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL");
   const [editing, setEditing] = useState<number | null>(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [addForm, setAddForm] = useState({ name: "", category: "INDUSTRY KNOWLEDGE", level: 80 });
+  const [addForm, setAddForm] = useState(emptySkill);
   const [editForm, setEditForm] = useState<Partial<Skill>>({});
+  const { pending, run } = useAction();
 
   const filtered = skillsList.filter((s) => {
     const matchCat = filter === "ALL" || s.category === filter;
@@ -29,14 +33,31 @@ export default function AdminSkills() {
 
   const handleAdd = () => {
     if (!addForm.name.trim()) return;
-    setSkillsList((prev) => [...prev, { id: Date.now(), ...addForm }]);
-    setAddForm({ name: "", category: "INDUSTRY KNOWLEDGE", level: 80 });
-    setShowAdd(false);
+    run(() => saveSkill(addForm), {
+      success: "Skill added.",
+      onSuccess: (saved) => {
+        setSkillsList((prev) => [...prev, saved]);
+        setAddForm(emptySkill);
+        setShowAdd(false);
+      },
+    });
   };
 
-  const handleEdit = (id: number) => {
-    setSkillsList((prev) => prev.map((s) => (s.id === id ? { ...s, ...editForm } : s)));
-    setEditing(null);
+  const handleEdit = (skill: Skill) => {
+    run(() => saveSkill({ ...skill, ...editForm }), {
+      success: "Skill updated.",
+      onSuccess: (saved) => {
+        setSkillsList((prev) => prev.map((s) => (s.id === saved.id ? saved : s)));
+        setEditing(null);
+      },
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    run(() => deleteSkill(id), {
+      success: "Skill deleted.",
+      onSuccess: () => setSkillsList((prev) => prev.filter((s) => s.id !== id)),
+    });
   };
 
   const startEdit = (skill: Skill) => {
@@ -44,7 +65,7 @@ export default function AdminSkills() {
     setEditForm({ name: skill.name, category: skill.category, level: skill.level });
   };
 
-  const cats = skillCategories.filter((c) => c !== "ALL");
+  const cats = skillCategories;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -70,7 +91,7 @@ export default function AdminSkills() {
             </div>
             <div>
               <Label variant="admin-label" className="mb-1">Category</Label>
-              <NativeSelect variant="admin-field" value={addForm.category} onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
+              <NativeSelect variant="admin-field" value={addForm.category} onChange={(e) => setAddForm({ ...addForm, category: e.target.value as SkillCategory })}
                 className="w-full">
                 {cats.map((c) => <option key={c}>{c}</option>)}
               </NativeSelect>
@@ -83,7 +104,7 @@ export default function AdminSkills() {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button variant="admin-primary" type="button" onClick={handleAdd} className="px-5 py-2.5">Add</Button>
+            <Button variant="admin-primary" type="button" onClick={handleAdd} disabled={pending} className="px-5 py-2.5 disabled:opacity-50">{pending ? "Saving…" : "Add"}</Button>
             <Button variant="admin-secondary" type="button" onClick={() => setShowAdd(false)} className="px-5 py-2.5">Cancel</Button>
           </div>
         </Card>
@@ -96,7 +117,7 @@ export default function AdminSkills() {
             className="w-full pl-9 pr-4 py-2.5" />
         </div>
         <div className="flex flex-wrap gap-2">
-          {skillCategories.map((cat) => (
+          {["ALL", ...skillCategories].map((cat) => (
             <Button variant="unstyled" key={cat} onClick={() => setFilter(cat)}
               className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${filter === cat ? "bg-blue-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"}`}>
               {cat}
@@ -135,7 +156,7 @@ export default function AdminSkills() {
                 </TableCell>
                 <TableCell variant="unstyled" className="px-5 py-3.5 hidden sm:table-cell">
                   {editing === skill.id ? (
-                    <NativeSelect variant="unstyled" value={editForm.category ?? skill.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    <NativeSelect variant="unstyled" value={editForm.category ?? skill.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value as SkillCategory })}
                       className="px-2 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-slate-200 text-xs focus:outline-none focus:border-blue-500">
                       {cats.map((c) => <option key={c}>{c}</option>)}
                     </NativeSelect>
@@ -164,18 +185,15 @@ export default function AdminSkills() {
                   <div className="flex items-center justify-end gap-2">
                     {editing === skill.id ? (
                       <>
-                        <Button variant="unstyled" onClick={() => handleEdit(skill.id)} className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors">Save</Button>
+                        <Button variant="unstyled" onClick={() => handleEdit(skill)} disabled={pending} className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">Save</Button>
                         <Button variant="unstyled" onClick={() => setEditing(null)} className="px-3 py-1.5 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700 transition-colors">Cancel</Button>
                       </>
                     ) : (
                       <>
-                        <Button variant="admin-icon-edit" onClick={() => startEdit(skill)}>
+                        <Button variant="admin-icon-edit" aria-label={`Edit ${skill.name}`} onClick={() => startEdit(skill)}>
                           <Pencil size={14} />
                         </Button>
-                        <Button variant="admin-icon-danger" onClick={() => setSkillsList((prev) => prev.filter((s) => s.id !== skill.id))}
->
-                          <Trash2 size={14} />
-                        </Button>
+                        <ConfirmDelete label={skill.name} pending={pending} onConfirm={() => handleDelete(skill.id)} />
                       </>
                     )}
                   </div>

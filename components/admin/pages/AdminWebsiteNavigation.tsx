@@ -1,36 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Save, GripVertical, Plus, X, Eye, EyeOff, Menu } from "lucide-react";
+import { Save, GripVertical, Plus, X, Eye, EyeOff, Menu, ChevronUp, ChevronDown } from "lucide-react";
+import type { NavLink } from "@/lib/data";
+import { saveSettings } from "@/lib/actions/settings";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-type NavLink = {
-  id: number;
-  label: string;
-  to: string;
-  visible: boolean;
-};
-
-const defaultLinks: NavLink[] = [
-  { id: 1,  label: "Home",         to: "/",             visible: true },
-  { id: 2,  label: "About",        to: "/about",         visible: true },
-  { id: 3,  label: "Certificates", to: "/certificates",  visible: true },
-  { id: 4,  label: "Portfolio",    to: "/portfolio",     visible: true },
-  { id: 5,  label: "Research",     to: "/research",      visible: true },
-  { id: 6,  label: "eBooks",       to: "/ebooks",        visible: true },
-  { id: 7,  label: "Contact",      to: "/contact",       visible: true },
-  { id: 8,  label: "Experience",   to: "/experience",    visible: false },
-  { id: 9,  label: "Education",    to: "/education",     visible: false },
-  { id: 10, label: "Skills",       to: "/skills",        visible: false },
-  { id: 11, label: "Achievements", to: "/achievements",  visible: false },
-  { id: 12, label: "Resume",       to: "/resume",        visible: false },
-  { id: 13, label: "Publications", to: "/publications",  visible: false },
-];
-
-export default function AdminWebsiteNavigation() {
-  const [links, setLinks] = useState<NavLink[]>(defaultLinks);
+export default function AdminWebsiteNavigation({ initial }: { initial: NavLink[] }) {
+  const [links, setLinks] = useState<NavLink[]>(initial);
+  const { pending, run } = useAction();
   const [newLabel, setNewLabel] = useState("");
   const [newTo, setNewTo] = useState("");
   const [saved, setSaved] = useState(false);
@@ -43,11 +24,30 @@ export default function AdminWebsiteNavigation() {
 
   const addLink = () => {
     if (!newLabel.trim() || !newTo.trim()) return;
-    setLinks(prev => [...prev, { id: Date.now(), label: newLabel.trim(), to: newTo.trim(), visible: true }]);
+    setLinks(prev => [...prev, { id: Math.max(0, ...prev.map(l => l.id)) + 1, label: newLabel.trim(), to: newTo.trim(), visible: true }]);
     setNewLabel(""); setNewTo("");
   };
 
-  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 3000); };
+  const handleSave = () => {
+    run(() => saveSettings("navigation", { links }), {
+      onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000); },
+    });
+  };
+
+  // Keyboard-accessible alternative to drag-to-reorder: move among the visible links.
+  const moveVisible = (id: number, delta: -1 | 1) => {
+    setLinks(prev => {
+      const vis = prev.filter(l => l.visible);
+      const i = vis.findIndex(l => l.id === id);
+      const target = vis[i + delta];
+      if (!target) return prev;
+      const arr = [...prev];
+      const a = arr.findIndex(l => l.id === id);
+      const b = arr.findIndex(l => l.id === target.id);
+      [arr[a], arr[b]] = [arr[b], arr[a]];
+      return arr;
+    });
+  };
 
   const handleDragStart = (id: number) => setDragId(id);
   const handleDragOver = (e: React.DragEvent, overId: number) => {
@@ -87,7 +87,7 @@ export default function AdminWebsiteNavigation() {
           <h2 className="font-serif text-lg text-white">Visible in Navbar</h2>
           <span className="text-slate-500 text-xs font-mono">{visible.length} links</span>
         </div>
-        {visible.map(link => (
+        {visible.map((link, index) => (
           <div
             key={link.id}
             draggable
@@ -97,12 +97,18 @@ export default function AdminWebsiteNavigation() {
             className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-grab active:cursor-grabbing ${dragId === link.id ? "border-blue-500 bg-blue-950/20" : "border-slate-700 bg-slate-800 hover:border-slate-600"}`}
           >
             <GripVertical size={14} className="text-slate-600 flex-shrink-0" />
+            <div className="flex flex-col flex-shrink-0">
+              <Button variant="unstyled" onClick={() => moveVisible(link.id, -1)} disabled={index === 0} aria-label={`Move ${link.label} up`}
+                className="text-slate-600 hover:text-slate-300 disabled:opacity-30 disabled:pointer-events-none"><ChevronUp size={12} /></Button>
+              <Button variant="unstyled" onClick={() => moveVisible(link.id, 1)} disabled={index === visible.length - 1} aria-label={`Move ${link.label} down`}
+                className="text-slate-600 hover:text-slate-300 disabled:opacity-30 disabled:pointer-events-none"><ChevronDown size={12} /></Button>
+            </div>
             <span className="text-slate-200 text-sm font-medium flex-1">{link.label}</span>
             <code className="text-slate-500 text-xs flex-1">{link.to}</code>
-            <Button variant="unstyled" onClick={() => toggle(link.id)} className="p-1.5 text-green-400 hover:bg-slate-700 rounded-lg transition-colors" title="Hide from navbar">
+            <Button variant="unstyled" onClick={() => toggle(link.id)} className="p-1.5 text-green-400 hover:bg-slate-700 rounded-lg transition-colors" title="Hide from navbar" aria-label={`Hide ${link.label} from navbar`}>
               <Eye size={14} />
             </Button>
-            <Button variant="unstyled" onClick={() => remove(link.id)} className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors">
+            <Button variant="unstyled" onClick={() => remove(link.id)} aria-label={`Remove ${link.label}`} className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors">
               <X size={14} />
             </Button>
           </div>
@@ -121,7 +127,7 @@ export default function AdminWebsiteNavigation() {
             <div key={link.id} className="flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-800/40">
               <span className="text-slate-500 text-sm flex-1">{link.label}</span>
               <code className="text-slate-600 text-xs flex-1">{link.to}</code>
-              <Button variant="unstyled" onClick={() => toggle(link.id)} className="p-1.5 text-slate-500 hover:text-green-400 hover:bg-slate-700 rounded-lg transition-colors" title="Show in navbar">
+              <Button variant="unstyled" onClick={() => toggle(link.id)} className="p-1.5 text-slate-500 hover:text-green-400 hover:bg-slate-700 rounded-lg transition-colors" title="Show in navbar" aria-label={`Show ${link.label} in navbar`}>
                 <EyeOff size={14} />
               </Button>
             </div>
@@ -133,9 +139,9 @@ export default function AdminWebsiteNavigation() {
       <Card variant="admin-panel" className="p-6 space-y-3">
         <h2 className="font-serif text-lg text-white">Add Custom Link</h2>
         <div className="flex gap-3">
-          <Input variant="admin-field" value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label"
+          <Input variant="admin-field" value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label" aria-label="Link label"
             className="flex-1" />
-          <Input variant="admin-field" value={newTo} onChange={e => setNewTo(e.target.value)} placeholder="/path-or-url"
+          <Input variant="admin-field" value={newTo} onChange={e => setNewTo(e.target.value)} placeholder="/path-or-url" aria-label="Link path or URL"
             className="flex-1 font-mono" />
           <Button variant="admin-primary" onClick={addLink} className="flex items-center gap-2 px-4 py-2.5">
             <Plus size={14} /> Add
@@ -153,9 +159,9 @@ export default function AdminWebsiteNavigation() {
         </div>
       </Card>
 
-      <Button variant="unstyled" onClick={handleSave}
-        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
-        <Save size={15} /> {saved ? "Saved!" : "Save Navigation"}
+      <Button variant="unstyled" onClick={handleSave} disabled={pending}
+        className={`flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition-all disabled:opacity-50 ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
+        <Save size={15} /> {pending ? "Saving…" : saved ? "Saved!" : "Save Navigation"}
       </Button>
     </div>
   );

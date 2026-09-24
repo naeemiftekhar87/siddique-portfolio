@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Trophy, Plus, Edit2, Trash2, Save, X, Award } from "lucide-react";
+import { achievementCategories, type Achievement } from "@/lib/data";
+import { deleteAchievement, saveAchievement } from "@/lib/actions/content";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,16 +12,9 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
-type Achievement = {
-  id: number;
-  title: string;
-  organization: string;
-  date: string;
-  description: string;
-  category: string;
-};
+type Draft = Omit<Achievement, "id"> & { id?: number };
 
-const CATEGORIES = ["Academic", "Professional", "Research", "Community", "Competition"];
+const CATEGORIES = achievementCategories;
 
 const categoryColors: Record<string, string> = {
   Academic:     "bg-blue-900/40 text-blue-400 border-blue-800",
@@ -28,13 +24,14 @@ const categoryColors: Record<string, string> = {
   Competition:  "bg-amber-900/40 text-amber-400 border-amber-800",
 };
 
-const empty: Omit<Achievement, "id"> = {
-  title: "", organization: "", date: "", description: "", category: "Academic",
+const empty: Draft = {
+  title: "", organization: "", date: "", description: "", category: "Academic", pinned: false,
 };
 
-export default function AdminAchievements() {
-  const [items, setItems] = useState<Achievement[]>([]);
-  const [editing, setEditing] = useState<Achievement | null>(null);
+export default function AdminAchievements({ initial }: { initial: Achievement[] }) {
+  const [items, setItems] = useState<Achievement[]>(initial);
+  const [editing, setEditing] = useState<Draft | null>(null);
+  const { pending, run } = useAction();
   const [isNew, setIsNew] = useState(false);
   const [saved, setSaved] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -43,7 +40,7 @@ export default function AdminAchievements() {
   const filtered = filterCat === "All" ? items : items.filter(a => a.category === filterCat);
 
   const startNew = () => {
-    setEditing({ id: Date.now(), ...empty });
+    setEditing({ ...empty });
     setIsNew(true);
   };
 
@@ -53,20 +50,26 @@ export default function AdminAchievements() {
 
   const saveEdit = () => {
     if (!editing) return;
-    if (isNew) {
-      setItems(prev => [editing, ...prev]);
-    } else {
-      setItems(prev => prev.map(a => a.id === editing.id ? editing : a));
-    }
-    setEditing(null);
-    setIsNew(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    run(() => saveAchievement(editing), {
+      onSuccess: (saved) => {
+        if (isNew) setItems(prev => [saved, ...prev]);
+        else setItems(prev => prev.map(a => a.id === saved.id ? saved : a));
+        setEditing(null);
+        setIsNew(false);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+      },
+    });
   };
 
   const deleteItem = (id: number) => {
-    setItems(prev => prev.filter(a => a.id !== id));
-    setDeleteConfirm(null);
+    run(() => deleteAchievement(id), {
+      success: "Achievement deleted.",
+      onSuccess: () => {
+        setItems(prev => prev.filter(a => a.id !== id));
+        setDeleteConfirm(null);
+      },
+    });
   };
 
   return (
@@ -142,7 +145,7 @@ export default function AdminAchievements() {
               <Label variant="admin-label" className="mb-1.5">Category</Label>
               <NativeSelect variant="admin-field"
                 value={editing.category}
-                onChange={e => setEditing({ ...editing, category: e.target.value })}
+                onChange={e => setEditing({ ...editing, category: e.target.value as Draft["category"] })}
                 className="w-full"
               >
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -163,9 +166,10 @@ export default function AdminAchievements() {
           <div className="flex gap-3 pt-1">
             <Button variant="admin-primary"
               onClick={saveEdit}
-              className="flex items-center gap-2 px-5 py-2.5"
+              disabled={pending}
+              className="flex items-center gap-2 px-5 py-2.5 disabled:opacity-50"
             >
-              <Save size={14} /> Save
+              <Save size={14} /> {pending ? "Saving…" : "Save"}
             </Button>
             <Button variant="admin-outline"
               onClick={cancelEdit}
@@ -201,7 +205,7 @@ export default function AdminAchievements() {
               <div className="flex gap-2 flex-shrink-0">
                 <Button variant="admin-ghost"
                   onClick={() => startEdit(a)}
-                  
+                  aria-label={`Edit ${a.title}`}
 >
                   <Edit2 size={14} />
                 </Button>
@@ -209,6 +213,7 @@ export default function AdminAchievements() {
                   <div className="flex gap-1.5">
                     <Button variant="admin-danger-sm"
                       onClick={() => deleteItem(a.id)}
+                      disabled={pending}
                       className="transition-colors"
                     >
                       Confirm
@@ -223,7 +228,7 @@ export default function AdminAchievements() {
                 ) : (
                   <Button variant="admin-ghost-danger"
                     onClick={() => setDeleteConfirm(a.id)}
-                    
+                    aria-label={`Delete ${a.title}`}
 >
                     <Trash2 size={14} />
                   </Button>
@@ -237,7 +242,7 @@ export default function AdminAchievements() {
       {filtered.length === 0 && (
         <div className="text-center py-16">
           <Trophy size={36} className="text-slate-700 mx-auto mb-3" />
-          <p className="text-slate-500 text-sm">No achievements in this category.</p>
+          <p className="text-slate-500 text-sm">{items.length === 0 ? "No achievements yet." : "No achievements in this category."}</p>
         </div>
       )}
     </div>

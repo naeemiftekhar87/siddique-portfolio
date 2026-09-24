@@ -1,22 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Save, Plus, Edit2, Trash2, X, FolderOpen, GripVertical } from "lucide-react";
+import { Save, Plus, Edit2, Trash2, X, FolderOpen, ChevronUp, ChevronDown } from "lucide-react";
+import { portfolioColors, type PortfolioCategory } from "@/lib/data";
+import { deletePortfolioCategory, reorderPortfolioCategories, savePortfolioCategory } from "@/lib/actions/content";
+import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type Category = {
-  id: number;
-  name: string;
-  slug: string;
-  description: string;
-  color: string;
-  projectCount: number;
-};
+type Category = PortfolioCategory;
+type Draft = Omit<Category, "id" | "projectCount"> & { id?: number };
 
-const COLORS = ["blue", "teal", "violet", "amber", "green", "rose", "orange", "sky"];
+const COLORS = portfolioColors;
 
 const colorMap: Record<string, string> = {
   blue:   "bg-blue-900/40 text-blue-400 border-blue-800",
@@ -29,20 +26,19 @@ const colorMap: Record<string, string> = {
   sky:    "bg-sky-900/40 text-sky-400 border-sky-800",
 };
 
-const initialCategories: Category[] = [];
-
-const emptyCategory: Omit<Category, "id" | "projectCount"> = {
+const emptyCategory: Draft = {
   name: "", slug: "", description: "", color: "blue",
 };
 
-export default function AdminPortfolioCategories() {
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [editing, setEditing] = useState<(Category | (Omit<Category, "id" | "projectCount"> & { id?: number })) | null>(null);
+export default function AdminPortfolioCategories({ initial }: { initial: Category[] }) {
+  const [categories, setCategories] = useState<Category[]>(initial);
+  const [editing, setEditing] = useState<Draft | null>(null);
+  const { pending, run } = useAction();
   const [isNew, setIsNew] = useState(false);
   const [saved, setSaved] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
-  const toSlug = (name: string) => name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  const toSlug = (name: string) => name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
 
   const startNew = () => { setEditing({ ...emptyCategory }); setIsNew(true); };
   const startEdit = (c: Category) => { setEditing({ ...c }); setIsNew(false); };
@@ -50,16 +46,32 @@ export default function AdminPortfolioCategories() {
 
   const saveEdit = () => {
     if (!editing || !editing.name) return;
-    if (isNew) {
-      setCategories(prev => [...prev, { ...editing, id: Date.now(), projectCount: 0 } as Category]);
-    } else {
-      setCategories(prev => prev.map(c => c.id === (editing as Category).id ? { ...editing, projectCount: c.projectCount } as Category : c));
-    }
-    setEditing(null); setIsNew(false);
-    setSaved(true); setTimeout(() => setSaved(false), 2500);
+    run(() => savePortfolioCategory(editing), {
+      onSuccess: (saved) => {
+        if (isNew) setCategories(prev => [...prev, saved]);
+        else setCategories(prev => prev.map(c => c.id === saved.id ? saved : c));
+        setEditing(null); setIsNew(false);
+        setSaved(true); setTimeout(() => setSaved(false), 2500);
+      },
+    });
   };
 
-  const deleteCategory = (id: number) => { setCategories(prev => prev.filter(c => c.id !== id)); setDeleteConfirm(null); };
+  const deleteCategory = (id: number) => {
+    run(() => deletePortfolioCategory(id), {
+      success: "Category deleted. Its projects are now uncategorized.",
+      onSuccess: () => { setCategories(prev => prev.filter(c => c.id !== id)); setDeleteConfirm(null); },
+    });
+  };
+
+  const move = (index: number, delta: -1 | 1) => {
+    const next = [...categories];
+    const [item] = next.splice(index, 1);
+    next.splice(index + delta, 0, item);
+    const previous = categories;
+    setCategories(next);
+    // Optimistic: restore the previous order if the save fails.
+    run(() => reorderPortfolioCategories(next.map(c => c.id)), { onError: () => setCategories(previous) });
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -112,15 +124,16 @@ export default function AdminPortfolioCategories() {
               <div className="flex flex-wrap gap-2">
                 {COLORS.map(c => (
                   <Button variant="unstyled" key={c} onClick={() => setEditing({ ...editing, color: c })}
+                    aria-label={`Colour ${c}`} aria-pressed={editing.color === c}
                     className={`w-8 h-8 rounded-lg border-2 transition-all ${editing.color === c ? "border-white scale-110" : "border-transparent"} ${colorMap[c]}`} />
                 ))}
               </div>
             </div>
           </div>
           <div className="flex gap-3 pt-1">
-            <Button variant="admin-primary" onClick={saveEdit}
-              className="flex items-center gap-2 px-5 py-2.5">
-              <Save size={14} /> Save
+            <Button variant="admin-primary" onClick={saveEdit} disabled={pending}
+              className="flex items-center gap-2 px-5 py-2.5 disabled:opacity-50">
+              <Save size={14} /> {pending ? "Saving…" : "Save"}
             </Button>
             <Button variant="admin-outline" onClick={cancelEdit}
               className="flex items-center gap-2 px-5 py-2.5">
@@ -138,9 +151,18 @@ export default function AdminPortfolioCategories() {
             <p className="text-slate-500 text-sm">No categories yet.</p>
           </div>
         )}
-        {categories.map(cat => (
+        {categories.map((cat, index) => (
           <div key={cat.id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-800/40 transition-colors">
-            <GripVertical size={14} className="text-slate-700 flex-shrink-0 cursor-grab" />
+            <div className="flex flex-col flex-shrink-0">
+              <Button variant="unstyled" onClick={() => move(index, -1)} disabled={index === 0 || pending}
+                aria-label={`Move ${cat.name} up`} className="text-slate-600 hover:text-slate-300 disabled:opacity-30 disabled:pointer-events-none">
+                <ChevronUp size={14} />
+              </Button>
+              <Button variant="unstyled" onClick={() => move(index, 1)} disabled={index === categories.length - 1 || pending}
+                aria-label={`Move ${cat.name} down`} className="text-slate-600 hover:text-slate-300 disabled:opacity-30 disabled:pointer-events-none">
+                <ChevronDown size={14} />
+              </Button>
+            </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <span className={`text-xs px-2.5 py-0.5 rounded-full border font-medium ${colorMap[cat.color] ?? colorMap.blue}`}>
@@ -155,18 +177,16 @@ export default function AdminPortfolioCategories() {
               <p className="text-slate-600 text-xs">projects</p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
-              <Button variant="admin-ghost" onClick={() => startEdit(cat)}
->
+              <Button variant="admin-ghost" aria-label={`Edit ${cat.name}`} onClick={() => startEdit(cat)}>
                 <Edit2 size={13} />
               </Button>
               {deleteConfirm === cat.id ? (
                 <div className="flex gap-1.5">
-                  <Button variant="admin-danger-sm" onClick={() => deleteCategory(cat.id)}>Confirm</Button>
+                  <Button variant="admin-danger-sm" disabled={pending} onClick={() => deleteCategory(cat.id)}>Confirm</Button>
                   <Button variant="unstyled" onClick={() => setDeleteConfirm(null)} className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg border border-slate-700">Cancel</Button>
                 </div>
               ) : (
-                <Button variant="admin-ghost-danger" onClick={() => setDeleteConfirm(cat.id)}
->
+                <Button variant="admin-ghost-danger" aria-label={`Delete ${cat.name}`} onClick={() => setDeleteConfirm(cat.id)}>
                   <Trash2 size={13} />
                 </Button>
               )}
