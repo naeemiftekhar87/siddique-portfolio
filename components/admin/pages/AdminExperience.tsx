@@ -11,6 +11,7 @@ import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ListInput } from "@/components/admin/list-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { dateRange } from "@/lib/data/format";
@@ -96,10 +97,10 @@ function ExpForm({
         <ImageSourceField value={f.logo} onChange={(v) => set("logo", v)} showPreview />
       </div>
       <div>
-        <Label variant="admin-label" className="mb-1">Skills (comma-separated)</Label>
-        <Input variant="admin-field"
-          value={Array.isArray(f.skills) ? f.skills.join(", ") : ""}
-          onChange={(e) => set("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+        <Label htmlFor={`${uid}-skills`} variant="admin-label" className="mb-1">Skills (comma-separated)</Label>
+        <ListInput id={`${uid}-skills`} variant="admin-field"
+          value={f.skills}
+          onChange={(list) => set("skills", list)}
           className="w-full"
           placeholder="Skill 1, Skill 2, Skill 3"
         />

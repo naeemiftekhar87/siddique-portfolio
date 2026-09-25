@@ -12,6 +12,7 @@ import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ListInput } from "@/components/admin/list-input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,9 +55,9 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
       </div>
       <div>
         <Label htmlFor={`${uid}-authors-comma-separated`} variant="admin-label" className="mb-1">Authors (comma-separated)</Label>
-        <Input id={`${uid}-authors-comma-separated`} variant="admin-field"
-          value={Array.isArray(f.authors) ? f.authors.join(", ") : ""}
-          onChange={(e) => set("authors", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+        <ListInput id={`${uid}-authors-comma-separated`} variant="admin-field"
+          value={f.authors}
+          onChange={(list) => set("authors", list)}
           className="w-full"
         />
       </div>
@@ -98,9 +99,9 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
         </div>
         <div>
           <Label htmlFor={`${uid}-keywords-comma-separated`} variant="admin-label" className="mb-1">Keywords (comma-separated)</Label>
-          <Input id={`${uid}-keywords-comma-separated`} variant="admin-field"
-            value={Array.isArray(f.keywords) ? f.keywords.join(", ") : ""}
-            onChange={(e) => set("keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+          <ListInput id={`${uid}-keywords-comma-separated`} variant="admin-field"
+            value={f.keywords}
+            onChange={(list) => set("keywords", list)}
             className="w-full"
           />
         </div>

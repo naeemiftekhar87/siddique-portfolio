@@ -11,6 +11,7 @@ import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ListInput } from "@/components/admin/list-input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -73,18 +74,18 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor={`${uid}-coursework-comma-separated`} variant="admin-label" className="mb-1">Coursework (comma-separated)</Label>
-          <Input id={`${uid}-coursework-comma-separated`} variant="admin-field"
-            value={Array.isArray(f.coursework) ? f.coursework.join(", ") : ""}
-            onChange={(e) => set("coursework", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+          <ListInput id={`${uid}-coursework-comma-separated`} variant="admin-field"
+            value={f.coursework}
+            onChange={(list) => set("coursework", list)}
             className="w-full"
             placeholder="Course 1, Course 2, Course 3"
           />
         </div>
         <div>
           <Label htmlFor={`${uid}-skills-gained-comma-separated`} variant="admin-label" className="mb-1">Skills Gained (comma-separated)</Label>
-          <Input id={`${uid}-skills-gained-comma-separated`} variant="admin-field"
-            value={Array.isArray(f.skills) ? f.skills.join(", ") : ""}
-            onChange={(e) => set("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+          <ListInput id={`${uid}-skills-gained-comma-separated`} variant="admin-field"
+            value={f.skills}
+            onChange={(list) => set("skills", list)}
             className="w-full"
             placeholder="Skill 1, Skill 2"
           />

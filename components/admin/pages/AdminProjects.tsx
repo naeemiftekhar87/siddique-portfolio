@@ -10,6 +10,7 @@ import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ListInput } from "@/components/admin/list-input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -195,18 +196,18 @@ function ProjectForm({
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor={`${uid}-technologies-comma-separated`} variant="admin-label" className="mb-1">Technologies (comma-separated)</Label>
-          <Input id={`${uid}-technologies-comma-separated`} variant="admin-field"
-            value={Array.isArray(f.technologies) ? f.technologies.join(", ") : ""}
-            onChange={(e) => set("technologies", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+          <ListInput id={`${uid}-technologies-comma-separated`} variant="admin-field"
+            value={f.technologies}
+            onChange={(list) => set("technologies", list)}
             placeholder="Tool 1, Tool 2, Tool 3"
             className="w-full"
           />
         </div>
         <div>
           <Label htmlFor={`${uid}-tools-comma-separated`} variant="admin-label" className="mb-1">Tools (comma-separated)</Label>
-          <Input id={`${uid}-tools-comma-separated`} variant="admin-field"
-            value={Array.isArray(f.tools) ? f.tools.join(", ") : ""}
-            onChange={(e) => set("tools", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+          <ListInput id={`${uid}-tools-comma-separated`} variant="admin-field"
+            value={f.tools}
+            onChange={(list) => set("tools", list)}
             placeholder="VS Code, Jupyter, dbt"
             className="w-full"
           />
