@@ -109,7 +109,7 @@ export default function Resume({ profile, config, experiences, education, skills
             {/* Summary */}
             {sections.includes("summary") && (
             <section className="break-inside-avoid">
-              <h3 className={`${heading} text-xl text-slate-900 mb-4 flex items-center gap-2`}>
+              <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-4 flex items-center gap-2`}>
                 <User size={18} style={accent} /> Professional Summary
               </h3>
               <p className="text-slate-600 leading-relaxed whitespace-pre-line">{profile.summary}</p>
@@ -120,7 +120,7 @@ export default function Resume({ profile, config, experiences, education, skills
             {sections.includes("experience") && (<>
             {divider("experience")}
             <section>
-              <h3 className={`${heading} text-xl text-slate-900 mb-6 flex items-center gap-2`}>
+              <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-6 flex items-center gap-2`}>
                 <Briefcase size={18} style={accent} /> Professional Experience
               </h3>
               <div className="space-y-6">
@@ -142,7 +142,7 @@ export default function Resume({ profile, config, experiences, education, skills
             {sections.includes("education") && (<>
             {divider("education")}
             <section>
-              <h3 className={`${heading} text-xl text-slate-900 mb-6 flex items-center gap-2`}>
+              <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-6 flex items-center gap-2`}>
                 <GraduationCap size={18} style={accent} /> Education
               </h3>
               <div className="space-y-5">
@@ -164,7 +164,7 @@ export default function Resume({ profile, config, experiences, education, skills
             {sections.includes("skills") && (<>
             {divider("skills")}
             <section className="break-inside-avoid">
-              <h3 className={`${heading} text-xl text-slate-900 mb-6 flex items-center gap-2`}>
+              <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-6 flex items-center gap-2`}>
                 <BarChart2 size={18} style={accent} /> Technical Skills
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -181,7 +181,7 @@ export default function Resume({ profile, config, experiences, education, skills
             {sections.includes("certificates") && (<>
             {divider("certificates")}
             <section>
-              <h3 className={`${heading} text-xl text-slate-900 mb-6 flex items-center gap-2`}>
+              <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-6 flex items-center gap-2`}>
                 <Award size={18} style={accent} /> Certifications
               </h3>
               <div className="space-y-3">
@@ -202,7 +202,7 @@ export default function Resume({ profile, config, experiences, education, skills
             {sections.includes("research") && (<>
             {divider("research")}
             <section>
-              <h3 className={`${heading} text-xl text-slate-900 mb-6 flex items-center gap-2`}>
+              <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-6 flex items-center gap-2`}>
                 <BookOpen size={18} style={accent} /> Research &amp; Publications
               </h3>
               <div className="space-y-3">
@@ -220,7 +220,7 @@ export default function Resume({ profile, config, experiences, education, skills
             {sections.includes("languages") && (<>
             {divider("languages")}
             <section className="break-inside-avoid">
-              <h3 className={`${heading} text-xl text-slate-900 mb-6 flex items-center gap-2`}>
+              <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-6 flex items-center gap-2`}>
                 <Languages size={18} style={accent} /> Languages
               </h3>
               <div className="grid sm:grid-cols-2 gap-4">

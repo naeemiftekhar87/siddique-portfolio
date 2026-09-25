@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Trophy, Plus, Edit2, Trash2, Save, X, Award } from "lucide-react";
 import { achievementCategories, type Achievement } from "@/lib/data";
 import { deleteAchievement, saveAchievement } from "@/lib/actions/content";
@@ -29,6 +29,7 @@ const empty: Draft = {
 };
 
 export default function AdminAchievements({ initial }: { initial: Achievement[] }) {
+  const uid = useId();
   const [items, setItems] = useState<Achievement[]>(initial);
   const [editing, setEditing] = useState<Draft | null>(null);
   const { pending, run } = useAction();
@@ -115,8 +116,8 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <Label variant="admin-label" className="mb-1.5">Title</Label>
-              <Input variant="admin-field"
+              <Label htmlFor={`${uid}-title`} variant="admin-label" className="mb-1.5">Title</Label>
+              <Input id={`${uid}-title`} variant="admin-field"
                 value={editing.title}
                 onChange={e => setEditing({ ...editing, title: e.target.value })}
                 placeholder="Award or recognition title"
@@ -124,8 +125,8 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
               />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Organisation</Label>
-              <Input variant="admin-field"
+              <Label htmlFor={`${uid}-organisation`} variant="admin-label" className="mb-1.5">Organisation</Label>
+              <Input id={`${uid}-organisation`} variant="admin-field"
                 value={editing.organization}
                 onChange={e => setEditing({ ...editing, organization: e.target.value })}
                 placeholder="Issuing body"
@@ -133,8 +134,8 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
               />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Year / Date</Label>
-              <Input variant="admin-field"
+              <Label htmlFor={`${uid}-year-date`} variant="admin-label" className="mb-1.5">Year / Date</Label>
+              <Input id={`${uid}-year-date`} variant="admin-field"
                 value={editing.date}
                 onChange={e => setEditing({ ...editing, date: e.target.value })}
                 placeholder="2026"
@@ -142,8 +143,8 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
               />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Category</Label>
-              <NativeSelect variant="admin-field"
+              <Label htmlFor={`${uid}-category`} variant="admin-label" className="mb-1.5">Category</Label>
+              <NativeSelect id={`${uid}-category`} variant="admin-field"
                 value={editing.category}
                 onChange={e => setEditing({ ...editing, category: e.target.value as Draft["category"] })}
                 className="w-full"
@@ -152,8 +153,8 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
               </NativeSelect>
             </div>
             <div className="sm:col-span-2">
-              <Label variant="admin-label" className="mb-1.5">Description</Label>
-              <Textarea variant="admin-field"
+              <Label htmlFor={`${uid}-description`} variant="admin-label" className="mb-1.5">Description</Label>
+              <Textarea id={`${uid}-description`} variant="admin-field"
                 rows={3}
                 value={editing.description}
                 onChange={e => setEditing({ ...editing, description: e.target.value })}

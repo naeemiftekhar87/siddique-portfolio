@@ -42,7 +42,9 @@ export async function login(input: { email: string; password: string }): Promise
   }
 
   (await cookies()).set(SESSION_COOKIE, createSessionCookieValue(), sessionCookieOptions);
-  redirect("/admin");
+  // The login form navigates to /admin itself. A redirect() here would throw
+  // NEXT_REDIRECT into the form's try/catch and flash a false error.
+  return ok(null);
 }
 
 export async function logout() {

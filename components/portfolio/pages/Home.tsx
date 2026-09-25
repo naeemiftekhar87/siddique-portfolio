@@ -2,22 +2,25 @@
 
 import Link from "next/link";
 import { ArrowRight, Download, Link2, GitFork, GraduationCap, Mail, SquareArrowOutUpRight, Briefcase, BarChart2, Trophy, User } from "lucide-react";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
+import dynamic from "next/dynamic";
 import type { Achievement, Certificate, Education, Experience, HomeSettings, Paper, Project, SiteProfile, Skill } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CountUp } from "@/components/portfolio/count-up";
 import { dateRange } from "@/lib/data/format";
 
-const sparkData = [
-  { v: 10 }, { v: 22 }, { v: 18 }, { v: 35 }, { v: 28 }, { v: 42 },
-  { v: 38 }, { v: 55 }, { v: 60 }, { v: 52 }, { v: 70 }, { v: 80 },
-];
+// Recharts (~300 KB) only powers this decorative sparkline; load it after hydration.
+// The fixed-height placeholder keeps the card from shifting while it loads.
+const HomeSparkline = dynamic(() => import("@/components/portfolio/home-sparkline"), {
+  ssr: false,
+  loading: () => <div style={{ height: 36 }} />,
+});
 
 function StatCard({ value, label }: { value: string; label: string }) {
   return (
     <div className="text-center px-6 py-5">
-      <div className="font-serif text-3xl font-medium text-blue-600 mb-1">{value || "—"}</div>
+      <div className="font-serif text-3xl font-medium text-blue-600 mb-1">{value ? <CountUp value={value} /> : "—"}</div>
       <div className="text-xs text-slate-500 uppercase tracking-wider font-medium">{label}</div>
     </div>
   );
@@ -133,17 +136,7 @@ export default function Home({ profile, home, experiences, education, skills, ac
                 {/* Floating analytics card */}
                 <Card variant="site-white-card" className="absolute bottom-4 -left-10 shadow-lg px-4 py-3 z-20 w-40">
                   <div className="font-mono text-xs text-teal-600 font-medium mb-2">Analytics Growth</div>
-                  <ResponsiveContainer width="100%" height={36}>
-                    <AreaChart data={sparkData}>
-                      <defs>
-                        <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <Area type="monotone" dataKey="v" stroke="#0d9488" fill="url(#spark)" strokeWidth={2} dot={false} />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  <HomeSparkline />
                 </Card>
                 {(field || profile.stats.experience) && (
                   <Card variant="site-white-card" className="absolute -top-6 right-4 shadow-lg px-4 py-3 z-20">
@@ -329,7 +322,7 @@ export default function Home({ profile, home, experiences, education, skills, ac
               <Card variant="site-glass-card" key={exp.id} className="p-6 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
                   {exp.logo ? (
-                    <img src={exp.logo} alt={exp.company} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                    <img loading="lazy" decoding="async" src={exp.logo} alt={exp.company} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
                   ) : (
                     <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0"><Briefcase size={20} className="text-blue-600" /></div>
                   )}

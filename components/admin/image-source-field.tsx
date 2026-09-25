@@ -5,9 +5,12 @@ import { Upload, Link2, X, ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatSize, uploadMedia } from "./upload";
+import { MediaPicker } from "./media-picker";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+// Raw files up to 25 MB are accepted here: photos are resized and converted to
+// WebP before upload, and the server enforces the 5 MB limit on the result.
+const MAX_BYTES = 25 * 1024 * 1024;
 
 type Mode = "upload" | "url";
 
@@ -37,7 +40,7 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
   const acceptFile = async (f: File | undefined) => {
     if (!f || uploading) return;
     if (!ACCEPTED.includes(f.type)) { setError("Please choose a JPG, PNG, WebP, GIF, or AVIF image."); return; }
-    if (f.size > MAX_BYTES) { setError(`Image is ${formatSize(f.size)}; the limit is 5 MB.`); return; }
+    if (f.size > MAX_BYTES) { setError(`Image is ${formatSize(f.size)}; the limit is 25 MB before optimisation.`); return; }
     setError("");
     setUploading(true);
     const result = await uploadMedia(f);
@@ -65,19 +68,23 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
 
   return (
     <div className="space-y-3">
-      <div className="flex w-fit border border-slate-800 rounded-xl overflow-hidden" role="group" aria-label="Image source">
-        {([["upload", "Upload from device", Upload], ["url", "Paste URL", Link2]] as const).map(([m, label, Icon]) => (
-          <Button key={m} variant="unstyled" type="button" aria-pressed={mode === m} onClick={() => switchMode(m)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs ${mode === m ? "bg-slate-700 text-white" : "text-slate-500 hover:text-slate-300"} transition-colors`}>
-            <Icon size={12} /> {label}
-          </Button>
-        ))}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-fit border border-slate-800 rounded-xl overflow-hidden" role="group" aria-label="Image source">
+          {([["upload", "Upload from device", Upload], ["url", "Paste URL", Link2]] as const).map(([m, label, Icon]) => (
+            <Button key={m} variant="unstyled" type="button" aria-pressed={mode === m} onClick={() => switchMode(m)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs ${mode === m ? "bg-slate-700 text-white" : "text-slate-500 hover:text-slate-300"} transition-colors`}>
+              <Icon size={12} /> {label}
+            </Button>
+          ))}
+        </div>
+        {/* Reuse an image already in the media library (shown as its URL). */}
+        <MediaPicker type="image" onSelect={(url) => { setFile(null); setError(""); setMode("url"); onChange(url); }} />
       </div>
 
       {mode === "upload" ? (
         file && value ? (
           <div className="flex items-center gap-3 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl">
-            <img src={value} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+            <img loading="lazy" decoding="async" src={value} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-slate-200 text-sm truncate">{file.name}</p>
               <p className="text-slate-500 text-xs">{formatSize(file.size)}</p>
@@ -95,14 +102,14 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
             className={`w-full border-2 border-dashed rounded-xl p-6 text-center text-sm transition-colors cursor-pointer ${dragging ? "border-blue-600 text-blue-400" : "border-slate-700 text-slate-500 hover:border-blue-600 hover:text-blue-400"}`}>
             {uploading ? <Loader2 size={18} className="mx-auto mb-2 animate-spin" /> : <Upload size={18} className="mx-auto mb-2" />}
             {uploading ? "Uploading…" : "Drag & drop or click to upload"}
-            <span className="block text-xs text-slate-600 mt-1">JPG, PNG, WebP, GIF, or AVIF · up to 5 MB</span>
+            <span className="block text-xs text-slate-600 mt-1">JPG, PNG, WebP, GIF, or AVIF · large photos are resized automatically</span>
           </Button>
         )
       ) : (
         <div className="flex items-center gap-3">
           {showPreview && (
             value ? (
-              <img src={value} alt="" className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0" />
+              <img loading="lazy" decoding="async" src={value} alt="" className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0" />
             ) : (
               <div className="w-10 h-10 rounded-lg border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0">
                 <ImageIcon size={14} className="text-slate-600" />

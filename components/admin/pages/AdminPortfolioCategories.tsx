@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Save, Plus, Edit2, Trash2, X, FolderOpen, ChevronUp, ChevronDown } from "lucide-react";
+import { useId, useState } from "react";
+import { Save, Plus, Edit2, Trash2, X, FolderOpen } from "lucide-react";
 import { portfolioColors, type PortfolioCategory } from "@/lib/data";
 import { deletePortfolioCategory, reorderPortfolioCategories, savePortfolioCategory } from "@/lib/actions/content";
 import { useAction } from "@/components/admin/use-action";
+import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ const emptyCategory: Draft = {
 };
 
 export default function AdminPortfolioCategories({ initial }: { initial: Category[] }) {
+  const uid = useId();
   const [categories, setCategories] = useState<Category[]>(initial);
   const [editing, setEditing] = useState<Draft | null>(null);
   const { pending, run } = useAction();
@@ -64,9 +66,7 @@ export default function AdminPortfolioCategories({ initial }: { initial: Categor
   };
 
   const move = (index: number, delta: -1 | 1) => {
-    const next = [...categories];
-    const [item] = next.splice(index, 1);
-    next.splice(index + delta, 0, item);
+    const next = moveItem(categories, index, delta);
     const previous = categories;
     setCategories(next);
     // Optimistic: restore the previous order if the save fails.
@@ -100,21 +100,21 @@ export default function AdminPortfolioCategories({ initial }: { initial: Categor
           <h2 className="font-serif text-lg text-white">{isNew ? "Add Category" : "Edit Category"}</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label variant="admin-label" className="mb-1.5">Name</Label>
-              <Input variant="admin-field" value={editing.name}
+              <Label htmlFor={`${uid}-name`} variant="admin-label" className="mb-1.5">Name</Label>
+              <Input id={`${uid}-name`} variant="admin-field" value={editing.name}
                 onChange={e => setEditing({ ...editing, name: e.target.value, slug: toSlug(e.target.value) })}
                 placeholder="Sample Category"
                 className="w-full" />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Slug</Label>
-              <Input variant="admin-field" value={editing.slug}
+              <Label htmlFor={`${uid}-slug`} variant="admin-label" className="mb-1.5">Slug</Label>
+              <Input id={`${uid}-slug`} variant="admin-field" value={editing.slug}
                 onChange={e => setEditing({ ...editing, slug: e.target.value })}
                 className="w-full font-mono" />
             </div>
             <div className="sm:col-span-2">
-              <Label variant="admin-label" className="mb-1.5">Description</Label>
-              <Input variant="admin-field" value={editing.description}
+              <Label htmlFor={`${uid}-description`} variant="admin-label" className="mb-1.5">Description</Label>
+              <Input id={`${uid}-description`} variant="admin-field" value={editing.description}
                 onChange={e => setEditing({ ...editing, description: e.target.value })}
                 placeholder="Brief description of this category"
                 className="w-full" />
@@ -153,16 +153,7 @@ export default function AdminPortfolioCategories({ initial }: { initial: Categor
         )}
         {categories.map((cat, index) => (
           <div key={cat.id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-800/40 transition-colors">
-            <div className="flex flex-col flex-shrink-0">
-              <Button variant="unstyled" onClick={() => move(index, -1)} disabled={index === 0 || pending}
-                aria-label={`Move ${cat.name} up`} className="text-slate-600 hover:text-slate-300 disabled:opacity-30 disabled:pointer-events-none">
-                <ChevronUp size={14} />
-              </Button>
-              <Button variant="unstyled" onClick={() => move(index, 1)} disabled={index === categories.length - 1 || pending}
-                aria-label={`Move ${cat.name} down`} className="text-slate-600 hover:text-slate-300 disabled:opacity-30 disabled:pointer-events-none">
-                <ChevronDown size={14} />
-              </Button>
-            </div>
+            <ReorderButtons index={index} count={categories.length} label={cat.name} disabled={pending} onMove={(d) => move(index, d)} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <span className={`text-xs px-2.5 py-0.5 rounded-full border font-medium ${colorMap[cat.color] ?? colorMap.blue}`}>

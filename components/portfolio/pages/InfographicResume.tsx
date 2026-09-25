@@ -8,7 +8,7 @@ import { dateRange } from "@/lib/data/format";
 
 function SkillBar({ name, level }: { name: string; level: number }) {
   return (
-    <div className="mb-3">
+    <div className="mb-3 break-inside-avoid">
       <div className="flex justify-between text-xs mb-1">
         <span className="text-slate-700 font-medium">{name}</span>
         <span className="text-slate-400 font-mono">{level}%</span>
@@ -106,10 +106,10 @@ export default function InfographicResume({ profile, config, experiences, educat
             <div className="bg-slate-50 p-8 space-y-8 border-r border-slate-100">
               {/* Skills */}
               {config.showSkills && topSkills.length > 0 && (
-              <section className="break-inside-avoid">
+              <section>
                 <div className="flex items-center gap-2 mb-5">
                   <BarChart2 size={16} style={accent} />
-                  <h3 className={`${heading} text-lg text-slate-900`}>Core Skills</h3>
+                  <h3 className={`${heading} break-after-avoid text-lg text-slate-900`}>Core Skills</h3>
                 </div>
                 {topSkills.map((s) => (
                   <SkillBar key={s.id} name={s.name} level={s.level} />
@@ -120,7 +120,7 @@ export default function InfographicResume({ profile, config, experiences, educat
               {/* Research areas */}
               {config.showResearch && profile.researchInterests.length > 0 && (
               <section className="break-inside-avoid">
-                <h3 className={`${heading} text-lg text-slate-900 mb-4`}>Research Areas</h3>
+                <h3 className={`${heading} break-after-avoid text-lg text-slate-900 mb-4`}>Research Areas</h3>
                 <div className="flex flex-wrap gap-2">
                   {profile.researchInterests.slice(0, 8).map((r) => (
                     <Badge variant="unstyled" key={r} className="px-2.5 py-1.5 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-100">
@@ -133,13 +133,13 @@ export default function InfographicResume({ profile, config, experiences, educat
 
               {/* Certificates */}
               {config.showCertificates && certificates.length > 0 && (
-              <section className="break-inside-avoid">
-                <h3 className={`${heading} text-lg text-slate-900 mb-4 flex items-center gap-2`}>
+              <section>
+                <h3 className={`${heading} break-after-avoid text-lg text-slate-900 mb-4 flex items-center gap-2`}>
                   <Award size={15} className="text-amber-500" /> Certificates
                 </h3>
                 <div className="space-y-2">
                   {certificates.slice(0, 4).map((c) => (
-                    <div key={c.id} className="text-xs">
+                    <div key={c.id} className="text-xs break-inside-avoid">
                       <p className="text-slate-800 font-medium">{c.title}</p>
                       <p className="text-slate-400">{[c.issuer, c.completionDate.split(",")[1]?.trim() || c.completionDate].filter(Boolean).join(" · ")}</p>
                     </div>
@@ -150,8 +150,8 @@ export default function InfographicResume({ profile, config, experiences, educat
 
               {/* Languages */}
               {config.showLanguages && languages.length > 0 && (
-              <section className="break-inside-avoid">
-                <h3 className={`${heading} text-lg text-slate-900 mb-4 flex items-center gap-2`}>
+              <section>
+                <h3 className={`${heading} break-after-avoid text-lg text-slate-900 mb-4 flex items-center gap-2`}>
                   <Languages size={15} style={accent} /> Languages
                 </h3>
                 {languages.map((l) => (
@@ -173,7 +173,7 @@ export default function InfographicResume({ profile, config, experiences, educat
               {/* Experience timeline */}
               {config.showExperience && experiences.length > 0 && (
               <section>
-                <h3 className={`${heading} text-xl text-slate-900 mb-5 flex items-center gap-2`}>
+                <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-5 flex items-center gap-2`}>
                   <Briefcase size={16} style={accent} /> Professional Experience
                 </h3>
                 <div className="relative pl-6 border-l-2 border-blue-100 space-y-5">
@@ -193,13 +193,13 @@ export default function InfographicResume({ profile, config, experiences, educat
 
               {/* Education */}
               {config.showEducation && education.length > 0 && (
-              <section className="break-inside-avoid">
-                <h3 className={`${heading} text-xl text-slate-900 mb-5 flex items-center gap-2`}>
+              <section>
+                <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-5 flex items-center gap-2`}>
                   <GraduationCap size={16} className="text-teal-600" /> Education
                 </h3>
                 <div className="space-y-4">
                   {education.map((edu) => (
-                    <div key={edu.id} className="flex gap-4">
+                    <div key={edu.id} className="flex gap-4 break-inside-avoid">
                       <div className={`flex-shrink-0 w-2 h-2 rounded-full mt-2 ${edu.status === "In Progress" ? "bg-blue-600" : "bg-teal-500"}`} />
                       <div>
                         <h4 className="font-semibold text-slate-900 text-sm">{edu.degree}</h4>
@@ -215,7 +215,7 @@ export default function InfographicResume({ profile, config, experiences, educat
               {/* Publications */}
               {config.showResearch && researchPapers.length > 0 && (
               <section>
-                <h3 className={`${heading} text-xl text-slate-900 mb-5`}>Publications</h3>
+                <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-5`}>Publications</h3>
                 <div className="space-y-3">
                   {researchPapers.map((p) => (
                     <div key={p.id} className="border-l-2 border-teal-200 pl-3 break-inside-avoid">

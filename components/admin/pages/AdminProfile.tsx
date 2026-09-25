@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { Save, User, MapPin, Plus } from "lucide-react";
 import type { Language, ProfileSettings } from "@/lib/data";
@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 
 export default function AdminProfile({ initial, languages }: { initial: ProfileSettings; languages: Language[] }) {
+  const uid = useId();
   const [p, setP] = useState<ProfileSettings>(initial);
   const [showPhoto, setShowPhoto] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -54,7 +55,7 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
           <div className="flex items-start gap-6">
             <div className="relative flex-shrink-0">
               {p.photo ? (
-                <img src={p.photo} alt="Profile" className="w-24 h-24 rounded-2xl object-cover border border-slate-700" />
+                <img loading="lazy" decoding="async" src={p.photo} alt="Profile" className="w-24 h-24 rounded-2xl object-cover border border-slate-700" />
               ) : (
                 <div className="w-24 h-24 rounded-2xl border border-slate-700 bg-slate-800 flex items-center justify-center flex-shrink-0"><User size={20} className="text-slate-600" /></div>
               )}
@@ -70,13 +71,13 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
             </div>
             <div className="flex-1 space-y-3">
               <div>
-                <Label variant="admin-label" className="mb-1">Full Name</Label>
-                <Input variant="admin-field" value={p.name} onChange={(e) => set("name", e.target.value)}
+                <Label htmlFor={`${uid}-full-name`} variant="admin-label" className="mb-1">Full Name</Label>
+                <Input id={`${uid}-full-name`} variant="admin-field" value={p.name} onChange={(e) => set("name", e.target.value)}
                   className="w-full" />
               </div>
               <div>
-                <Label variant="admin-label" className="mb-1">Badge Label</Label>
-                <Input variant="admin-field" value={p.badge} onChange={(e) => set("badge", e.target.value)}
+                <Label htmlFor={`${uid}-badge-label`} variant="admin-label" className="mb-1">Badge Label</Label>
+                <Input id={`${uid}-badge-label`} variant="admin-field" value={p.badge} onChange={(e) => set("badge", e.target.value)}
                   className="w-full font-mono" />
               </div>
             </div>
@@ -94,13 +95,13 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
           <h2 className="font-serif text-lg text-white mb-5">Professional Identity</h2>
           <div className="space-y-4">
             <div>
-              <Label variant="admin-label" className="mb-1">Headline</Label>
-              <Input variant="admin-field" value={p.headline} onChange={(e) => set("headline", e.target.value)}
+              <Label htmlFor={`${uid}-headline`} variant="admin-label" className="mb-1">Headline</Label>
+              <Input id={`${uid}-headline`} variant="admin-field" value={p.headline} onChange={(e) => set("headline", e.target.value)}
                 className="w-full" />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1">Professional Summary</Label>
-              <Textarea variant="admin-field"
+              <Label htmlFor={`${uid}-professional-summary`} variant="admin-label" className="mb-1">Professional Summary</Label>
+              <Textarea id={`${uid}-professional-summary`} variant="admin-field"
                 rows={5}
                 value={p.summary}
                 onChange={(e) => set("summary", e.target.value)}
@@ -117,13 +118,13 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label variant="admin-label" className="mb-1">Location</Label>
-              <Input variant="admin-field" value={p.location} onChange={(e) => set("location", e.target.value)}
+              <Label htmlFor={`${uid}-location`} variant="admin-label" className="mb-1">Location</Label>
+              <Input id={`${uid}-location`} variant="admin-field" value={p.location} onChange={(e) => set("location", e.target.value)}
                 className="w-full" />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1">Email</Label>
-              <Input variant="admin-field" type="email" value={p.email} onChange={(e) => set("email", e.target.value)}
+              <Label htmlFor={`${uid}-email`} variant="admin-label" className="mb-1">Email</Label>
+              <Input id={`${uid}-email`} variant="admin-field" type="email" value={p.email} onChange={(e) => set("email", e.target.value)}
                 className="w-full" />
             </div>
           </div>
@@ -135,8 +136,8 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {(Object.entries(p.stats) as [string, string][]).map(([key, value]) => (
               <div key={key}>
-                <Label variant="admin-label" className="mb-1 capitalize">{key.replace(/([A-Z])/g, " $1")}</Label>
-                <Input variant="admin-field"
+                <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1 capitalize">{key.replace(/([A-Z])/g, " $1")}</Label>
+                <Input id={`${uid}-${key}`} variant="admin-field"
                   value={value}
                   onChange={(e) => set("stats", { ...p.stats, [key]: e.target.value })}
                   className="w-full font-mono"

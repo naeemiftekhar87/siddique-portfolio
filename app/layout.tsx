@@ -21,9 +21,12 @@ const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
+// Inter is only a fallback behind Plus Jakarta Sans (docs/design.md), which
+// always loads, so it is not preloaded: the browser fetches it only if needed.
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  preload: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({

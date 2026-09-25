@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Plus, Pencil, Search } from "lucide-react";
 import { skillCategories, type Skill, type SkillCategory } from "@/lib/data";
 import { deleteSkill, saveSkill } from "@/lib/actions/content";
@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 const emptySkill = { name: "", category: "INDUSTRY KNOWLEDGE" as SkillCategory, level: 80 };
 
 export default function AdminSkills({ initial }: { initial: Skill[] }) {
+  const uid = useId();
   const [skillsList, setSkillsList] = useState<Skill[]>(initial);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL");
@@ -85,13 +86,13 @@ export default function AdminSkills({ initial }: { initial: Skill[] }) {
           <h3 className="font-serif text-lg text-white">Add Skill</h3>
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <Label variant="admin-label" className="mb-1">Skill Name *</Label>
-              <Input variant="admin-field" value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+              <Label htmlFor={`${uid}-skill-name`} variant="admin-label" className="mb-1">Skill Name *</Label>
+              <Input id={`${uid}-skill-name`} variant="admin-field" value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
                 className="w-full" />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1">Category</Label>
-              <NativeSelect variant="admin-field" value={addForm.category} onChange={(e) => setAddForm({ ...addForm, category: e.target.value as SkillCategory })}
+              <Label htmlFor={`${uid}-category`} variant="admin-label" className="mb-1">Category</Label>
+              <NativeSelect id={`${uid}-category`} variant="admin-field" value={addForm.category} onChange={(e) => setAddForm({ ...addForm, category: e.target.value as SkillCategory })}
                 className="w-full">
                 {cats.map((c) => <option key={c}>{c}</option>)}
               </NativeSelect>

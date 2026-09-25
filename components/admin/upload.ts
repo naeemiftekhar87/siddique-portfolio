@@ -2,6 +2,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import type { MediaAsset } from "@/lib/storage/media";
+import { optimizeImage } from "./optimize-image";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -14,9 +15,11 @@ async function postJson<T>(url: string, body: unknown): Promise<Result<T>> {
  * Uploads one file to the media library: the server validates it and issues a
  * signed URL, the browser sends the bytes straight to Supabase Storage (no
  * size cap from the app server), then the server verifies and records it.
+ * Photos are resized and converted to WebP first (optimize-image.ts).
  */
-export async function uploadMedia(file: File): Promise<Result<MediaAsset>> {
+export async function uploadMedia(original: File): Promise<Result<MediaAsset>> {
   try {
+    const file = await optimizeImage(original);
     const target = await postJson<{ bucket: string; path: string; token: string }>("/api/media/sign", { type: file.type, size: file.size });
     if (!target.ok) return target;
 

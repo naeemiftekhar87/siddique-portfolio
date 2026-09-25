@@ -11,12 +11,12 @@
 | Phase | Name                 | Tasks (incl. DoD) | Done | Status         |
 | ----- | -------------------- | ----------------- | ---- | -------------- |
 | 1     | Foundation           | 24                | 17   | 🟨 In progress |
-| 2     | Core Public Pages    | 45                | 41   | 🟨 In progress |
-| 3     | Research & eBooks    | 26                | 24   | 🟨 In progress |
-| 4     | Resume System        | 16                | 14   | 🟨 In progress |
-| 5     | Backend & Admin Core | 38                | 35   | 🟨 In progress |
-| 6     | Advanced Admin       | 30                | 27   | 🟨 In progress |
-| 7     | Hardening & Launch   | 27                | 3    | 🟨 In progress |
+| 2     | Core Public Pages    | 45                | 45   | ✅ Complete |
+| 3     | Research & eBooks    | 26                | 25   | 🟨 In progress |
+| 4     | Resume System        | 16                | 16   | ✅ Complete |
+| 5     | Backend & Admin Core | 38                | 37   | 🟨 In progress |
+| 6     | Advanced Admin       | 30                | 29   | 🟨 In progress |
+| 7     | Hardening & Launch   | 27                | 8    | 🟨 In progress |
 
 **Status legend:** ⬜ Not started · 🟨 In progress · ✅ Complete
 
@@ -78,7 +78,7 @@
 ### 2.1 Home (`/`)
 
 - [x] Hero: photo, name, headline, location, badge
-- [ ] 6 animated stat counters
+- [x] 6 animated stat counters (count up once in view; final value server-rendered; reduced motion respected)
 - [x] Professional Background cards (Experience, Education, Skills, Achievements) with links
 - [x] Featured grid (Research, Portfolio, Certificates)
 - [x] Recent Experience teaser (2 latest roles)
@@ -93,7 +93,7 @@
 - [x] Current Role snapshot
 - [x] Sidebar: Research Interests tag cloud
 - [x] Sidebar: At-a-Glance stats + Domain Expertise chips
-- [ ] Sidebar: Resume & CV card + Quick Nav grid
+- [x] Sidebar: Quick Nav grid (the Resume & CV card was removed by the owner in commit `ed76358`)
 
 ### 2.3 Experience (`/experience`)
 
@@ -133,13 +133,13 @@
 
 - [x] Hero with stats
 - [x] Category filter tabs
-- [ ] Project cards with tech chips, status badge, hover overlay (View + Link)
+- [x] Project cards with tech chips, status badge, hover overlay (View + Link)
 - [x] Detail page: Problem / Objective / Methodology / Results
 - [x] Detail page: tools chips and back navigation
 
 ### 2.9 Contact (`/contact`) — UI only
 
-- [ ] Hero with social links
+- [x] Hero with social links
 - [x] Form: name, email, subject, message
 - [x] Client-side validation and success state
 - [x] Contact info sidebar (location, email, socials)
@@ -159,7 +159,7 @@
 
 ### 3.1 Research Page (`/research`)
 
-- [ ] Hero with 4 Scholar stats (citations, h-index, i10-index, publications)
+- [x] Hero with 4 Scholar stats (citations, h-index, i10-index, publications)
 - [x] 3-section toggle (Interests / Published / Upcoming) with URL state (`?tab=`)
 - [x] **Interests:** interest area cards grid
 - [x] **Interests:** Google Scholar metrics CTA panel
@@ -192,7 +192,7 @@
 - [x] Hero with stats (titles, pages, categories, downloads)
 - [x] Filterable grid: cover, category, pages, description
 - [x] Detail page: title, subtitle, author, description, ISBN, pages, year, category
-- [ ] In-site PDF viewer (_Read online_) + _Download_ button (placeholder PDF until uploads exist); mobile fallback that opens the PDF when inline viewing is unsupported
+- [ ] In-site PDF viewer (_Read online_) + _Download_ button (placeholder PDF until uploads exist); mobile fallback that opens the PDF when inline viewing is unsupported _(2026-09-26: reader, counted download and fallback verified; inline rendering cannot be verified in Playwright's automation browsers (no PDF viewer) — owner to confirm once in real Chrome/Firefox/Safari)_
 - [x] Back navigation
 
 **✅ Definition of Done**
@@ -228,7 +228,7 @@
 - [x] ~~Headless-Chromium export route~~ → **browser print (Save as PDF)** chosen by the owner on 2026-09-25: _Download PDF_ opens the print dialog with the A4 print stylesheet; no server route or Chromium package
 - [x] Print stylesheet (A4, margins, page breaks)
 - [x] Download PDF for both variants (Professional, Infographic)
-- [ ] Test fonts, colours, and multi-page overflow
+- [x] Test fonts, colours, and multi-page overflow (2026-09-26: 4-page professional and 2-page infographic resumes rendered via Chromium print)
 
 > **Decision (2026-09-25, owner):** browser print is the PDF export. Both variants were rendered to PDF in Chromium's print engine and checked. Still to check: a multi-page resume with real content (page breaks, `break-inside-avoid`).
 
@@ -236,7 +236,7 @@
 
 - [x] PDF matches the on-screen layout for both variants
 - [x] Section toggles in config visibly change output
-- [ ] No content cut off across page breaks
+- [x] No content cut off across page breaks
 
 ---
 
@@ -251,7 +251,7 @@
 - [x] Design database schema for all entities (see PRD §7) as Supabase CLI SQL migrations; generate TypeScript types; enable RLS on every table (public read-only policies for public content)
 - [x] Create migrations (the database starts empty; no sample-content seed)
 - [x] Configure Supabase Storage buckets for images and documents
-- [ ] Build server-only selectors (public reads), Server Actions (admin CRUD), and Route Handlers (auth, contact, media, resume export, download counter)
+- [x] Build server-only selectors (public reads), Server Actions (admin CRUD), and Route Handlers (contact, media, download counter); auth uses Server Actions and resume export is browser print (owner decisions)
 - [x] Add validation, error handling, and logging
 
 > **Status (2026-09-25):** schema applied with `npm run db:push`. `lib/db/database.types.ts` is generated from the live schema by `npm run db:types` (`scripts/gen-db-types.mts`, same format as `supabase gen types`; needs no Docker or login). Auth uses Server Actions (`lib/auth/actions.ts`) rather than `/api/auth/*` Route Handlers; the resume-export route is pending (4.3).
@@ -297,7 +297,7 @@
 ### 5.6 Connect Public Site to API
 
 - [x] Replace static data imports with same-app API/data-access calls (loading + error states)
-- [ ] Add route-level caching and CDN headers
+- [x] Add route-level caching and CDN headers (static pages send `s-maxage` + `stale-while-revalidate`; on-demand revalidation; per-deployment Data Cache key)
 - [x] Verify each public page shows live admin edits
 
 **✅ Definition of Done**
@@ -355,8 +355,8 @@
 - [x] Upload zone with type/size validation
 - [x] Grid/list toggle, search, type filter
 - [x] Copy URL, delete with confirmation
-- [ ] Image optimisation (resize/WebP) — _P1_
-- [ ] Media picker used inside other admin forms
+- [x] Image optimisation (resize/WebP) — _P1_ (in the browser before upload: max 2000 px, WebP q0.85, only when smaller)
+- [x] Media picker used inside other admin forms
 
 ### 6.7 Settings
 
@@ -366,7 +366,7 @@
 **✅ Definition of Done**
 
 - [x] Every route in the admin sitemap is reachable and functional
-- [ ] A contact submission travels form → database → inbox → email
+- [ ] A contact submission travels form → database → inbox → email _(adapted by owner decision 18: no database; form → Resend verified, owner to confirm the test email arrived)_
 - [x] Changing nav/footer/home settings updates the live site
 
 ---
@@ -380,29 +380,29 @@
 
 - [ ] Manual test pass for every public page and admin module
 - [ ] Automated tests for critical flows (login, CRUD, contact form, filters)
-- [ ] Cross-browser test (Chrome, Edge, Safari, Firefox)
+- [ ] Cross-browser test (Chrome, Edge, Safari, Firefox) _(2026-09-26: Chromium and Firefox pass (all pages at 1440/360 px, menu, tabs, contact, admin sign-in, upload); WebKit/Safari needs system libraries on this machine; Edge not tested)_
 - [ ] Device test (iOS Safari, Android Chrome, tablet)
 - [ ] Fix all P0/P1 bugs
 
 ### 7.2 Performance
 
-- [ ] Lighthouse ≥ 90 (Performance, Accessibility) on key pages
-- [ ] Route-level code splitting and lazy-loaded images
-- [ ] CDN and caching configured
-- [ ] LCP under 2.5 s on 4G
+- [ ] Lighthouse ≥ 90 (Performance, Accessibility) on key pages _(2026-09-26 local, mobile profile: Accessibility 92–94; Performance 89–97 (Home 89); re-measure on Vercel)_
+- [x] Route-level code splitting and lazy-loaded images (Recharts sparkline lazy-loaded; `loading="lazy"` on list/card images)
+- [x] CDN and caching configured
+- [ ] LCP under 2.5 s on 4G _(2026-09-26 simulated slow 4G: 2.6–3.5 s; LCP element is the DM Serif heading, observed render ≈170 ms; re-measure behind Vercel's CDN)_
 
 ### 7.3 Accessibility
 
-- [ ] Keyboard navigation for tabs, accordions, menus, dialogs
-- [ ] Colour contrast audit (AA)
-- [ ] Alt text and ARIA labels reviewed
+- [x] Keyboard navigation for tabs, accordions, menus, dialogs (visible focus on every tab stop; toggles are buttons with `aria-expanded`; Radix dialog)
+- [ ] Colour contrast audit (AA) _(2026-09-26 audit done: 334 elements below AA, all from the ported palette (e.g. slate-500 on the navy footer 3.8:1, slate-400 on white 2.6:1); fixes need owner approval to change design colours)_
+- [x] Alt text and ARIA labels reviewed (axe: 0 violations other than colour contrast; all admin labels linked to inputs)
 - [x] Alternative to drag-to-reorder (up/down buttons)
 
 ### 7.4 Security
 
 - [ ] HTTPS enforced
 - [x] Input validation and sanitisation on all endpoints
-- [ ] CSRF/XSS protections, secure headers _(2026-09-25: security headers set in `next.config.ts`; Server Actions carry Next's origin check; cookies are SameSite=Lax; links are validated; no raw HTML rendering. Still missing: a Content-Security-Policy.)_
+- [x] CSRF/XSS protections, secure headers (security headers + a Content-Security-Policy without nonces in `next.config.ts`; Server Actions carry Next's origin check; SameSite=Lax cookies; validated links; no raw HTML rendering)
 - [x] File upload validation
 
 ### 7.5 Content

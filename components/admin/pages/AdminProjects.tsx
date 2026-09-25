@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Search, ExternalLink, ChevronDown, ChevronUp, Tag } from "lucide-react";
 import { projectStatuses, type PortfolioCategory, type Project } from "@/lib/data";
@@ -68,6 +68,7 @@ function ProjectForm({
   onCancel: () => void;
   pending: boolean;
 }) {
+  const uid = useId();
   const [f, setF] = useState<ProjectInput>(initial ?? { ...emptyProject, categoryId: categories[0]?.id ?? null });
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
@@ -77,8 +78,8 @@ function ProjectForm({
 
       {/* Basic info */}
       <div>
-        <Label variant="admin-label" className="mb-1">Project Title *</Label>
-        <Input variant="admin-field"
+        <Label htmlFor={`${uid}-project-title`} variant="admin-label" className="mb-1">Project Title *</Label>
+        <Input id={`${uid}-project-title`} variant="admin-field"
           value={f.title ?? ""}
           onChange={(e) => set("title", e.target.value)}
           placeholder="e.g. Sample Project Title"
@@ -88,8 +89,8 @@ function ProjectForm({
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <Label variant="admin-label" className="mb-1">Category</Label>
-          <NativeSelect variant="admin-field"
+          <Label htmlFor={`${uid}-category`} variant="admin-label" className="mb-1">Category</Label>
+          <NativeSelect id={`${uid}-category`} variant="admin-field"
             value={f.categoryId ?? ""}
             onChange={(e) => set("categoryId", e.target.value ? Number(e.target.value) : null)}
             className="w-full"
@@ -104,8 +105,8 @@ function ProjectForm({
           )}
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Status</Label>
-          <NativeSelect variant="admin-field"
+          <Label htmlFor={`${uid}-status`} variant="admin-label" className="mb-1">Status</Label>
+          <NativeSelect id={`${uid}-status`} variant="admin-field"
             value={f.status}
             onChange={(e) => set("status", e.target.value)}
             className="w-full"
@@ -116,8 +117,8 @@ function ProjectForm({
       </div>
 
       <div>
-        <Label variant="admin-label" className="mb-1">Short Description</Label>
-        <Textarea variant="admin-field"
+        <Label htmlFor={`${uid}-short-description`} variant="admin-label" className="mb-1">Short Description</Label>
+        <Textarea id={`${uid}-short-description`} variant="admin-field"
           rows={2}
           value={f.shortDescription ?? ""}
           onChange={(e) => set("shortDescription", e.target.value)}
@@ -126,8 +127,8 @@ function ProjectForm({
       </div>
 
       <div>
-        <Label variant="admin-label" className="mb-1">Full Description</Label>
-        <Textarea variant="admin-field"
+        <Label htmlFor={`${uid}-full-description`} variant="admin-label" className="mb-1">Full Description</Label>
+        <Textarea id={`${uid}-full-description`} variant="admin-field"
           rows={4}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
@@ -136,8 +137,8 @@ function ProjectForm({
       </div>
 
       <div>
-        <Label variant="admin-label" className="mb-1">Project Link (optional)</Label>
-        <Input variant="admin-field"
+        <Label htmlFor={`${uid}-project-link-optional`} variant="admin-label" className="mb-1">Project Link (optional)</Label>
+        <Input id={`${uid}-project-link-optional`} variant="admin-field"
           value={f.link}
           onChange={(e) => set("link", e.target.value)}
           placeholder="https://... or /path"
@@ -163,8 +164,8 @@ function ProjectForm({
           />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Objective</Label>
-          <Textarea variant="admin-field"
+          <Label htmlFor={`${uid}-objective`} variant="admin-label" className="mb-1">Objective</Label>
+          <Textarea id={`${uid}-objective`} variant="admin-field"
             rows={2}
             value={f.objective ?? ""}
             onChange={(e) => set("objective", e.target.value)}
@@ -172,8 +173,8 @@ function ProjectForm({
           />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Methodology</Label>
-          <Textarea variant="admin-field"
+          <Label htmlFor={`${uid}-methodology`} variant="admin-label" className="mb-1">Methodology</Label>
+          <Textarea id={`${uid}-methodology`} variant="admin-field"
             rows={2}
             value={f.methodology ?? ""}
             onChange={(e) => set("methodology", e.target.value)}
@@ -181,8 +182,8 @@ function ProjectForm({
           />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Results / Outcomes</Label>
-          <Textarea variant="admin-field"
+          <Label htmlFor={`${uid}-results-outcomes`} variant="admin-label" className="mb-1">Results / Outcomes</Label>
+          <Textarea id={`${uid}-results-outcomes`} variant="admin-field"
             rows={2}
             value={f.results ?? ""}
             onChange={(e) => set("results", e.target.value)}
@@ -193,8 +194,8 @@ function ProjectForm({
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <Label variant="admin-label" className="mb-1">Technologies (comma-separated)</Label>
-          <Input variant="admin-field"
+          <Label htmlFor={`${uid}-technologies-comma-separated`} variant="admin-label" className="mb-1">Technologies (comma-separated)</Label>
+          <Input id={`${uid}-technologies-comma-separated`} variant="admin-field"
             value={Array.isArray(f.technologies) ? f.technologies.join(", ") : ""}
             onChange={(e) => set("technologies", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
             placeholder="Tool 1, Tool 2, Tool 3"
@@ -202,8 +203,8 @@ function ProjectForm({
           />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Tools (comma-separated)</Label>
-          <Input variant="admin-field"
+          <Label htmlFor={`${uid}-tools-comma-separated`} variant="admin-label" className="mb-1">Tools (comma-separated)</Label>
+          <Input id={`${uid}-tools-comma-separated`} variant="admin-field"
             value={Array.isArray(f.tools) ? f.tools.join(", ") : ""}
             onChange={(e) => set("tools", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
             placeholder="VS Code, Jupyter, dbt"
@@ -361,7 +362,7 @@ export default function AdminProjects({ initial, categories }: { initial: Projec
                     {/* Thumbnail */}
                     <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-slate-800">
                       {project.image ? (
-                        <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={project.image} alt={project.title} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-600">
                           <Tag size={20} />
@@ -405,9 +406,12 @@ export default function AdminProjects({ initial, categories }: { initial: Projec
                         <Pencil size={14} />
                       </Button>
                       <ConfirmDelete label={project.title} pending={pending} onConfirm={() => handleDelete(project.id)} />
-                      <div className="text-slate-600 ml-1">
+                      <Button variant="unstyled" type="button" aria-expanded={isExpanded}
+                        aria-label={`${isExpanded ? "Collapse" : "Expand"} ${project.title}`}
+                        onClick={(e) => { e.stopPropagation(); setExpanded(isExpanded ? null : project.id); }}
+                        className="text-slate-600 ml-1 p-1 rounded-lg hover:text-slate-300">
                         {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-                      </div>
+                      </Button>
                     </div>
                   </div>
 

@@ -1,7 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
-import { supabaseSecretKey, supabaseUrl } from "./env";
+import { dataCacheHeaders, supabaseSecretKey, supabaseUrl } from "./env";
 
 /**
  * Privileged client (secret key, bypasses RLS). Only call it after
@@ -11,5 +11,6 @@ import { supabaseSecretKey, supabaseUrl } from "./env";
 export function createAdminClient() {
   return createClient<Database>(supabaseUrl(), supabaseSecretKey(), {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: dataCacheHeaders },
   });
 }

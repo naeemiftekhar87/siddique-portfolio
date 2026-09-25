@@ -88,7 +88,7 @@ export default function EBooks({ ebooks }: { ebooks: EBook[] }) {
               {/* Cover */}
               <div className="relative h-64 bg-slate-100 overflow-hidden flex items-center justify-center">
                 {book.image ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={book.image}
                     alt={book.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

@@ -204,7 +204,7 @@ export default function About({ profile, about, education, experiences }: AboutP
                 <Card variant="site-glass-card" className="p-6 hover:shadow-md transition-all">
                   <div className="flex items-start gap-4">
                     {currentRole.logo ? (
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={currentRole.logo}
                         alt={currentRole.company}
                         className="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-100"

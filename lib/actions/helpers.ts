@@ -5,7 +5,7 @@ import { getAdminUser } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/db/admin";
 import { fail, ok, unauthenticated, validationMessage, type ActionResult } from "./result";
 
-type AdminClient = ReturnType<typeof createAdminClient>;
+export type AdminClient = ReturnType<typeof createAdminClient>;
 type DbError = { message: string; code?: string };
 
 /** An error whose message is safe to show to the admin. */

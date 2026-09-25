@@ -5,6 +5,7 @@ import { FileText, Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadMedia } from "./upload";
+import { MediaPicker } from "./media-picker";
 
 const MAX_BYTES = 50 * 1024 * 1024; // 50 MB
 
@@ -57,6 +58,7 @@ export function PdfUploadField({ value, onChange }: { value: string; onChange: (
       )}
       <Input variant="unstyled" ref={inputRef} type="file" accept="application/pdf" className="hidden"
         onChange={(e) => acceptFile(e.target.files?.[0])} tabIndex={-1} aria-hidden />
+      {!value && <MediaPicker type="document" onSelect={(url) => { setError(""); onChange(url); }} />}
       {error && <p className="text-red-400 text-xs" role="alert">{error}</p>}
     </div>
   );

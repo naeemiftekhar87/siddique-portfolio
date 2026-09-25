@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Plus, Pencil, Search, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
 import { educationStatuses, type Education } from "@/lib/data";
-import { deleteEducation, saveEducation } from "@/lib/actions/content";
+import { deleteEducation, reorderEducation, saveEducation } from "@/lib/actions/content";
+import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
@@ -24,6 +25,7 @@ const emptyEdu: EduInput = {
 };
 
 function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave: (d: EduInput) => void; onCancel: () => void; pending: boolean }) {
+  const uid = useId();
   const [f, setF] = useState<EduInput>(initial ?? emptyEdu);
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
@@ -40,8 +42,8 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
           ["endDate", "End Date"],
         ] as [keyof Edu, string][]).map(([key, label]) => (
           <div key={key}>
-            <Label variant="admin-label" className="mb-1">{label}</Label>
-            <Input variant="admin-field"
+            <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1">{label}</Label>
+            <Input id={`${uid}-${key}`} variant="admin-field"
               value={(f[key] as string) ?? ""}
               onChange={(e) => set(key, e.target.value)}
               className="w-full"
@@ -49,8 +51,8 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
           </div>
         ))}
         <div>
-          <Label variant="admin-label" className="mb-1">Status</Label>
-          <NativeSelect variant="admin-field"
+          <Label htmlFor={`${uid}-status`} variant="admin-label" className="mb-1">Status</Label>
+          <NativeSelect id={`${uid}-status`} variant="admin-field"
             value={f.status ?? "In Progress"}
             onChange={(e) => set("status", e.target.value)}
             className="w-full"
@@ -60,8 +62,8 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
         </div>
       </div>
       <div>
-        <Label variant="admin-label" className="mb-1">Description</Label>
-        <Textarea variant="admin-field"
+        <Label htmlFor={`${uid}-description`} variant="admin-label" className="mb-1">Description</Label>
+        <Textarea id={`${uid}-description`} variant="admin-field"
           rows={3}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
@@ -70,8 +72,8 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <Label variant="admin-label" className="mb-1">Coursework (comma-separated)</Label>
-          <Input variant="admin-field"
+          <Label htmlFor={`${uid}-coursework-comma-separated`} variant="admin-label" className="mb-1">Coursework (comma-separated)</Label>
+          <Input id={`${uid}-coursework-comma-separated`} variant="admin-field"
             value={Array.isArray(f.coursework) ? f.coursework.join(", ") : ""}
             onChange={(e) => set("coursework", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
             className="w-full"
@@ -79,8 +81,8 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
           />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Skills Gained (comma-separated)</Label>
-          <Input variant="admin-field"
+          <Label htmlFor={`${uid}-skills-gained-comma-separated`} variant="admin-label" className="mb-1">Skills Gained (comma-separated)</Label>
+          <Input id={`${uid}-skills-gained-comma-separated`} variant="admin-field"
             value={Array.isArray(f.skills) ? f.skills.join(", ") : ""}
             onChange={(e) => set("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
             className="w-full"
@@ -134,6 +136,14 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
     });
   };
 
+  // Order shown on the public site; arrows are hidden while searching.
+  const move = (index: number, delta: -1 | 1) => {
+    const previous = list;
+    const next = moveItem(list, index, delta);
+    setList(next);
+    run(() => reorderEducation(next.map((e) => e.id)), { onError: () => setList(previous) });
+  };
+
   const handleDelete = (id: number) => {
     run(() => deleteEducation(id), {
       success: "Education deleted.",
@@ -175,7 +185,7 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
             <p className="text-slate-500 text-sm">{list.length === 0 ? "No education entries yet." : "No education entries match your filters."}</p>
           </div>
         )}
-        {filtered.map((edu) => (
+        {filtered.map((edu, index) => (
           <Card variant="admin-panel" key={edu.id} className="overflow-hidden">
             {editing === edu.id ? (
               <div className="p-6">
@@ -187,6 +197,7 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
                   className="flex items-center gap-4 p-5 cursor-pointer hover:bg-slate-800/30 transition-colors"
                   onClick={() => setExpanded(expanded === edu.id ? null : edu.id)}
                 >
+                  {!search && <ReorderButtons index={index} count={list.length} label={edu.degree} disabled={pending} onMove={(d) => move(index, d)} />}
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.status === "In Progress" ? "bg-blue-600" : "bg-teal-700"}`}>
                     <GraduationCap size={18} className="text-white" />
                   </div>
@@ -206,7 +217,11 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
                       <Pencil size={14} />
                     </Button>
                     <ConfirmDelete label={edu.degree} pending={pending} onConfirm={() => handleDelete(edu.id)} />
-                    {expanded === edu.id ? <ChevronUp size={15} className="text-slate-500" /> : <ChevronDown size={15} className="text-slate-500" />}
+                    <Button variant="admin-ghost" type="button" aria-expanded={expanded === edu.id}
+                      aria-label={`${expanded === edu.id ? "Collapse" : "Expand"} ${edu.degree}`}
+                      onClick={(e) => { e.stopPropagation(); setExpanded(expanded === edu.id ? null : edu.id); }}>
+                      {expanded === edu.id ? <ChevronUp size={15} className="text-slate-500" /> : <ChevronDown size={15} className="text-slate-500" />}
+                    </Button>
                   </div>
                 </div>
                 {expanded === edu.id && (

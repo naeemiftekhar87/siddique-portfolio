@@ -2,7 +2,7 @@
 
 import type { Education, Experience, Paper, ProfileSettings, ResumeConfig, Skill } from "@/lib/data";
 import { ExternalLink, FileText, Save } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { saveSettings } from "@/lib/actions/settings";
 import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ export default function AdminResumeEditor({
   skills: Skill[];
   researchPapers: Paper[];
 }) {
+  const uid = useId();
   const { customNote: initialNote, ...initialSettings } = initial;
   const [settings, setSettings] = useState(initialSettings);
   const [customNote, setCustomNote] = useState(initialNote);
@@ -134,12 +135,12 @@ export default function AdminResumeEditor({
             ].map(({ key, label, max }) => (
               <div key={key}>
                 <div className="flex items-center justify-between mb-1.5">
-                  <Label variant="unstyled" className="text-xs text-slate-400">{label}</Label>
+                  <Label htmlFor={`${uid}-${key}`} variant="unstyled" className="text-xs text-slate-400">{label}</Label>
                   <span className="text-xs font-mono text-slate-500">
                     {settings[key as keyof typeof settings]} / {max}
                   </span>
                 </div>
-                <Input variant="unstyled"
+                <Input id={`${uid}-${key}`} variant="unstyled"
                   type="range"
                   min={1}
                   max={max}
@@ -160,11 +161,11 @@ export default function AdminResumeEditor({
           <Card variant="admin-panel" className="p-5 space-y-4">
             <h2 className="font-serif text-base text-white">Style</h2>
             <div>
-              <Label variant="admin-label" className="mb-2">
+              <Label htmlFor={`${uid}-accent`} variant="admin-label" className="mb-2">
                 Accent Color
               </Label>
               <div className="flex items-center gap-3">
-                <Input variant="unstyled"
+                <Input id={`${uid}-accent`} variant="unstyled"
                   type="color"
                   value={settings.accentColor}
                   onChange={(e) =>
@@ -181,10 +182,10 @@ export default function AdminResumeEditor({
               </div>
             </div>
             <div>
-              <Label variant="admin-label" className="mb-2">
+              <Label htmlFor={`${uid}-font`} variant="admin-label" className="mb-2">
                 Heading Font
               </Label>
-              <NativeSelect variant="admin-field"
+              <NativeSelect id={`${uid}-font`} variant="admin-field"
                 value={settings.fontStyle}
                 onChange={(e) =>
                   setSettings((prev) => ({

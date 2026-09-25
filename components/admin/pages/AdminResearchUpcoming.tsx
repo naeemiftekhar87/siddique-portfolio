@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Plus, Edit2, Trash2, Save, X, Microscope, ChevronDown, ChevronUp } from "lucide-react";
 import { upcomingStatuses, type UpcomingResearch } from "@/lib/data";
 import { deleteUpcomingResearch, saveUpcomingResearch } from "@/lib/actions/content";
@@ -32,6 +32,7 @@ const emptyTopic: Draft = {
 };
 
 export default function AdminResearchUpcoming({ initial, areas }: { initial: Topic[]; areas: string[] }) {
+  const uid = useId();
   const [topics, setTopics] = useState<Topic[]>(initial);
   const [editing, setEditing] = useState<Draft | null>(null);
   const { pending, run } = useAction();
@@ -89,53 +90,53 @@ export default function AdminResearchUpcoming({ initial, areas }: { initial: Top
           <h2 className="font-serif text-lg text-white">{isNew ? "Add Research Topic" : "Edit Topic"}</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <Label variant="admin-label" className="mb-1.5">Title</Label>
-              <Input variant="admin-field" value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })}
+              <Label htmlFor={`${uid}-title`} variant="admin-label" className="mb-1.5">Title</Label>
+              <Input id={`${uid}-title`} variant="admin-field" value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })}
                 placeholder="Research topic title"
                 className="w-full" />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Research Area</Label>
-              <NativeSelect variant="admin-field" value={editing.area} onChange={e => setEditing({ ...editing, area: e.target.value })}
+              <Label htmlFor={`${uid}-research-area`} variant="admin-label" className="mb-1.5">Research Area</Label>
+              <NativeSelect id={`${uid}-research-area`} variant="admin-field" value={editing.area} onChange={e => setEditing({ ...editing, area: e.target.value })}
                 className="w-full">
                 <option value="">None</option>
                 {areaOptions.map(a => <option key={a}>{a}</option>)}
               </NativeSelect>
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Status</Label>
-              <NativeSelect variant="admin-field" value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value as Draft["status"] })}
+              <Label htmlFor={`${uid}-status`} variant="admin-label" className="mb-1.5">Status</Label>
+              <NativeSelect id={`${uid}-status`} variant="admin-field" value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value as Draft["status"] })}
                 className="w-full">
                 {STATUSES.map(s => <option key={s}>{s}</option>)}
               </NativeSelect>
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Expected Year</Label>
-              <Input variant="admin-field" value={editing.expectedYear} onChange={e => setEditing({ ...editing, expectedYear: e.target.value })}
+              <Label htmlFor={`${uid}-expected-year`} variant="admin-label" className="mb-1.5">Expected Year</Label>
+              <Input id={`${uid}-expected-year`} variant="admin-field" value={editing.expectedYear} onChange={e => setEditing({ ...editing, expectedYear: e.target.value })}
                 placeholder="2027"
                 className="w-full" />
             </div>
             <div className="sm:col-span-2">
-              <Label variant="admin-label" className="mb-1.5">Research Question</Label>
-              <Textarea variant="admin-field" rows={2} value={editing.question} onChange={e => setEditing({ ...editing, question: e.target.value })}
+              <Label htmlFor={`${uid}-research-question`} variant="admin-label" className="mb-1.5">Research Question</Label>
+              <Textarea id={`${uid}-research-question`} variant="admin-field" rows={2} value={editing.question} onChange={e => setEditing({ ...editing, question: e.target.value })}
                 placeholder="Core research question…"
                 className="w-full resize-none" />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Expected Contribution</Label>
-              <Textarea variant="admin-field" rows={3} value={editing.contribution} onChange={e => setEditing({ ...editing, contribution: e.target.value })}
+              <Label htmlFor={`${uid}-expected-contribution`} variant="admin-label" className="mb-1.5">Expected Contribution</Label>
+              <Textarea id={`${uid}-expected-contribution`} variant="admin-field" rows={3} value={editing.contribution} onChange={e => setEditing({ ...editing, contribution: e.target.value })}
                 placeholder="What this research will contribute…"
                 className="w-full resize-none" />
             </div>
             <div>
-              <Label variant="admin-label" className="mb-1.5">Methodology</Label>
-              <Textarea variant="admin-field" rows={3} value={editing.methodology} onChange={e => setEditing({ ...editing, methodology: e.target.value })}
+              <Label htmlFor={`${uid}-methodology`} variant="admin-label" className="mb-1.5">Methodology</Label>
+              <Textarea id={`${uid}-methodology`} variant="admin-field" rows={3} value={editing.methodology} onChange={e => setEditing({ ...editing, methodology: e.target.value })}
                 placeholder="Research methods and approach…"
                 className="w-full resize-none" />
             </div>
             <div className="sm:col-span-2">
-              <Label variant="admin-label" className="mb-1.5">Keywords (comma-separated)</Label>
-              <Input variant="admin-field" value={editing.keywords} onChange={e => setEditing({ ...editing, keywords: e.target.value })}
+              <Label htmlFor={`${uid}-keywords-comma-separated`} variant="admin-label" className="mb-1.5">Keywords (comma-separated)</Label>
+              <Input id={`${uid}-keywords-comma-separated`} variant="admin-field" value={editing.keywords} onChange={e => setEditing({ ...editing, keywords: e.target.value })}
                 placeholder="Keyword 1, Keyword 2, Keyword 3"
                 className="w-full" />
             </div>

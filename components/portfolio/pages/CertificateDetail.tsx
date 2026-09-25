@@ -129,7 +129,7 @@ export default function CertificateDetail({ cert, related }: { cert: Certificate
                   className="group flex gap-4 bg-slate-50 rounded-2xl border border-slate-100 p-5 hover:border-blue-200 hover:shadow-sm transition-all"
                 >
                   {c.image ? (
-                    <img src={c.image} alt={c.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                    <img loading="lazy" decoding="async" src={c.image} alt={c.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
                   ) : (
                     <div className="w-16 h-16 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0" aria-hidden><Award size={22} className="text-amber-400" /></div>
                   )}

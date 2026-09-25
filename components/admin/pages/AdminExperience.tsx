@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Plus, Pencil, Search, ChevronDown, ChevronUp, Calendar, Briefcase } from "lucide-react";
 import type { Experience } from "@/lib/data";
-import { deleteExperience, saveExperience } from "@/lib/actions/content";
+import { deleteExperience, reorderExperiences, saveExperience } from "@/lib/actions/content";
+import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
@@ -42,6 +43,7 @@ function ExpForm({
   onCancel: () => void;
   pending: boolean;
 }) {
+  const uid = useId();
   const [f, setF] = useState<Omit<Exp, "id"> & { id?: number }>(initial ?? emptyExp);
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
@@ -51,8 +53,8 @@ function ExpForm({
       <div className="grid sm:grid-cols-2 gap-4">
         {([["position", "Job Title *"], ["company", "Company *"], ["type", "Employment Type"], ["location", "Location"], ["startDate", "Start Date"], ["endDate", "End Date"]] as [keyof Exp, string][]).map(([key, label]) => (
           <div key={key}>
-            <Label variant="admin-label" className="mb-1">{label}</Label>
-            <Input variant="admin-field"
+            <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1">{label}</Label>
+            <Input id={`${uid}-${key}`} variant="admin-field"
               value={(f[key] as string) ?? ""}
               onChange={(e) => set(key, e.target.value)}
               className="w-full"
@@ -61,8 +63,8 @@ function ExpForm({
         ))}
       </div>
       <div>
-        <Label variant="admin-label" className="mb-1">Description</Label>
-        <Textarea variant="admin-field"
+        <Label htmlFor={`${uid}-description`} variant="admin-label" className="mb-1">Description</Label>
+        <Textarea id={`${uid}-description`} variant="admin-field"
           rows={3}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
@@ -71,8 +73,8 @@ function ExpForm({
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <Label variant="admin-label" className="mb-1">Responsibilities (one per line)</Label>
-          <Textarea variant="admin-field"
+          <Label htmlFor={`${uid}-responsibilities-one-per-line`} variant="admin-label" className="mb-1">Responsibilities (one per line)</Label>
+          <Textarea id={`${uid}-responsibilities-one-per-line`} variant="admin-field"
             rows={4}
             defaultValue={f.responsibilities.join("\n")}
             onChange={(e) => set("responsibilities", lines(e.target.value))}
@@ -80,8 +82,8 @@ function ExpForm({
           />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Key Achievements (one per line)</Label>
-          <Textarea variant="admin-field"
+          <Label htmlFor={`${uid}-key-achievements-one-per-line`} variant="admin-label" className="mb-1">Key Achievements (one per line)</Label>
+          <Textarea id={`${uid}-key-achievements-one-per-line`} variant="admin-field"
             rows={4}
             defaultValue={f.achievements.join("\n")}
             onChange={(e) => set("achievements", lines(e.target.value))}
@@ -157,6 +159,14 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
     });
   };
 
+  // Order shown on the public site; arrows are hidden while searching.
+  const move = (index: number, delta: -1 | 1) => {
+    const previous = exps;
+    const next = moveItem(exps, index, delta);
+    setExps(next);
+    run(() => reorderExperiences(next.map((e) => e.id)), { onError: () => setExps(previous) });
+  };
+
   const handleDelete = (id: number) => {
     run(() => deleteExperience(id), {
       success: "Experience deleted.",
@@ -198,7 +208,7 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
             <p className="text-slate-500 text-sm">{exps.length === 0 ? "No experience entries yet." : "No experience entries match your filters."}</p>
           </div>
         )}
-        {filtered.map((exp) => (
+        {filtered.map((exp, index) => (
           <Card variant="admin-panel" key={exp.id}>
             {editing === exp.id ? (
               <div className="p-6">
@@ -215,8 +225,9 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
                   className="flex items-center gap-4 p-5 cursor-pointer"
                   onClick={() => setExpanded(expanded === exp.id ? null : exp.id)}
                 >
+                  {!search && <ReorderButtons index={index} count={exps.length} label={exp.position} disabled={pending} onMove={(d) => move(index, d)} />}
                   {exp.logo ? (
-                    <img src={exp.logo} alt={exp.company} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
+                    <img loading="lazy" decoding="async" src={exp.logo} alt={exp.company} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
                   ) : (
                     <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0"><Briefcase size={16} className="text-slate-600" /></div>
                   )}
@@ -235,7 +246,11 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
                       <Pencil size={14} />
                     </Button>
                     <ConfirmDelete label={exp.position} pending={pending} onConfirm={() => handleDelete(exp.id)} />
-                    {expanded === exp.id ? <ChevronUp size={15} className="text-slate-500" /> : <ChevronDown size={15} className="text-slate-500" />}
+                    <Button variant="admin-ghost" type="button" aria-expanded={expanded === exp.id}
+                      aria-label={`${expanded === exp.id ? "Collapse" : "Expand"} ${exp.position}`}
+                      onClick={(e) => { e.stopPropagation(); setExpanded(expanded === exp.id ? null : exp.id); }}>
+                      {expanded === exp.id ? <ChevronUp size={15} className="text-slate-500" /> : <ChevronDown size={15} className="text-slate-500" />}
+                    </Button>
                   </div>
                 </div>
                 {expanded === exp.id && (

@@ -53,7 +53,7 @@ export default function Education({ education, profile }: { education: Education
                   <div className="flex-shrink-0">
                     <div className="w-16 h-16 rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
                       {edu.logo ? (
-                        <img src={edu.logo} alt={edu.university} className="w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={edu.logo} alt={edu.university} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full bg-teal-50 flex items-center justify-center" aria-hidden>
                           <GraduationCap size={24} className="text-teal-600" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Plus, Trash2, X, Image as ImageIcon, Save, ExternalLink } from "lucide-react";
 import { galleryCategories, type GalleryItem } from "@/lib/data";
 import { deleteGalleryItem, saveGalleryItem } from "@/lib/actions/content";
@@ -20,6 +20,7 @@ const emptyItem: Omit<GalleryItem, "id"> = {
 };
 
 export default function AdminPortfolioGallery({ initial }: { initial: GalleryItem[] }) {
+  const uid = useId();
   const [items, setItems] = useState<GalleryItem[]>(initial);
   const { pending, run } = useAction();
   const [showForm, setShowForm] = useState(false);
@@ -86,15 +87,15 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
               { key: "projectLink", label: "Project Link (optional)",  placeholder: "/portfolio/1", mono: true },
             ].map(({ key, label, placeholder, mono, isSelect }) => (
               <div key={key}>
-                <Label variant="admin-label" className="mb-1.5">{label}</Label>
+                <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1.5">{label}</Label>
                 {isSelect ? (
-                  <NativeSelect variant="admin-field" value={form[key as keyof typeof form]}
+                  <NativeSelect id={`${uid}-${key}`} variant="admin-field" value={form[key as keyof typeof form]}
                     onChange={e => setForm({ ...form, [key]: e.target.value })}
                     className="w-full">
                     {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </NativeSelect>
                 ) : (
-                  <Input variant="unstyled" value={form[key as keyof typeof form] as string}
+                  <Input id={`${uid}-${key}`} variant="unstyled" value={form[key as keyof typeof form] as string}
                     onChange={e => setForm({ ...form, [key]: e.target.value })}
                     placeholder={placeholder}
                     className={`w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 ${mono ? "font-mono" : ""}`} />
@@ -106,15 +107,15 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
               <ImageSourceField value={form.imageUrl} onChange={(v) => setForm({ ...form, imageUrl: v })} />
             </div>
             <div className="sm:col-span-2">
-              <Label variant="admin-label" className="mb-1.5">Caption</Label>
-              <Textarea variant="admin-field" rows={2} value={form.caption} onChange={e => setForm({ ...form, caption: e.target.value })}
+              <Label htmlFor={`${uid}-caption`} variant="admin-label" className="mb-1.5">Caption</Label>
+              <Textarea id={`${uid}-caption`} variant="admin-field" rows={2} value={form.caption} onChange={e => setForm({ ...form, caption: e.target.value })}
                 placeholder="Brief description of the image…"
                 className="w-full resize-none" />
             </div>
           </div>
           {form.imageUrl && (
             <div className="rounded-xl overflow-hidden border border-slate-700 h-36">
-              <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
             </div>
           )}
           <div className="flex gap-3">
@@ -145,7 +146,7 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
         {filtered.map(item => (
           <Card variant="admin-panel" key={item.id} className="overflow-hidden group hover:border-slate-700 transition-all">
             <div className="relative h-44 overflow-hidden bg-slate-800">
-              <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img loading="lazy" decoding="async" src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                 {item.projectLink && (
                   <a href={item.projectLink} target="_blank" rel="noopener noreferrer"

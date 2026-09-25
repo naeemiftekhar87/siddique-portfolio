@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Save, GraduationCap, BarChart2, RefreshCw } from "lucide-react";
 import type { ResearchProfileSettings } from "@/lib/data";
 import { saveSettings } from "@/lib/actions/settings";
@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
 
 export default function AdminResearchProfile({ initial }: { initial: ResearchProfileSettings }) {
+  const uid = useId();
   const { bio: initialBio, ...initialMetrics } = initial;
   const [metrics, setMetrics] = useState(initialMetrics);
   const [bio, setBio] = useState(initialBio);
@@ -54,8 +55,8 @@ export default function AdminResearchProfile({ initial }: { initial: ResearchPro
             { key: "publications", label: "Publications" },
           ].map(({ key, label }) => (
             <div key={key}>
-              <Label variant="admin-label" className="mb-1.5">{label}</Label>
-              <Input variant="admin-field"
+              <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1.5">{label}</Label>
+              <Input id={`${uid}-${key}`} variant="admin-field"
                 type="number"
                 min={0}
                 aria-label={label}
@@ -77,8 +78,8 @@ export default function AdminResearchProfile({ initial }: { initial: ResearchPro
           <GraduationCap size={17} className="text-violet-400" /> Research Bio
         </h2>
         <div>
-          <Label variant="admin-label" className="mb-1.5">Short Bio (shown on Research page)</Label>
-          <Textarea variant="admin-field"
+          <Label htmlFor={`${uid}-short-bio-shown-on-research-pa`} variant="admin-label" className="mb-1.5">Short Bio (shown on Research page)</Label>
+          <Textarea id={`${uid}-short-bio-shown-on-research-pa`} variant="admin-field"
             rows={4}
             value={bio}
             onChange={e => setBio(e.target.value)}

@@ -91,7 +91,7 @@ export default function Certificates({ certificates }: { certificates: Certifica
               {/* Image */}
               <div className="relative h-44 overflow-hidden bg-slate-100">
                 {cert.image ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={cert.image}
                     alt={cert.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

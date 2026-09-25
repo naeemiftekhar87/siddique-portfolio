@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Search, ExternalLink, Download, Copy, BookOpen, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -38,6 +38,7 @@ const statusColors: Record<string, string> = {
 };
 
 function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub; areas: string[]; onSave: (d: PubInput) => void; onCancel: () => void; pending: boolean }) {
+  const uid = useId();
   const [f, setF] = useState<PubInput>(initial ?? { ...emptyPub, area: areas[0] ?? "" });
   // Keep an area that is no longer in the interests list selectable.
   const areaOptions = f.area && !areas.includes(f.area) ? [f.area, ...areas] : areas;
@@ -47,13 +48,13 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
     <div className="bg-slate-900 rounded-2xl border border-blue-800/40 p-6 mb-6 space-y-4">
       <h3 className="font-serif text-lg text-white">{initial?.title ? "Edit Paper" : "Add Research Paper"}</h3>
       <div>
-        <Label variant="admin-label" className="mb-1">Title *</Label>
-        <Input variant="admin-field" value={f.title ?? ""} onChange={(e) => set("title", e.target.value)}
+        <Label htmlFor={`${uid}-title`} variant="admin-label" className="mb-1">Title *</Label>
+        <Input id={`${uid}-title`} variant="admin-field" value={f.title ?? ""} onChange={(e) => set("title", e.target.value)}
           className="w-full" />
       </div>
       <div>
-        <Label variant="admin-label" className="mb-1">Authors (comma-separated)</Label>
-        <Input variant="admin-field"
+        <Label htmlFor={`${uid}-authors-comma-separated`} variant="admin-label" className="mb-1">Authors (comma-separated)</Label>
+        <Input id={`${uid}-authors-comma-separated`} variant="admin-field"
           value={Array.isArray(f.authors) ? f.authors.join(", ") : ""}
           onChange={(e) => set("authors", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
           className="w-full"
@@ -66,20 +67,20 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
             className="w-full" />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Year</Label>
-          <Input variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
+          <Label htmlFor={`${uid}-year`} variant="admin-label" className="mb-1">Year</Label>
+          <Input id={`${uid}-year`} variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
             className="w-full" />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Status</Label>
-          <NativeSelect variant="admin-field" value={f.status ?? "Working Paper"} onChange={(e) => set("status", e.target.value)}
+          <Label htmlFor={`${uid}-status`} variant="admin-label" className="mb-1">Status</Label>
+          <NativeSelect id={`${uid}-status`} variant="admin-field" value={f.status ?? "Working Paper"} onChange={(e) => set("status", e.target.value)}
             className="w-full">
             {statuses.map((s) => <option key={s}>{s}</option>)}
           </NativeSelect>
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Research Area</Label>
-          <NativeSelect variant="admin-field" value={f.area} onChange={(e) => set("area", e.target.value)}
+          <Label htmlFor={`${uid}-research-area`} variant="admin-label" className="mb-1">Research Area</Label>
+          <NativeSelect id={`${uid}-research-area`} variant="admin-field" value={f.area} onChange={(e) => set("area", e.target.value)}
             className="w-full">
             <option value="">None</option>
             {areaOptions.map((a) => <option key={a}>{a}</option>)}
@@ -91,13 +92,13 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
           )}
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">DOI</Label>
-          <Input variant="admin-field" value={f.doi ?? ""} onChange={(e) => set("doi", e.target.value)}
+          <Label htmlFor={`${uid}-doi`} variant="admin-label" className="mb-1">DOI</Label>
+          <Input id={`${uid}-doi`} variant="admin-field" value={f.doi ?? ""} onChange={(e) => set("doi", e.target.value)}
             className="w-full" placeholder="10.xxxx/..." />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Keywords (comma-separated)</Label>
-          <Input variant="admin-field"
+          <Label htmlFor={`${uid}-keywords-comma-separated`} variant="admin-label" className="mb-1">Keywords (comma-separated)</Label>
+          <Input id={`${uid}-keywords-comma-separated`} variant="admin-field"
             value={Array.isArray(f.keywords) ? f.keywords.join(", ") : ""}
             onChange={(e) => set("keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
             className="w-full"
@@ -105,34 +106,34 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
         </div>
       </div>
       <div>
-        <Label variant="admin-label" className="mb-1">Abstract</Label>
-        <Textarea variant="admin-field" rows={4} value={f.abstract ?? ""} onChange={(e) => set("abstract", e.target.value)}
+        <Label htmlFor={`${uid}-abstract`} variant="admin-label" className="mb-1">Abstract</Label>
+        <Textarea id={`${uid}-abstract`} variant="admin-field" rows={4} value={f.abstract ?? ""} onChange={(e) => set("abstract", e.target.value)}
           className="w-full resize-none" />
       </div>
 
       {isInProgress(f.status) && (
         <div className="grid sm:grid-cols-3 gap-4">
           <div>
-            <Label variant="admin-label" className="mb-1">Version</Label>
-            <Input variant="admin-field" value={f.version ?? ""} onChange={(e) => set("version", e.target.value)}
+            <Label htmlFor={`${uid}-version`} variant="admin-label" className="mb-1">Version</Label>
+            <Input id={`${uid}-version`} variant="admin-field" value={f.version ?? ""} onChange={(e) => set("version", e.target.value)}
               className="w-full font-mono" placeholder="v0.1" />
           </div>
           <div>
-            <Label variant="admin-label" className="mb-1">Submission Date</Label>
-            <Input variant="admin-field" type="date" value={f.submissionDate ?? ""} onChange={(e) => set("submissionDate", e.target.value || null)}
+            <Label htmlFor={`${uid}-submission-date`} variant="admin-label" className="mb-1">Submission Date</Label>
+            <Input id={`${uid}-submission-date`} variant="admin-field" type="date" value={f.submissionDate ?? ""} onChange={(e) => set("submissionDate", e.target.value || null)}
               className="w-full" />
           </div>
           <div>
-            <Label variant="admin-label" className="mb-1">SSRN / Preprint URL</Label>
-            <Input variant="admin-field" value={f.preprintUrl ?? ""} onChange={(e) => set("preprintUrl", e.target.value)}
+            <Label htmlFor={`${uid}-ssrn-preprint-url`} variant="admin-label" className="mb-1">SSRN / Preprint URL</Label>
+            <Input id={`${uid}-ssrn-preprint-url`} variant="admin-field" value={f.preprintUrl ?? ""} onChange={(e) => set("preprintUrl", e.target.value)}
               className="w-full font-mono" placeholder="https://..." />
           </div>
         </div>
       )}
 
       <div>
-        <Label variant="admin-label" className="mb-1">Paper URL (journal page)</Label>
-        <Input variant="admin-field" value={f.url} onChange={(e) => set("url", e.target.value)}
+        <Label htmlFor={`${uid}-paper-url-journal-page`} variant="admin-label" className="mb-1">Paper URL (journal page)</Label>
+        <Input id={`${uid}-paper-url-journal-page`} variant="admin-field" value={f.url} onChange={(e) => set("url", e.target.value)}
           className="w-full font-mono" placeholder="https://..." />
       </div>
 

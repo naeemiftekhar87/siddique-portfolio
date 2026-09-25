@@ -145,7 +145,7 @@ export default function ProjectDetail({ project, others }: { project: Project; o
                   className="group flex gap-4 bg-slate-50 rounded-2xl border border-slate-100 p-5 hover:border-blue-200 hover:shadow-sm transition-all"
                 >
                   {p.image ? (
-                    <img src={p.image} alt={p.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                    <img loading="lazy" decoding="async" src={p.image} alt={p.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
                   ) : (
                     <div className="w-16 h-16 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0" aria-hidden><FolderOpen size={22} className="text-teal-400" /></div>
                   )}

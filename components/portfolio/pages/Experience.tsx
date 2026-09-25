@@ -10,7 +10,7 @@ import { dateRange } from "@/lib/data/format";
 
 function CompanyLogo({ exp, className }: { exp: ExperienceEntry; className: string }) {
   return exp.logo ? (
-    <img src={exp.logo} alt={exp.company} className={className} />
+    <img loading="lazy" decoding="async" src={exp.logo} alt={exp.company} className={className} />
   ) : (
     <span className={`${className} bg-blue-50 flex items-center justify-center`} aria-hidden>
       <Briefcase size={16} className="text-blue-600" />

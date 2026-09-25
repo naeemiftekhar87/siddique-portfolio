@@ -71,6 +71,16 @@ export default function Contact({ profile }: { profile: Pick<SiteProfile, "email
           <p className="text-slate-300 text-lg max-w-xl leading-relaxed">
             Open to research collaborations, academic discussions, professional inquiries, and consulting opportunities.
           </p>
+          {socials.length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-8">
+              {socials.map(({ label, href, Icon }) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm rounded-xl border border-white/10 hover:bg-white/20 transition-colors">
+                  <Icon size={14} /> {label}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

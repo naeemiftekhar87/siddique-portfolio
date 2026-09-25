@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, BarChart2, AlertCircle } from "lucide-react";
 import { login } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function AdminLogin({ name }: { name: string }) {
+  const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
@@ -21,14 +23,21 @@ export default function AdminLogin({ name }: { name: string }) {
       setError("Please enter your email and password.");
       return;
     }
-    // On success the action redirects to /admin; otherwise it returns a message.
+    // The action returns ok or a readable message; on success go to the
+    // dashboard (inside the transition, so the button stays in "Signing in…").
     startTransition(async () => {
+      let result;
       try {
-        const result = await login(form);
-        if (result && !result.ok) setError(result.error);
+        result = await login(form);
       } catch {
         setError("Could not reach the server. Check your connection and try again.");
+        return;
       }
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      router.replace("/admin");
     });
   };
 

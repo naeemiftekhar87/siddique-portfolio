@@ -94,7 +94,7 @@ export default function AdminMedia({ initial }: { initial: MediaAsset[] }) {
           ? <Loader2 size={28} className="mx-auto text-blue-500 mb-3 animate-spin" />
           : <Upload size={28} className="mx-auto text-slate-600 group-hover:text-blue-500 mb-3 transition-colors" />}
         <p className="text-slate-400 text-sm mb-1">{uploading > 0 ? `Uploading ${uploading} file${uploading === 1 ? "" : "s"}…` : "Drag & drop files here"}</p>
-        <p className="text-slate-600 text-xs">Supports: JPG, PNG, WebP, GIF, AVIF (5 MB) and PDF (50 MB)</p>
+        <p className="text-slate-600 text-xs">Supports: JPG, PNG, WebP, GIF, AVIF (up to 5 MB; photos are resized and converted to WebP automatically) and PDF (50 MB)</p>
         <Input variant="unstyled" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/avif,application/pdf"
           className="sr-only" onChange={(e) => { uploadFiles(e.target.files); e.target.value = ""; }} />
       </Label>
@@ -137,7 +137,7 @@ export default function AdminMedia({ initial }: { initial: MediaAsset[] }) {
             >
               {item.type === "image" ? (
                 <div className="h-32 bg-slate-800 overflow-hidden">
-                  <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={item.url} alt={item.name} className="w-full h-full object-cover" />
                 </div>
               ) : (
                 <div className="h-32 bg-slate-800 flex items-center justify-center">
@@ -181,7 +181,7 @@ export default function AdminMedia({ initial }: { initial: MediaAsset[] }) {
                   <TableCell variant="unstyled" className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       {item.type === "image" && item.url ? (
-                        <img src={item.url} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                        <img loading="lazy" decoding="async" src={item.url} alt="" className="w-8 h-8 rounded-lg object-cover" />
                       ) : (
                         <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
                           <FileText size={14} className="text-slate-500" />

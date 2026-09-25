@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Plus, Pencil, Search } from "lucide-react";
 import type { EBook } from "@/lib/data";
 import { deleteEbook, saveEbook } from "@/lib/actions/content";
@@ -24,6 +24,7 @@ const emptyBook: BookInput = {
 };
 
 function BookForm({ initial, categories, onSave, onCancel, pending }: { initial?: Book; categories: string[]; onSave: (d: BookInput) => void; onCancel: () => void; pending: boolean }) {
+  const uid = useId();
   const [f, setF] = useState<BookInput>(initial ?? emptyBook);
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
@@ -33,33 +34,33 @@ function BookForm({ initial, categories, onSave, onCancel, pending }: { initial?
       <div className="grid sm:grid-cols-2 gap-4">
         {([["title", "Title *"], ["subtitle", "Subtitle"], ["author", "Author"], ["isbn", "ISBN"]] as [keyof BookInput, string][]).map(([key, label]) => (
           <div key={key}>
-            <Label variant="admin-label" className="mb-1">{label}</Label>
-            <Input variant="admin-field" value={(f[key] as string) ?? ""} onChange={(e) => set(key, e.target.value)}
+            <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1">{label}</Label>
+            <Input id={`${uid}-${key}`} variant="admin-field" value={(f[key] as string) ?? ""} onChange={(e) => set(key, e.target.value)}
               className="w-full" />
           </div>
         ))}
         <div>
-          <Label variant="admin-label" className="mb-1">Category</Label>
-          <Input variant="admin-field" value={f.category} onChange={(e) => set("category", e.target.value)}
+          <Label htmlFor={`${uid}-category`} variant="admin-label" className="mb-1">Category</Label>
+          <Input id={`${uid}-category`} variant="admin-field" value={f.category} onChange={(e) => set("category", e.target.value)}
             list="ebook-categories" className="w-full" />
           <datalist id="ebook-categories">
             {categories.map((c) => <option key={c} value={c} />)}
           </datalist>
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Pages</Label>
-          <Input variant="admin-field" type="number" min={0} value={f.pages} onChange={(e) => set("pages", Number(e.target.value))}
+          <Label htmlFor={`${uid}-pages`} variant="admin-label" className="mb-1">Pages</Label>
+          <Input id={`${uid}-pages`} variant="admin-field" type="number" min={0} value={f.pages} onChange={(e) => set("pages", Number(e.target.value))}
             className="w-full" />
         </div>
         <div>
-          <Label variant="admin-label" className="mb-1">Year</Label>
-          <Input variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
+          <Label htmlFor={`${uid}-year`} variant="admin-label" className="mb-1">Year</Label>
+          <Input id={`${uid}-year`} variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
             className="w-full" />
         </div>
       </div>
       <div>
-        <Label variant="admin-label" className="mb-1">Description</Label>
-        <Textarea variant="admin-field" rows={4} value={f.description ?? ""} onChange={(e) => set("description", e.target.value)}
+        <Label htmlFor={`${uid}-description`} variant="admin-label" className="mb-1">Description</Label>
+        <Textarea id={`${uid}-description`} variant="admin-field" rows={4} value={f.description ?? ""} onChange={(e) => set("description", e.target.value)}
           className="w-full resize-none" />
       </div>
       <div>
@@ -167,7 +168,7 @@ export default function AdminEBooks({ initial }: { initial: Book[] }) {
                   ) : (
                     <div className="flex items-center gap-3">
                       {book.image ? (
-                        <img src={book.image} alt={book.title} className="w-8 h-10 rounded-lg object-cover flex-shrink-0" />
+                        <img loading="lazy" decoding="async" src={book.image} alt={book.title} className="w-8 h-10 rounded-lg object-cover flex-shrink-0" />
                       ) : (
                         <div className="w-8 h-10 rounded-lg bg-slate-800 border border-slate-700 flex-shrink-0" />
                       )}

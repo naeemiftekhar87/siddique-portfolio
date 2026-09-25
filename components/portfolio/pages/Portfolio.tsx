@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, FolderOpen } from "lucide-react";
+import { ArrowRight, ExternalLink, Eye, FolderOpen } from "lucide-react";
 import type { GalleryItem, PortfolioCategory, Project } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -84,14 +84,14 @@ export default function Portfolio({ projects, categories: categoryList, gallery 
         <p className="text-slate-400 text-sm mb-6">{filtered.length} project{filtered.length !== 1 ? "s" : ""}</p>
         <div className="grid md:grid-cols-2 gap-8">
           {filtered.map((project) => (
-            <Link
+            // The title link stretches over the card; the hover overlay's links sit above it.
+            <div
               key={project.id}
-              href={`/portfolio/${project.id}`}
-              className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:border-slate-200 transition-all group"
+              className="relative bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:border-slate-200 transition-all group"
             >
               <div className="relative h-52 overflow-hidden bg-slate-100">
                 {project.image ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={project.image}
                     alt={project.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -102,6 +102,19 @@ export default function Portfolio({ projects, categories: categoryList, gallery 
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                {/* Hover overlay: View (detail page) + Link (external project URL) */}
+                <div className="absolute inset-0 z-10 flex items-center justify-center gap-3 bg-[#040d1f]/50 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                  <Link href={`/portfolio/${project.id}`}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-white text-slate-900 text-sm font-medium rounded-xl hover:bg-blue-50 transition-colors">
+                    <Eye size={15} /> View
+                  </Link>
+                  {project.link && (
+                    <a href={project.link} {...(/^https?:/i.test(project.link) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-white/15 text-white text-sm font-medium rounded-xl border border-white/30 hover:bg-white/25 transition-colors">
+                      <ExternalLink size={15} /> Link
+                    </a>
+                  )}
+                </div>
                 <div className="absolute top-3 left-3">
                   <Badge variant="unstyled" className="bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 px-3 py-1.5 rounded-full">
                     {project.category}
@@ -119,7 +132,9 @@ export default function Portfolio({ projects, categories: categoryList, gallery 
               </div>
               <div className="p-6">
                 <h3 className="font-serif text-xl text-[#040d1f] mb-2 group-hover:text-blue-600 transition-colors">
-                  {project.title}
+                  <Link href={`/portfolio/${project.id}`} className="after:absolute after:inset-0 after:content-['']">
+                    {project.title}
+                  </Link>
                 </h3>
                 <p className="text-slate-500 text-sm mb-5 line-clamp-2 leading-relaxed">{project.shortDescription}</p>
                 <div className="flex flex-wrap gap-1.5 mb-5">
@@ -138,7 +153,7 @@ export default function Portfolio({ projects, categories: categoryList, gallery 
                   View Project <ArrowRight size={14} />
                 </span>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
 
@@ -159,7 +174,7 @@ export default function Portfolio({ projects, categories: categoryList, gallery 
               const card = (
                 <>
                   <div className="relative h-48 overflow-hidden bg-slate-100">
-                    <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img loading="lazy" decoding="async" src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     <Badge variant="unstyled" className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 px-2.5 py-1 rounded-full">
                       {item.category}
                     </Badge>

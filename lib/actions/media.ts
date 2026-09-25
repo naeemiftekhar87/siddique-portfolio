@@ -2,8 +2,21 @@
 
 import { z } from "zod";
 import { createAdminClient } from "@/lib/db/admin";
-import { findMediaReferences } from "@/lib/storage/media";
+import { getAdminUser } from "@/lib/auth/session";
+import { findMediaReferences, getMediaAssets, type MediaAsset } from "@/lib/storage/media";
 import { check, mutate, UserError } from "./helpers";
+import { fail, ok, unauthenticated, type ActionResult } from "./result";
+
+/** Media library files of one type, newest first (for the picker in admin forms). */
+export async function listMedia(type: MediaAsset["type"]): Promise<ActionResult<MediaAsset[]>> {
+  if (!(await getAdminUser())) return unauthenticated();
+  if (type !== "image" && type !== "document") return fail("Unknown file type.");
+  try {
+    return ok((await getMediaAssets()).filter((m) => m.type === type));
+  } catch {
+    return fail("Could not load the media library.");
+  }
+}
 
 /** Deletes a file from Storage and the media library, unless content still uses it. */
 export async function deleteMedia(id: number) {

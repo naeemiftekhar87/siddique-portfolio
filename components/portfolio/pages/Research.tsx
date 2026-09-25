@@ -95,10 +95,10 @@ export default function Research({ papers, upcomingTopics, profile, initialSecti
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
             {[
-              { value: papers.length, label: "Total Publications" },
+              { value: profile.scholarMetrics.publications || papers.length, label: "Total Publications" },
               { value: profile.scholarMetrics.citations, label: "Citations" },
               { value: profile.scholarMetrics.hIndex, label: "h-Index" },
-              { value: upcomingTopics.length, label: "Pipeline Topics" },
+              { value: profile.scholarMetrics.i10Index, label: "i10-Index" },
             ].map(({ value, label }) => (
               <Card variant="site-glass-dark" key={label} className="p-4">
                 <div className="font-serif text-3xl text-white">{value}</div>

@@ -223,7 +223,7 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
                 <TableCell variant="unstyled" className="px-5 py-4">
                   <div className="flex items-center gap-3">
                     {cert.image ? (
-                      <img src={cert.image} alt={cert.title} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+                      <img loading="lazy" decoding="async" src={cert.image} alt={cert.title} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0"><Award size={14} className="text-slate-600" /></div>
                     )}
