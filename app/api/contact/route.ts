@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { contactSchema } from "@/lib/data/contact";
-import { escapeHtml, sendEmail } from "@/lib/email/resend";
+import { getSettings } from "@/lib/data/queries";
+import { sendEmail } from "@/lib/email/resend";
+import { contactNotificationEmail } from "@/lib/email/templates/contact-notification";
 import { clientAddress, hitRateLimit } from "@/lib/security/rate-limit";
 
 // Contact form → owner's inbox via Resend. Nothing is stored (docs/memory.md
@@ -35,17 +37,16 @@ export async function POST(request: Request) {
     return json(500, { ok: false, error: "Messages cannot be delivered right now. Please try again later." });
   }
 
-  const sent = await sendEmail({
-    to,
-    replyTo: email,
-    subject: `Portfolio contact: ${subject.replace(/[\r\n]+/g, " ")}`,
-    text: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}`,
-    html: `<p><strong>From:</strong> ${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p>
-<p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
-<p style="white-space:pre-wrap">${escapeHtml(message)}</p>`,
-  });
+  // The owner's name (Profile) labels the site in the email; a settings
+  // failure must not block delivery.
+  const siteName = await getSettings("profile").then((p) => p.name, () => "");
+  const content = contactNotificationEmail({ name, email, subject, message, siteName, receivedAt: new Date() });
+
+  const sent = await sendEmail({ to, replyTo: email, ...content });
   if (!sent.ok) {
     return json(502, { ok: false, error: "Your message could not be sent. Please try again later." });
   }
+  // Resend id only (no personal data), to trace delivery in the Resend dashboard.
+  console.info(`[contact] email sent (resend id ${sent.id})`);
   return json(200, { ok: true });
 }

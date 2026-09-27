@@ -16,7 +16,8 @@ type EmailMessage = {
 
 const DEFAULT_FROM = "Portfolio Contact <onboarding@resend.dev>";
 
-export async function sendEmail(message: EmailMessage): Promise<{ ok: true } | { ok: false; error: string }> {
+/** On success returns Resend's email id (look it up in the Resend dashboard to trace delivery). */
+export async function sendEmail(message: EmailMessage): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) return { ok: false, error: "Email is not configured (RESEND_API_KEY missing)." };
 
@@ -39,7 +40,8 @@ export async function sendEmail(message: EmailMessage): Promise<{ ok: true } | {
       console.error(`[email] Resend ${response.status}: ${body.slice(0, 300)}`);
       return { ok: false, error: `Resend returned ${response.status}.` };
     }
-    return { ok: true };
+    const { id } = (await response.json().catch(() => ({}))) as { id?: string };
+    return { ok: true, id: id ?? "unknown" };
   } catch (error) {
     console.error(`[email] Resend request failed: ${error instanceof Error ? error.message : String(error)}`);
     return { ok: false, error: "Could not reach the email service." };
