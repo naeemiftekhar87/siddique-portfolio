@@ -129,7 +129,7 @@ export default function EBooks({ ebooks }: { ebooks: EBook[] }) {
                     {/* Route Handler: counts the download, then redirects to the PDF. */}
                     <Button asChild variant="site-primary"
                       className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs transition-colors">
-                      <a href={`/api/ebooks/${book.id}/download`}><Download size={13} /> Download</a>
+                      <a href={`/api/ebooks/${book.id}/download`} target="_blank" rel="noopener noreferrer"><Download size={13} /> Download</a>
                     </Button>
                     <Button asChild variant="unstyled"
                       className="px-3 py-2.5 bg-slate-50 border border-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-100 transition-colors">

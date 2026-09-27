@@ -22,6 +22,8 @@ type ImageSourceFieldProps = {
   /** Show a small thumbnail of the current image (for forms without their own preview). */
   showPreview?: boolean;
   urlPlaceholder?: string;
+  /** Called with true when an upload starts and false when it ends (success or failure). */
+  onUploadingChange?: (uploading: boolean) => void;
 };
 
 /**
@@ -29,7 +31,7 @@ type ImageSourceFieldProps = {
  * Uploads go straight to the media library (Supabase Storage via /api/media)
  * and the field receives the stored file's public URL.
  */
-export function ImageSourceField({ value, onChange, showPreview = false, urlPlaceholder = "https://..." }: ImageSourceFieldProps) {
+export function ImageSourceField({ value, onChange, showPreview = false, urlPlaceholder = "https://...", onUploadingChange }: ImageSourceFieldProps) {
   const [mode, setMode] = useState<Mode>(value ? "url" : "upload");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
@@ -43,8 +45,10 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
     if (f.size > MAX_BYTES) { setError(`Image is ${formatSize(f.size)}; the limit is 25 MB before optimisation.`); return; }
     setError("");
     setUploading(true);
+    onUploadingChange?.(true);
     const result = await uploadMedia(f);
     setUploading(false);
+    onUploadingChange?.(false);
     if (inputRef.current) inputRef.current.value = "";
     if (!result.ok) { setError(result.error); return; }
     setFile(f);

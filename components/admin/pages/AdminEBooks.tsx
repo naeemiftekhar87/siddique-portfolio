@@ -7,6 +7,7 @@ import { deleteEbook, saveEbook } from "@/lib/actions/content";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { PdfUploadField } from "@/components/admin/pdf-upload-field";
 import { useAction } from "@/components/admin/use-action";
+import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ const emptyBook: BookInput = {
 function BookForm({ initial, categories, onSave, onCancel, pending }: { initial?: Book; categories: string[]; onSave: (d: BookInput) => void; onCancel: () => void; pending: boolean }) {
   const uid = useId();
   const [f, setF] = useState<BookInput>(initial ?? emptyBook);
+  const { uploading, track } = useUploadTracker();
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
@@ -65,14 +67,14 @@ function BookForm({ initial, categories, onSave, onCancel, pending }: { initial?
       </div>
       <div>
         <Label variant="admin-label" className="mb-1">Cover Image</Label>
-        <ImageSourceField value={f.image ?? ""} onChange={(v) => set("image", v)} showPreview />
+        <ImageSourceField value={f.image ?? ""} onChange={(v) => set("image", v)} onUploadingChange={track} showPreview />
       </div>
       <div>
         <Label variant="admin-label" className="mb-1">eBook PDF (Read online &amp; Download)</Label>
-        <PdfUploadField value={f.fileUrl} onChange={(v) => set("fileUrl", v)} />
+        <PdfUploadField value={f.fileUrl} onChange={(v) => set("fileUrl", v)} onUploadingChange={track} />
       </div>
       <div className="flex gap-3">
-        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} disabled={pending} className="px-5 py-2.5 disabled:opacity-50">{pending ? "Saving…" : "Save Book"}</Button>
+        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} disabled={pending || uploading} className="px-5 py-2.5 disabled:opacity-50">{uploading ? "Uploading…" : pending ? "Saving…" : "Save Book"}</Button>
         <Button variant="admin-secondary" type="button" onClick={onCancel} className="px-5 py-2.5">Cancel</Button>
       </div>
     </Card>

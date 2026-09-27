@@ -5,6 +5,7 @@ import { Plus, Trash2, X, Image as ImageIcon, Save, ExternalLink } from "lucide-
 import { galleryCategories, type GalleryItem } from "@/lib/data";
 import { deleteGalleryItem, saveGalleryItem } from "@/lib/actions/content";
 import { useAction } from "@/components/admin/use-action";
+import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
   const uid = useId();
   const [items, setItems] = useState<GalleryItem[]>(initial);
   const { pending, run } = useAction();
+  const { uploading, track } = useUploadTracker();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<GalleryItem, "id">>(emptyItem);
   const [filterCat, setFilterCat] = useState("All");
@@ -32,7 +34,7 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
   const filtered = filterCat === "All" ? items : items.filter(i => i.category === filterCat);
 
   const addItem = () => {
-    if (!form.title || !form.imageUrl) return;
+    if (!form.title || !form.imageUrl || uploading) return;
     run(() => saveGalleryItem(form), {
       onSuccess: (saved) => {
         setItems(prev => [saved, ...prev]);
@@ -104,7 +106,7 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
             ))}
             <div className="sm:col-span-2">
               <Label variant="admin-label" className="mb-1.5">Image</Label>
-              <ImageSourceField value={form.imageUrl} onChange={(v) => setForm({ ...form, imageUrl: v })} />
+              <ImageSourceField value={form.imageUrl} onChange={(v) => setForm({ ...form, imageUrl: v })} onUploadingChange={track} />
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor={`${uid}-caption`} variant="admin-label" className="mb-1.5">Caption</Label>
@@ -119,9 +121,9 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
             </div>
           )}
           <div className="flex gap-3">
-            <Button variant="admin-primary" onClick={addItem} disabled={pending || !form.title || !form.imageUrl}
+            <Button variant="admin-primary" onClick={addItem} disabled={pending || uploading || !form.title || !form.imageUrl}
               className="flex items-center gap-2 px-5 py-2.5 disabled:opacity-50">
-              <Save size={14} /> {pending ? "Saving…" : "Add to Gallery"}
+              <Save size={14} /> {uploading ? "Uploading…" : pending ? "Saving…" : "Add to Gallery"}
             </Button>
             <Button variant="admin-outline" onClick={() => setShowForm(false)}
               className="px-5 py-2.5">

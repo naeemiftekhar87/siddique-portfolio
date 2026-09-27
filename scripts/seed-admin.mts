@@ -55,6 +55,18 @@ async function main() {
     );
   }
 
+  // Single-owner app: never create a second admin. If the admin changed the
+  // sign-in email in Settings, ADMIN_EMAIL in .env must be updated to match.
+  const otherAdmin = others.find((u) => u.app_metadata?.role === "admin");
+  if (!existing && otherAdmin) {
+    console.error(
+      `An admin already exists with a different email (${otherAdmin.email}). ` +
+        `Set ADMIN_EMAIL in .env to that address (the sign-in email was probably changed in Settings), ` +
+        `then re-run; add --reset-password to set its password from ADMIN_PASSWORD.`,
+    );
+    process.exit(1);
+  }
+
   if (!existing) {
     const { data, error } = await supabase.auth.admin.createUser({
       email,

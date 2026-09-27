@@ -8,6 +8,7 @@ import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
+import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,7 @@ function ExpForm({
 }) {
   const uid = useId();
   const [f, setF] = useState<Omit<Exp, "id"> & { id?: number }>(initial ?? emptyExp);
+  const { uploading, track } = useUploadTracker();
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
@@ -94,7 +96,7 @@ function ExpForm({
       </div>
       <div>
         <Label variant="admin-label" className="mb-1">Company Logo</Label>
-        <ImageSourceField value={f.logo} onChange={(v) => set("logo", v)} showPreview />
+        <ImageSourceField value={f.logo} onChange={(v) => set("logo", v)} onUploadingChange={track} showPreview />
       </div>
       <div>
         <Label htmlFor={`${uid}-skills`} variant="admin-label" className="mb-1">Skills (comma-separated)</Label>
@@ -109,10 +111,10 @@ function ExpForm({
         <Button variant="admin-primary"
           type="button"
           onClick={() => onSave(f)}
-          disabled={pending}
+          disabled={pending || uploading}
           className="px-5 py-2.5 disabled:opacity-50"
         >
-          {pending ? "Saving…" : "Save"}
+          {uploading ? "Uploading…" : pending ? "Saving…" : "Save"}
         </Button>
         <Button variant="admin-secondary"
           type="button"

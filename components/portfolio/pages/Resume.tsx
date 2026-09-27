@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Download, FileText, User, Briefcase, GraduationCap, Award, BarChart2, LayoutTemplate, Languages, BookOpen } from "lucide-react";
+import { FileText, User, Briefcase, GraduationCap, Award, BarChart2, LayoutTemplate, Languages, BookOpen } from "lucide-react";
 import type { Certificate, Education, Experience, Language, Paper, ResumeConfig, SiteProfile, Skill } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PrintButton } from "@/components/portfolio/print-button";
 import { dateRange } from "@/lib/data/format";
 
 const tabs = ["Professional Resume"];
@@ -62,10 +63,8 @@ export default function Resume({ profile, config, experiences, education, skills
               <Button asChild variant="site-glass" className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors"><Link href="/resume/infographic">
                 <LayoutTemplate size={16} /> Infographic View
               </Link></Button>
-              {/* Browser print ("Save as PDF") with the A4 print stylesheet (owner decision). */}
-              <Button variant="site-primary" onClick={() => window.print()} className="flex items-center gap-2 px-6 py-3 text-sm transition-colors">
-                <Download size={16} /> Download PDF
-              </Button>
+              {/* Opens the resume in a new tab and starts Save as PDF (owner decision). */}
+              <PrintButton variant="professional" className="flex items-center gap-2 px-6 py-3 text-sm transition-colors" />
             </div>
           </div>
         </div>

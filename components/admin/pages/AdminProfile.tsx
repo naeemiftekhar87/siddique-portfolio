@@ -7,6 +7,7 @@ import type { Language, ProfileSettings } from "@/lib/data";
 import { saveSettings } from "@/lib/actions/settings";
 import { LanguagesCard } from "@/components/admin/languages-card";
 import { useAction } from "@/components/admin/use-action";
+import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,11 +21,13 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
   const [showPhoto, setShowPhoto] = useState(false);
   const [saved, setSaved] = useState(false);
   const { pending, run } = useAction();
+  const { uploading, track } = useUploadTracker();
 
   const set = (k: string, v: unknown) => setP((prev) => ({ ...prev, [k]: v }));
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) return; // wait for the photo upload to finish
     run(() => saveSettings("profile", p), {
       onSuccess: (value) => {
         setP(value);
@@ -85,7 +88,7 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
           {showPhoto && (
             <div className="mt-5">
               <Label variant="admin-label" className="mb-1.5">Profile Photo</Label>
-              <ImageSourceField value={p.photo} onChange={(v) => set("photo", v)} />
+              <ImageSourceField value={p.photo} onChange={(v) => set("photo", v)} onUploadingChange={track} />
             </div>
           )}
         </Card>
@@ -149,10 +152,10 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
 
         <Button variant="unstyled"
           type="submit"
-          disabled={pending}
+          disabled={pending || uploading}
           className={`flex items-center gap-2 px-6 py-3 text-sm font-medium rounded-xl transition-all disabled:opacity-50 ${saved ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}
         >
-          <Save size={16} /> {pending ? "Saving…" : saved ? "Saved!" : "Save Profile"}
+          <Save size={16} /> {uploading ? "Uploading…" : pending ? "Saving…" : saved ? "Saved!" : "Save Profile"}
         </Button>
       </form>
 

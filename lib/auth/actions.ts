@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/db/admin";
 import { supabasePublishableKey, supabaseUrl } from "@/lib/db/env";
 import { createSessionClient } from "@/lib/db/server";
 import { clientAddress, hitRateLimit } from "@/lib/security/rate-limit";
+import { escapeHtml, sendEmail } from "@/lib/email/resend";
 import { fail, ok, unauthenticated, validationMessage, type ActionResult } from "@/lib/actions/result";
 import { getAdminUser, isAdmin } from "./session";
 import { SESSION_COOKIE, createSessionCookieValue, sessionCookieOptions } from "./session-cookie";
@@ -54,6 +55,20 @@ export async function logout() {
   redirect("/admin/login");
 }
 
+/**
+ * Confirms the admin's current password with a throwaway client, so the
+ * admin's own session cookies are not touched.
+ */
+async function isCurrentPassword(email: string, password: string) {
+  const verifier = createClient(supabaseUrl(), supabasePublishableKey(), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error } = await verifier.auth.signInWithPassword({ email, password });
+  if (error) return false;
+  await verifier.auth.signOut();
+  return true;
+}
+
 const passwordSchema = z
   .object({
     current: z.string().min(1, "Enter your current password."),
@@ -73,17 +88,7 @@ export async function changePassword(input: z.input<typeof passwordSchema>): Pro
     return fail("Too many attempts. Please wait 15 minutes and try again.");
   }
 
-  // Confirm the current password with a throwaway client so the admin's
-  // own session cookies are not touched.
-  const verifier = createClient(supabaseUrl(), supabasePublishableKey(), {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { error: verifyError } = await verifier.auth.signInWithPassword({
-    email: user.email ?? "",
-    password: parsed.data.current,
-  });
-  if (verifyError) return fail("Current password is incorrect.");
-  await verifier.auth.signOut();
+  if (!(await isCurrentPassword(user.email ?? "", parsed.data.current))) return fail("Current password is incorrect.");
 
   const { error } = await createAdminClient().auth.admin.updateUserById(user.id, { password: parsed.data.next });
   if (error) {
@@ -92,3 +97,59 @@ export async function changePassword(input: z.input<typeof passwordSchema>): Pro
   }
   return ok(null);
 }
+
+const emailSchema = z
+  .object({
+    newEmail: z.string().trim().toLowerCase().email("Enter a valid email address.").max(200),
+    confirmEmail: z.string().trim().toLowerCase(),
+    password: z.string().min(1, "Enter your current password."),
+  })
+  .refine((v) => v.newEmail === v.confirmEmail, { message: "The email addresses do not match.", path: ["confirmEmail"] });
+
+/**
+ * Changes the admin's sign-in email. Requires the current password; the new
+ * address is typed twice to avoid a lock-out typo. Applied immediately (no
+ * confirmation email: the project has no custom SMTP for Supabase Auth). A
+ * best-effort security notice goes to the owner's inbox, and the session is
+ * ended so the admin signs in again with the new email.
+ */
+export async function changeEmail(input: z.input<typeof emailSchema>): Promise<ActionResult<{ email: string }>> {
+  const user = await getAdminUser();
+  if (!user) return unauthenticated();
+  const parsed = emailSchema.safeParse(input);
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? validationMessage(parsed.error));
+  const { newEmail, password } = parsed.data;
+  const oldEmail = user.email ?? "";
+  if (newEmail === oldEmail.toLowerCase()) return fail("That is already your sign-in email.");
+
+  if (!(await hitRateLimit("email-change", user.id, 5, LOGIN_WINDOW_SECONDS))) {
+    return fail("Too many attempts. Please wait 15 minutes and try again.");
+  }
+  if (!(await isCurrentPassword(oldEmail, password))) return fail("Current password is incorrect.");
+
+  const { error } = await createAdminClient().auth.admin.updateUserById(user.id, { email: newEmail, email_confirm: true });
+  if (error) {
+    if (error.code === "email_exists" || /already/i.test(error.message)) return fail("That email is already used by another account.");
+    console.error(`[auth] email change failed: ${error.message}`);
+    return fail("Could not update the email. Please try again.");
+  }
+
+  const to = process.env.CONTACT_TO_EMAIL?.trim();
+  if (to) {
+    const when = new Date().toUTCString();
+    const notice = await sendEmail({
+      to,
+      subject: "Your portfolio admin sign-in email was changed",
+      text: `The admin sign-in email for your portfolio was changed from ${oldEmail} to ${newEmail} (${when}).\n\nNext step: update ADMIN_EMAIL in .env to the new address.\n\nIf this wasn't you: set ADMIN_EMAIL in .env to ${newEmail}, run \`npm run seed:admin -- --reset-password\` to take the account back with your .env password, then sign in and change the email back.`,
+      html: `<p>The admin sign-in email for your portfolio was changed from <strong>${escapeHtml(oldEmail)}</strong> to <strong>${escapeHtml(newEmail)}</strong> (${escapeHtml(when)}).</p><p>Next step: update <code>ADMIN_EMAIL</code> in <code>.env</code> to the new address.</p><p>If this wasn't you: set <code>ADMIN_EMAIL</code> in <code>.env</code> to ${escapeHtml(newEmail)}, run <code>npm run seed:admin -- --reset-password</code> to take the account back with your <code>.env</code> password, then sign in and change the email back.</p>`,
+    });
+    if (!notice.ok) console.error("[auth] email-change notice could not be sent");
+  }
+  // End this session: Supabase leaves it in an inconsistent state after an
+  // identity change, and signing in again confirms the new address works.
+  await (await createSessionClient()).auth.signOut();
+  (await cookies()).delete(SESSION_COOKIE);
+  return ok({ email: newEmail });
+}
+
+

@@ -9,6 +9,7 @@ import { deletePaper, savePaper } from "@/lib/actions/content";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { PdfUploadField } from "@/components/admin/pdf-upload-field";
 import { useAction } from "@/components/admin/use-action";
+import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,7 @@ const statusColors: Record<string, string> = {
 function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub; areas: string[]; onSave: (d: PubInput) => void; onCancel: () => void; pending: boolean }) {
   const uid = useId();
   const [f, setF] = useState<PubInput>(initial ?? { ...emptyPub, area: areas[0] ?? "" });
+  const { uploading, track } = useUploadTracker();
   // Keep an area that is no longer in the interests list selectable.
   const areaOptions = f.area && !areas.includes(f.area) ? [f.area, ...areas] : areas;
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
@@ -141,11 +143,11 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
       {/* PDF upload */}
       <div>
         <Label variant="admin-label" className="mb-1">PDF Upload</Label>
-        <PdfUploadField value={f.pdfUrl} onChange={(v) => set("pdfUrl", v)} />
+        <PdfUploadField value={f.pdfUrl} onChange={(v) => set("pdfUrl", v)} onUploadingChange={track} />
       </div>
 
       <div className="flex gap-3">
-        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} disabled={pending} className="px-5 py-2.5 disabled:opacity-50">{pending ? "Saving…" : "Save Paper"}</Button>
+        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} disabled={pending || uploading} className="px-5 py-2.5 disabled:opacity-50">{uploading ? "Uploading…" : pending ? "Saving…" : "Save Paper"}</Button>
         <Button variant="admin-secondary" type="button" onClick={onCancel} className="px-5 py-2.5">Cancel</Button>
       </div>
     </div>

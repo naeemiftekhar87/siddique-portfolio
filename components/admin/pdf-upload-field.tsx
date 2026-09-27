@@ -13,7 +13,16 @@ const MAX_BYTES = 50 * 1024 * 1024; // 50 MB
  * PDF upload (eBooks, papers). The file goes to the media library and the
  * field keeps its public URL; the current file can be opened or removed.
  */
-export function PdfUploadField({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+export function PdfUploadField({
+  value,
+  onChange,
+  onUploadingChange,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+  /** Called with true when an upload starts and false when it ends (success or failure). */
+  onUploadingChange?: (uploading: boolean) => void;
+}) {
   const [error, setError] = useState("");
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -25,8 +34,10 @@ export function PdfUploadField({ value, onChange }: { value: string; onChange: (
     if (f.size > MAX_BYTES) { setError("PDF is too large; the limit is 50 MB."); return; }
     setError("");
     setUploading(true);
+    onUploadingChange?.(true);
     const result = await uploadMedia(f);
     setUploading(false);
+    onUploadingChange?.(false);
     if (inputRef.current) inputRef.current.value = "";
     if (!result.ok) { setError(result.error); return; }
     onChange(result.data.url);

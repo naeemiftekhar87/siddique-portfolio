@@ -58,7 +58,7 @@ export default function InfographicResume({ profile, config, experiences, educat
                >
                 <ArrowLeft size={15} /> Resume Center
               </Link></Button>
-              <PrintButton className="flex items-center gap-2 px-5 py-3 text-sm transition-colors" />
+              <PrintButton variant="infographic" className="flex items-center gap-2 px-5 py-3 text-sm transition-colors" />
             </div>
           </div>
         </div>

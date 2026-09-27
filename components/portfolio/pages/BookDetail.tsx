@@ -56,7 +56,7 @@ export default function BookDetail({ book, others, profile }: { book: EBook; oth
                       <a href="#reader"><BookOpen size={15} /> Read Online</a>
                     </Button>
                     <Button asChild variant="site-glass" className="flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors">
-                      <a href={downloadUrl}><Download size={15} /> Free Download</a>
+                      <a href={downloadUrl} target="_blank" rel="noopener noreferrer"><Download size={15} /> Free Download</a>
                     </Button>
                   </>
                 )}
@@ -148,7 +148,7 @@ export default function BookDetail({ book, others, profile }: { book: EBook; oth
                     <a href={book.fileUrl} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} /> Open PDF</a>
                   </Button>
                   <Button asChild variant="site-outline" className="flex items-center gap-2 px-5 py-2.5 text-sm text-slate-700">
-                    <a href={downloadUrl}><Download size={14} /> Download</a>
+                    <a href={downloadUrl} target="_blank" rel="noopener noreferrer"><Download size={14} /> Download</a>
                   </Button>
                 </div>
               </div>

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Save, Globe, Lock, Eye, EyeOff, Link2, GitFork, GraduationCap } from "lucide-react";
+import { useId, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Save, Globe, Lock, Eye, EyeOff, Link2, GitFork, GraduationCap, Mail } from "lucide-react";
 import type { LinksSettings } from "@/lib/data";
-import { changePassword } from "@/lib/auth/actions";
+import { changeEmail, changePassword } from "@/lib/auth/actions";
 import { saveSettings } from "@/lib/actions/settings";
 import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function AdminSettings({ initial }: { initial: LinksSettings }) {
+export default function AdminSettings({ initial, email: initialEmail }: { initial: LinksSettings; email: string }) {
   // Personal information is edited on the Profile page. Every social and
   // academic link is edited only here (footer, navbar, Research page use them).
   const [profile_, setProfile] = useState<LinksSettings>(initial);
@@ -21,6 +22,14 @@ export default function AdminSettings({ initial }: { initial: LinksSettings }) {
   const [password, setPassword] = useState({ current: "", next: "", confirm: "" });
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
+
+  const uid = useId();
+  const router = useRouter();
+  const mail = useAction();
+  const currentEmail = initialEmail;
+  const [emailForm, setEmailForm] = useState({ newEmail: "", confirmEmail: "", password: "" });
+  const [showEmailPass, setShowEmailPass] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const [profileSaved, setProfileSaved] = useState(false);
   const [passSaved, setPassSaved] = useState(false);
@@ -34,6 +43,23 @@ export default function AdminSettings({ initial }: { initial: LinksSettings }) {
         setProfileSaved(true);
         setTimeout(() => setProfileSaved(false), 3000);
       },
+    });
+  };
+
+  const handleEmailSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError("");
+    const next = emailForm.newEmail.trim().toLowerCase();
+    if (!next) { setEmailError("Enter the new email address."); return; }
+    if (next !== emailForm.confirmEmail.trim().toLowerCase()) { setEmailError("The email addresses do not match."); return; }
+    if (!emailForm.password) { setEmailError("Enter your current password."); return; }
+    mail.run(async () => {
+      const result = await changeEmail(emailForm);
+      if (!result.ok) setEmailError(result.error);
+      return result;
+    }, {
+      // The session was ended; sign in again with the new address.
+      onSuccess: ({ email }) => router.replace(`/admin/login?emailChanged=${encodeURIComponent(email)}`),
     });
   };
 
@@ -60,7 +86,7 @@ export default function AdminSettings({ initial }: { initial: LinksSettings }) {
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="font-serif text-3xl text-white mb-1">Settings</h1>
-        <p className="text-slate-400 text-sm">Manage your links and password</p>
+        <p className="text-slate-400 text-sm">Manage your links, sign-in email and password</p>
       </div>
 
       {/* ─── Social Links ─────────────────────────────────────────── */}
@@ -97,6 +123,53 @@ export default function AdminSettings({ initial }: { initial: LinksSettings }) {
           <Save size={15} /> {links.pending ? "Saving…" : profileSaved ? "Saved!" : "Save Links"}
         </Button>
       </Card>
+
+      {/* ─── Change Sign-in Email ──────────────────────────────────── */}
+      <form onSubmit={handleEmailSave} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+        <h2 className="font-serif text-lg text-white flex items-center gap-2">
+          <Mail size={18} className="text-blue-400" /> Change Sign-in Email
+        </h2>
+        <p className="text-slate-400 text-sm">
+          Current sign-in email: <span className="text-slate-200 font-mono">{currentEmail}</span>
+        </p>
+        {emailError && (
+          <p role="alert" className="text-red-400 text-xs bg-red-950/30 border border-red-800/50 rounded-xl px-4 py-2.5">{emailError}</p>
+        )}
+        <p className="text-slate-500 text-xs">After the change you&apos;ll be signed out and can sign in with the new email.</p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <Label variant="admin-label" htmlFor={`${uid}-new-email`} className="mb-1.5">New Email</Label>
+            <Input variant="admin-field" id={`${uid}-new-email`} type="email" autoComplete="email"
+              value={emailForm.newEmail} onChange={(e) => setEmailForm({ ...emailForm, newEmail: e.target.value })}
+              className="w-full" />
+          </div>
+          <div>
+            <Label variant="admin-label" htmlFor={`${uid}-confirm-email`} className="mb-1.5">Confirm New Email</Label>
+            <Input variant="admin-field" id={`${uid}-confirm-email`} type="email" autoComplete="off"
+              value={emailForm.confirmEmail} onChange={(e) => setEmailForm({ ...emailForm, confirmEmail: e.target.value })}
+              className="w-full" />
+          </div>
+        </div>
+        <div>
+          <Label variant="admin-label" htmlFor={`${uid}-email-password`} className="mb-1.5">Current Password</Label>
+          <div className="relative">
+            <Input variant="admin-field" id={`${uid}-email-password`} autoComplete="current-password"
+              type={showEmailPass ? "text" : "password"}
+              value={emailForm.password} onChange={(e) => setEmailForm({ ...emailForm, password: e.target.value })}
+              className="w-full pr-10" />
+            <Button variant="unstyled" type="button" onClick={() => setShowEmailPass((v) => !v)} aria-label={showEmailPass ? "Hide password" : "Show password"} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+              {showEmailPass ? <EyeOff size={15} /> : <Eye size={15} />}
+            </Button>
+          </div>
+        </div>
+        <Button variant="unstyled"
+          type="submit"
+          disabled={mail.pending}
+          className="disabled:opacity-50 flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all bg-blue-600 text-white hover:bg-blue-700"
+        >
+          <Mail size={15} /> {mail.pending ? "Updating…" : "Update Email"}
+        </Button>
+      </form>
 
       {/* ─── Change Password ──────────────────────────────────────── */}
       <form onSubmit={handlePasswordSave} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">

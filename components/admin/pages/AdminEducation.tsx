@@ -8,6 +8,7 @@ import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
+import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ const emptyEdu: EduInput = {
 function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave: (d: EduInput) => void; onCancel: () => void; pending: boolean }) {
   const uid = useId();
   const [f, setF] = useState<EduInput>(initial ?? emptyEdu);
+  const { uploading, track } = useUploadTracker();
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
@@ -93,10 +95,10 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
       </div>
       <div>
         <Label variant="admin-label" className="mb-1">Institution Logo</Label>
-        <ImageSourceField value={f.logo} onChange={(v) => set("logo", v)} showPreview />
+        <ImageSourceField value={f.logo} onChange={(v) => set("logo", v)} onUploadingChange={track} showPreview />
       </div>
       <div className="flex gap-3 pt-2">
-        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} disabled={pending} className="px-5 py-2.5 disabled:opacity-50">{pending ? "Saving…" : "Save"}</Button>
+        <Button variant="admin-primary" type="button" onClick={() => onSave(f)} disabled={pending || uploading} className="px-5 py-2.5 disabled:opacity-50">{uploading ? "Uploading…" : pending ? "Saving…" : "Save"}</Button>
         <Button variant="admin-secondary" type="button" onClick={onCancel} className="px-5 py-2.5">Cancel</Button>
       </div>
     </Card>

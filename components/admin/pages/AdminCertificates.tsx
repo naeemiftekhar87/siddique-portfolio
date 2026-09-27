@@ -8,6 +8,7 @@ import { deleteCertificate, saveCertificate } from "@/lib/actions/content";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
+import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Form>(emptyForm);
   const { pending, run } = useAction();
+  const { uploading, track } = useUploadTracker();
 
   const filtered = certs.filter((c) =>
     (categoryFilter === "All" || c.category === categoryFilter) &&
@@ -49,6 +51,7 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) return; // wait for the image upload to finish
     const payload = { ...form, skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean) };
     run(() => saveCertificate(payload), {
       success: form.id ? "Certificate updated." : "Certificate added.",
@@ -146,7 +149,7 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
           </div>
           <div>
             <Label variant="unstyled" className="block text-sm text-slate-400 mb-1">Certificate Image</Label>
-            <ImageSourceField value={form.image} onChange={(v) => setForm({ ...form, image: v })} showPreview />
+            <ImageSourceField value={form.image} onChange={(v) => setForm({ ...form, image: v })} onUploadingChange={track} showPreview />
           </div>
           <div className="grid sm:grid-cols-2 gap-4 items-end">
             <div>
@@ -168,8 +171,8 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
             </Label>
           </div>
           <div className="flex gap-3">
-            <Button variant="admin-primary" type="submit" disabled={pending} className="px-5 py-2.5 disabled:opacity-50">
-              {pending ? "Saving…" : "Save Certificate"}
+            <Button variant="admin-primary" type="submit" disabled={pending || uploading} className="px-5 py-2.5 disabled:opacity-50">
+              {uploading ? "Uploading…" : pending ? "Saving…" : "Save Certificate"}
             </Button>
             <Button variant="admin-secondary" type="button" onClick={closeForm} className="px-5 py-2.5">Cancel</Button>
           </div>

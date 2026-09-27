@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, Eye, EyeOff, BarChart2, AlertCircle } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff, BarChart2, AlertCircle, CheckCircle } from "lucide-react";
 import { login } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,20 @@ export default function AdminLogin({ name }: { name: string }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+
+  // After a sign-in email change (Settings), the admin lands here signed out
+  // with ?emailChanged=<new email>. Read in the browser: this page is static.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const changed = url.searchParams.get("emailChanged");
+    if (!changed) return;
+    url.searchParams.delete("emailChanged");
+    window.history.replaceState(null, "", url);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of a URL flag on mount
+    setNotice(`Your sign-in email was changed. Sign in with ${changed}.`);
+    setForm((f) => ({ ...f, email: changed }));
+  }, []);
   const [loading, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -107,6 +121,13 @@ export default function AdminLogin({ name }: { name: string }) {
             <h2 className="font-serif text-3xl text-white mb-2">Sign in</h2>
             <p className="text-slate-400 text-sm">Access your CMS dashboard</p>
           </div>
+
+          {notice && !error && (
+            <div role="status" className="flex items-center gap-3 bg-green-950/50 border border-green-800/60 rounded-xl px-4 py-3 mb-6">
+              <CheckCircle size={16} className="text-green-400 flex-shrink-0" />
+              <p className="text-green-300 text-sm">{notice}</p>
+            </div>
+          )}
 
           {error && (
             <div role="alert" className="flex items-center gap-3 bg-red-950/50 border border-red-800/60 rounded-xl px-4 py-3 mb-6">
