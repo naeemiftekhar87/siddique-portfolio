@@ -58,15 +58,15 @@ export function LanguagesCard({ initial }: { initial: Language[] }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
         <div>
           <Label variant="admin-label" htmlFor="lang-name" className="mb-1">Language *</Label>
-          <Input variant="admin-field" id="lang-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full" />
+          <Input variant="admin-field" id="lang-name" value={form.name} placeholder="e.g. English" onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full" />
         </div>
         <div>
           <Label variant="admin-label" htmlFor="lang-flag" className="mb-1">Flag (emoji)</Label>
-          <Input variant="admin-field" id="lang-flag" value={form.flag} maxLength={20} onChange={(e) => setForm({ ...form, flag: e.target.value })} className="w-full" />
+          <Input variant="admin-field" id="lang-flag" value={form.flag} maxLength={20} placeholder="e.g. 🇬🇧" onChange={(e) => setForm({ ...form, flag: e.target.value })} className="w-full" />
         </div>
         <div>
           <Label variant="admin-label" htmlFor="lang-level" className="mb-1">Level</Label>
-          <Input variant="admin-field" id="lang-level" value={form.level} placeholder="e.g. Native" onChange={(e) => setForm({ ...form, level: e.target.value })} className="w-full" />
+          <Input variant="admin-field" id="lang-level" value={form.level} placeholder="e.g. Native, Fluent, B2" onChange={(e) => setForm({ ...form, level: e.target.value })} className="w-full" />
         </div>
         <div>
           <Label variant="admin-label" htmlFor="lang-prof" className="mb-1">Proficiency ({form.proficiency}%)</Label>

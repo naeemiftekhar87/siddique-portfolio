@@ -49,9 +49,9 @@ export default function AdminWebsiteAbout({ initial }: { initial: AboutSettings 
       <Card variant="admin-panel" className="p-6 space-y-4">
         <h2 className="font-serif text-lg text-white">Bio Sections</h2>
         {[
-          { key: "careerFocus",  label: "Career Focus",         rows: 4 },
-          { key: "academicBio",  label: "Academic Journey Bio",  rows: 4 },
-        ].map(({ key, label, rows }) => (
+          { key: "careerFocus",  label: "Career Focus",         rows: 4, placeholder: "What you focus on professionally and the kind of work you want to do next…" },
+          { key: "academicBio",  label: "Academic Journey Bio",  rows: 4, placeholder: "Your academic path: where you studied, what you researched and why…" },
+        ].map(({ key, label, rows, placeholder }) => (
           <div key={key}>
             <div className="flex items-center justify-between mb-1.5">
               <Label variant="unstyled" htmlFor={`about-${key}`} className="text-xs text-slate-400">{label}</Label>
@@ -59,6 +59,7 @@ export default function AdminWebsiteAbout({ initial }: { initial: AboutSettings 
             </div>
             <Textarea variant="unstyled" id={`about-${key}`} rows={rows} value={form[key as keyof typeof form] as string}
               onChange={e => setForm({ ...form, [key]: e.target.value })}
+              placeholder={placeholder}
               className={`${inputClass} resize-none leading-relaxed`} />
           </div>
         ))}
@@ -70,6 +71,7 @@ export default function AdminWebsiteAbout({ initial }: { initial: AboutSettings 
         <p className="text-slate-500 text-xs">Comma-separated list shown in the About page sidebar</p>
         <Textarea variant="unstyled" rows={3} value={form.domainExpertise} aria-label="Domain expertise"
           onChange={e => setForm({ ...form, domainExpertise: e.target.value })}
+          placeholder="e.g. Development Economics, Data Analysis, Public Policy"
           className={`${inputClass} resize-none`} />
         <div className="flex flex-wrap gap-2 pt-1">
           {form.domainExpertise.split(",").map(d => d.trim()).filter(Boolean).map(d => (

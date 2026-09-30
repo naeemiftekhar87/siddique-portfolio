@@ -4,12 +4,11 @@ import { useState } from "react";
 import { Save, Palette, RotateCcw, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { HexColorInput } from "@/components/admin/hex-color-input";
 import { Label } from "@/components/ui/label";
 import {
   contrastRatio,
   defaultSiteColors,
-  normalizeHex,
   siteColorVars,
   type SiteColors,
 } from "@/lib/site-colors";
@@ -49,16 +48,11 @@ const MIN_CONTRAST = 4.5;
 
 function ColorRow({ field, colors, onChange }: { field: ColorField; colors: SiteColors; onChange: (hex: string) => void }) {
   const value = colors[field.key];
-  // The text box may hold an unfinished code while typing; the colour only
-  // changes once it is a valid hex code.
-  const [draft, setDraft] = useState(value);
-  const [synced, setSynced] = useState(value);
-  if (synced !== value) {
-    setSynced(value);
-    setDraft(value);
-  }
-
-  const valid = normalizeHex(draft) !== null;
+  // The text box may hold an unfinished code while typing. The error is tied
+  // to the colour it was reported for, so Default/Reset (which change the
+  // colour and reset the text box) also clear it.
+  const [invalidFor, setInvalidFor] = useState<string | null>(null);
+  const valid = invalidFor !== value;
   const against = field.check && (field.check.against.startsWith("#") ? field.check.against : colors[field.check.against as keyof SiteColors]);
   const lowContrast = !!against && contrastRatio(value, against) < MIN_CONTRAST;
   const isDefault = value === defaultSiteColors[field.key];
@@ -76,27 +70,11 @@ function ColorRow({ field, colors, onChange }: { field: ColorField; colors: Site
           <RotateCcw size={12} /> Default
         </Button>
       </div>
-      <div className="flex items-center gap-3">
-        <Input variant="unstyled" type="color" value={value} onChange={e => onChange(e.target.value)}
-          aria-label={`${field.label} colour picker`}
-          className="h-10 w-14 flex-shrink-0 cursor-pointer rounded-lg border border-slate-600 bg-slate-800 p-1" />
-        <Input variant="admin-field" id={id} value={draft} maxLength={7} spellCheck={false} placeholder="#040d1f"
-          aria-invalid={!valid} aria-describedby={`${id}-msg`}
-          onChange={e => {
-            setDraft(e.target.value);
-            // Apply full 6-digit codes while typing; short codes (#fff) on blur.
-            if (/^#?[0-9a-f]{6}$/i.test(e.target.value.trim())) onChange(normalizeHex(e.target.value)!);
-          }}
-          onBlur={() => {
-            const hex = normalizeHex(draft);
-            if (hex) onChange(hex);
-            setDraft(hex ?? value);
-          }}
-          className="w-full min-w-0 font-mono uppercase" />
-      </div>
+      <HexColorInput id={id} value={value} onChange={onChange} label={field.label}
+        describedBy={`${id}-msg`} onValidChange={ok => setInvalidFor(ok ? null : value)} />
       <div id={`${id}-msg`} className="text-xs" aria-live="polite">
         {!valid ? (
-          <p className="text-red-400">Enter a hex colour code, e.g. #040D1F or #FFF.</p>
+          <p className="text-red-400">Enter or paste a colour code, e.g. #040D1F, #FFF or rgb(4, 13, 31).</p>
         ) : lowContrast ? (
           <p className="text-amber-400 flex items-center gap-1.5">
             <AlertTriangle size={12} className="flex-shrink-0" />

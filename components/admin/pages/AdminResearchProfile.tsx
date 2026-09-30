@@ -62,6 +62,7 @@ export default function AdminResearchProfile({ initial }: { initial: ResearchPro
                 aria-label={label}
                 value={metrics[key as keyof typeof metrics]}
                 onChange={e => setMetrics({ ...metrics, [key]: Math.max(0, Number(e.target.value)) })}
+                placeholder="0"
                 className="w-full font-mono text-center"
               />
             </div>
@@ -83,6 +84,7 @@ export default function AdminResearchProfile({ initial }: { initial: ResearchPro
             rows={4}
             value={bio}
             onChange={e => setBio(e.target.value)}
+            placeholder="A short introduction to your research: main fields, methods and current questions…"
             className="w-full resize-none leading-relaxed"
           />
           <p className="text-slate-600 text-xs mt-1 text-right font-mono">{bio.length} chars</p>

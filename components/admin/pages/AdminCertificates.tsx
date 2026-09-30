@@ -8,10 +8,12 @@ import { deleteCertificate, saveCertificate } from "@/lib/actions/content";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/admin/url-input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -65,7 +67,6 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
   const startEdit = (cert: Certificate) => {
     setForm(toForm(cert));
     setShowForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = (id: number) => {
@@ -82,33 +83,37 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
           <h1 className="font-serif text-3xl text-white mb-1">Certificates</h1>
           <p className="text-slate-400 text-sm">{certs.length} total certificates</p>
         </div>
-        <Button variant="admin-primary"
-          onClick={() => (showForm ? closeForm() : setShowForm(true))}
-          className="flex items-center gap-2 px-4 py-2.5"
-        >
-          <Plus size={16} /> Add Certificate
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!showForm && (
+          <Button variant="admin-primary"
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2.5"
+          >
+            <Plus size={16} /> Add Certificate
+          </Button>
+        )}
       </div>
 
       {/* Add / edit form */}
       {showForm && (
-        <form onSubmit={handleSave} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 mb-6 space-y-4">
+        <form key={form.id ?? "new"} ref={revealForm} onSubmit={handleSave} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 mb-6 space-y-4">
           <h3 className="font-serif text-lg text-white mb-2">{form.id ? "Edit Certificate" : "Add Certificate"}</h3>
           <div className="grid sm:grid-cols-2 gap-4">
             {([
-              ["title", "Certificate Title *"],
-              ["issuer", "Issuer / Institution *"],
-              ["completionDate", "Completion Date"],
-              ["grade", "Grade / Score"],
-              ["duration", "Duration"],
-              ["credentialId", "Credential ID"],
-            ] as const).map(([key, label]) => (
+              ["title", "Certificate Title *", "e.g. Google Data Analytics Certificate"],
+              ["issuer", "Issuer / Institution *", "e.g. Coursera, Google"],
+              ["completionDate", "Completion Date", "e.g. Mar 2024"],
+              ["grade", "Grade / Score", "e.g. 95% or Distinction"],
+              ["duration", "Duration", "e.g. 6 months or 40 hours"],
+              ["credentialId", "Credential ID", "e.g. ABC123XYZ"],
+            ] as const).map(([key, label, placeholder]) => (
               <div key={key}>
                 <Label variant="unstyled" htmlFor={`cert-${key}`} className="block text-sm text-slate-400 mb-1">{label}</Label>
                 <Input variant="admin-field"
                   id={`cert-${key}`}
                   value={form[key]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                  placeholder={placeholder}
                   className="w-full"
                 />
               </div>
@@ -134,7 +139,7 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
               value={form.skills}
               onChange={(e) => setForm({ ...form, skills: e.target.value })}
               className="w-full"
-              placeholder="Skill 1, Skill 2, Skill 3"
+              placeholder="e.g. Data cleaning, SQL, Tableau"
             />
           </div>
           <div>
@@ -144,6 +149,7 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
               rows={3}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="What the course covered and what you learned…"
               className="w-full resize-none"
             />
           </div>
@@ -154,13 +160,12 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
           <div className="grid sm:grid-cols-2 gap-4 items-end">
             <div>
               <Label variant="unstyled" htmlFor="cert-verify" className="block text-sm text-slate-400 mb-1">Verification URL</Label>
-              <Input variant="admin-field"
+              <UrlInput
                 id="cert-verify"
-                type="url"
                 value={form.verifyUrl}
-                onChange={(e) => setForm({ ...form, verifyUrl: e.target.value })}
+                onChange={(v) => setForm((prev) => ({ ...prev, verifyUrl: v }))}
                 className="w-full font-mono"
-                placeholder="https://..."
+                placeholder="https://issuer.com/verify/credential-id"
               />
             </div>
             <Label variant="unstyled" className="flex items-center gap-2 text-sm text-slate-300 py-2.5 cursor-pointer">

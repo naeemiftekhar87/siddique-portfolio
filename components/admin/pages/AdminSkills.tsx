@@ -6,6 +6,7 @@ import { skillCategories, type Skill, type SkillCategory } from "@/lib/data";
 import { deleteSkill, saveSkill } from "@/lib/actions/content";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -75,20 +76,23 @@ export default function AdminSkills({ initial }: { initial: Skill[] }) {
           <h1 className="font-serif text-3xl text-white mb-1">Skills Manager</h1>
           <p className="text-slate-400 text-sm">{skillsList.length} skills</p>
         </div>
-        <Button variant="admin-primary" onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5">
-          <Plus size={16} /> Add Skill
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!showAdd && editing === null && (
+          <Button variant="admin-primary" onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2.5">
+            <Plus size={16} /> Add Skill
+          </Button>
+        )}
       </div>
 
       {showAdd && (
-        <Card variant="admin-panel" className="p-5 mb-6 space-y-4">
+        <Card ref={revealForm} variant="admin-panel" className="p-5 mb-6 space-y-4">
           <h3 className="font-serif text-lg text-white">Add Skill</h3>
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
               <Label htmlFor={`${uid}-skill-name`} variant="admin-label" className="mb-1">Skill Name *</Label>
               <Input id={`${uid}-skill-name`} variant="admin-field" value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                className="w-full" />
+                placeholder="e.g. Python" className="w-full" />
             </div>
             <div>
               <Label htmlFor={`${uid}-category`} variant="admin-label" className="mb-1">Category</Label>
@@ -150,6 +154,7 @@ export default function AdminSkills({ initial }: { initial: Skill[] }) {
                 <TableCell variant="unstyled" className="px-5 py-3.5">
                   {editing === skill.id ? (
                     <Input variant="unstyled" value={(editForm.name ?? skill.name)} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      placeholder="Skill name" aria-label="Skill name"
                       className="px-3 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-blue-500 w-36" />
                   ) : (
                     <span className="text-slate-200 text-sm font-medium">{skill.name}</span>

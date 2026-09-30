@@ -5,6 +5,7 @@ import { Trophy, Plus, Edit2, Trash2, Save, X, Award } from "lucide-react";
 import { achievementCategories, type Achievement } from "@/lib/data";
 import { deleteAchievement, saveAchievement } from "@/lib/actions/content";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -80,12 +81,15 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
           <h1 className="font-serif text-3xl text-white mb-1">Achievements</h1>
           <p className="text-slate-400 text-sm">Manage awards, recognitions, and competition results</p>
         </div>
-        <Button variant="admin-primary"
-          onClick={startNew}
-          className="flex items-center gap-2 px-5 py-2.5"
-        >
-          <Plus size={15} /> Add Achievement
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!editing && (
+          <Button variant="admin-primary"
+            onClick={startNew}
+            className="flex items-center gap-2 px-5 py-2.5"
+          >
+            <Plus size={15} /> Add Achievement
+          </Button>
+        )}
       </div>
 
       {saved && (
@@ -111,7 +115,7 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
 
       {/* Edit / New form */}
       {editing && (
-        <div className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
+        <div key={isNew ? "new" : editing.id} ref={revealForm} className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
           <h2 className="font-serif text-lg text-white">{isNew ? "Add Achievement" : "Edit Achievement"}</h2>
 
           <div className="grid sm:grid-cols-2 gap-4">

@@ -7,10 +7,12 @@ import { projectStatuses, type PortfolioCategory, type Project } from "@/lib/dat
 import { deleteProject, saveProject } from "@/lib/actions/content";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/admin/url-input";
 import { ListInput } from "@/components/admin/list-input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -76,7 +78,7 @@ function ProjectForm({
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-blue-800/40 p-6 mb-6 space-y-4">
+    <div ref={revealForm} className="bg-slate-900 rounded-2xl border border-blue-800/40 p-6 mb-6 space-y-4">
       <h3 className="font-serif text-xl text-white">{initial?.title ? "Edit Project" : "Add Project"}</h3>
 
       {/* Basic info */}
@@ -85,7 +87,7 @@ function ProjectForm({
         <Input id={`${uid}-project-title`} variant="admin-field"
           value={f.title ?? ""}
           onChange={(e) => set("title", e.target.value)}
-          placeholder="e.g. Sample Project Title"
+          placeholder="e.g. Customer Churn Prediction Model"
           className="w-full"
         />
       </div>
@@ -125,6 +127,7 @@ function ProjectForm({
           rows={2}
           value={f.shortDescription ?? ""}
           onChange={(e) => set("shortDescription", e.target.value)}
+          placeholder="One or two sentences shown on the project card…"
           className="w-full resize-none"
         />
       </div>
@@ -135,16 +138,17 @@ function ProjectForm({
           rows={4}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
+          placeholder="The full story of the project: context, what you did and why it matters…"
           className="w-full resize-none"
         />
       </div>
 
       <div>
         <Label htmlFor={`${uid}-project-link-optional`} variant="admin-label" className="mb-1">Project Link (optional)</Label>
-        <Input id={`${uid}-project-link-optional`} variant="admin-field"
+        <UrlInput allowPath id={`${uid}-project-link-optional`}
           value={f.link}
-          onChange={(e) => set("link", e.target.value)}
-          placeholder="https://... or /path"
+          onChange={(v) => set("link", v)}
+          placeholder="e.g. https://github.com/you/project or /research/1"
           className="w-full font-mono"
         />
       </div>
@@ -158,11 +162,12 @@ function ProjectForm({
       {/* Research detail fields */}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <Label variant="admin-label" className="mb-1">Problem Statement</Label>
-          <Textarea variant="admin-field"
+          <Label htmlFor={`${uid}-problem`} variant="admin-label" className="mb-1">Problem Statement</Label>
+          <Textarea id={`${uid}-problem`} variant="admin-field"
             rows={2}
             value={f.problem ?? ""}
             onChange={(e) => set("problem", e.target.value)}
+            placeholder="What problem or question did the project address?"
             className="w-full resize-none"
           />
         </div>
@@ -172,6 +177,7 @@ function ProjectForm({
             rows={2}
             value={f.objective ?? ""}
             onChange={(e) => set("objective", e.target.value)}
+            placeholder="What did the project set out to achieve?"
             className="w-full resize-none"
           />
         </div>
@@ -181,6 +187,7 @@ function ProjectForm({
             rows={2}
             value={f.methodology ?? ""}
             onChange={(e) => set("methodology", e.target.value)}
+            placeholder="Data, methods and approach used…"
             className="w-full resize-none"
           />
         </div>
@@ -190,6 +197,7 @@ function ProjectForm({
             rows={2}
             value={f.results ?? ""}
             onChange={(e) => set("results", e.target.value)}
+            placeholder="Key findings, outcomes or impact…"
             className="w-full resize-none"
           />
         </div>
@@ -201,7 +209,7 @@ function ProjectForm({
           <ListInput id={`${uid}-technologies-comma-separated`} variant="admin-field"
             value={f.technologies}
             onChange={(list) => set("technologies", list)}
-            placeholder="Tool 1, Tool 2, Tool 3"
+            placeholder="e.g. Python, scikit-learn, PostgreSQL"
             className="w-full"
           />
         </div>
@@ -241,8 +249,9 @@ export default function AdminProjects({ initial, categories }: { initial: Projec
   const [projects, setProjects] = useState<Project[]>(initial);
   const { pending, run } = useAction();
   const [search, setSearch] = useState("");
-  const [catFilter, setCatFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  // null = no filter (a category may itself be named "All").
+  const [catFilter, setCatFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -250,8 +259,8 @@ export default function AdminProjects({ initial, categories }: { initial: Projec
   const filtered = projects.filter((p) => {
     const q = search.toLowerCase();
     const matchSearch = p.title.toLowerCase().includes(q) || p.shortDescription.toLowerCase().includes(q);
-    const matchCat = catFilter === "All" || p.category === catFilter;
-    const matchStatus = statusFilter === "All" || p.status === statusFilter;
+    const matchCat = catFilter === null || p.category === catFilter;
+    const matchStatus = statusFilter === null || p.status === statusFilter;
     return matchSearch && matchCat && matchStatus;
   });
 
@@ -292,12 +301,15 @@ export default function AdminProjects({ initial, categories }: { initial: Projec
           <h1 className="font-serif text-3xl text-white mb-1">Portfolio Projects</h1>
           <p className="text-slate-400 text-sm">{projects.length} projects</p>
         </div>
-        <Button variant="admin-primary"
-          onClick={() => { setShowAdd((v) => !v); setEditing(null); }}
-          className="flex items-center gap-2 px-4 py-2.5"
-        >
-          <Plus size={16} /> Add Project
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!showAdd && editing === null && (
+          <Button variant="admin-primary"
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2.5"
+          >
+            <Plus size={16} /> Add Project
+          </Button>
+        )}
       </div>
 
       {showAdd && <ProjectForm categories={categories} onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}
@@ -313,25 +325,29 @@ export default function AdminProjects({ initial, categories }: { initial: Projec
             className="w-full pl-9 pr-4 py-2.5"
           />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {["All", ...allCats].map((c) => (
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by category">
+          <span className="text-slate-500 text-xs font-medium">Category:</span>
+          {[null, ...allCats].map((c) => (
             <Button variant="unstyled"
-              key={c}
+              key={c ?? "all"}
+              aria-pressed={catFilter === c}
               onClick={() => setCatFilter(c)}
               className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${catFilter === c ? "bg-blue-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"}`}
             >
-              {c}
+              {c ?? "All categories"}
             </Button>
           ))}
         </div>
-        <div className="flex flex-wrap gap-2">
-          {["All", ...statuses].map((s) => (
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by status">
+          <span className="text-slate-500 text-xs font-medium">Status:</span>
+          {[null, ...statuses].map((s) => (
             <Button variant="unstyled"
-              key={s}
+              key={s ?? "all"}
+              aria-pressed={statusFilter === s}
               onClick={() => setStatusFilter(s)}
               className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${statusFilter === s ? "bg-teal-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"}`}
             >
-              {s}
+              {s ?? "All statuses"}
             </Button>
           ))}
         </div>

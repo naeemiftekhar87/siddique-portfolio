@@ -7,6 +7,7 @@ import { deleteEbook, saveEbook } from "@/lib/actions/content";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { PdfUploadField } from "@/components/admin/pdf-upload-field";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -31,20 +32,25 @@ function BookForm({ initial, categories, onSave, onCancel, pending }: { initial?
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <Card variant="admin-panel" className="p-6 mb-6 space-y-4">
+    <Card ref={revealForm} variant="admin-panel" className="p-6 mb-6 space-y-4">
       <h3 className="font-serif text-lg text-white">{initial?.title ? "Edit Book" : "Add Book"}</h3>
       <div className="grid sm:grid-cols-2 gap-4">
-        {([["title", "Title *"], ["subtitle", "Subtitle"], ["author", "Author"], ["isbn", "ISBN"]] as [keyof BookInput, string][]).map(([key, label]) => (
+        {([
+          ["title", "Title *", "e.g. Book title"],
+          ["subtitle", "Subtitle", "e.g. A practical guide for beginners"],
+          ["author", "Author", "e.g. Author name(s)"],
+          ["isbn", "ISBN", "e.g. 978-3-16-148410-0"],
+        ] as [keyof BookInput, string, string][]).map(([key, label, placeholder]) => (
           <div key={key}>
             <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1">{label}</Label>
             <Input id={`${uid}-${key}`} variant="admin-field" value={(f[key] as string) ?? ""} onChange={(e) => set(key, e.target.value)}
-              className="w-full" />
+              placeholder={placeholder} className="w-full" />
           </div>
         ))}
         <div>
           <Label htmlFor={`${uid}-category`} variant="admin-label" className="mb-1">Category</Label>
           <Input id={`${uid}-category`} variant="admin-field" value={f.category} onChange={(e) => set("category", e.target.value)}
-            list="ebook-categories" className="w-full" />
+            list="ebook-categories" placeholder="e.g. Data Science (pick or type a new one)" className="w-full" />
           <datalist id="ebook-categories">
             {categories.map((c) => <option key={c} value={c} />)}
           </datalist>
@@ -52,18 +58,18 @@ function BookForm({ initial, categories, onSave, onCancel, pending }: { initial?
         <div>
           <Label htmlFor={`${uid}-pages`} variant="admin-label" className="mb-1">Pages</Label>
           <Input id={`${uid}-pages`} variant="admin-field" type="number" min={0} value={f.pages} onChange={(e) => set("pages", Number(e.target.value))}
-            className="w-full" />
+            placeholder="e.g. 240" className="w-full" />
         </div>
         <div>
           <Label htmlFor={`${uid}-year`} variant="admin-label" className="mb-1">Year</Label>
           <Input id={`${uid}-year`} variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
-            className="w-full" />
+            placeholder="e.g. 2025" className="w-full" />
         </div>
       </div>
       <div>
         <Label htmlFor={`${uid}-description`} variant="admin-label" className="mb-1">Description</Label>
         <Textarea id={`${uid}-description`} variant="admin-field" rows={4} value={f.description ?? ""} onChange={(e) => set("description", e.target.value)}
-          className="w-full resize-none" />
+          placeholder="What the book covers and who it is for…" className="w-full resize-none" />
       </div>
       <div>
         <Label variant="admin-label" className="mb-1">Cover Image</Label>
@@ -130,10 +136,13 @@ export default function AdminEBooks({ initial }: { initial: Book[] }) {
           <h1 className="font-serif text-3xl text-white mb-1">eBook Library</h1>
           <p className="text-slate-400 text-sm">{books.length} books</p>
         </div>
-        <Button variant="admin-primary" onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5">
-          <Plus size={16} /> Add Book
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!showAdd && editing === null && (
+          <Button variant="admin-primary" onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2.5">
+            <Plus size={16} /> Add Book
+          </Button>
+        )}
       </div>
 
       {showAdd && <BookForm categories={categories} onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}

@@ -5,10 +5,12 @@ import { Plus, Trash2, X, Image as ImageIcon, Save, ExternalLink } from "lucide-
 import { galleryCategories, type GalleryItem } from "@/lib/data";
 import { deleteGalleryItem, saveGalleryItem } from "@/lib/actions/content";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/admin/url-input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -61,10 +63,13 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
           </h1>
           <p className="text-slate-400 text-sm">Manage showcase images for projects and visualisations</p>
         </div>
-        <Button variant="admin-primary" onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-2 px-5 py-2.5">
-          <Plus size={15} /> Add Image
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!showForm && (
+          <Button variant="admin-primary" onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-5 py-2.5">
+            <Plus size={15} /> Add Image
+          </Button>
+        )}
       </div>
 
       {saved && (
@@ -75,7 +80,7 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
 
       {/* Add form */}
       {showForm && (
-        <div className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
+        <div ref={revealForm} className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-lg text-white">Add Gallery Image</h2>
             <Button variant="unstyled" onClick={() => setShowForm(false)} aria-label="Close" className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg">
@@ -84,9 +89,9 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { key: "title",       label: "Title",                    placeholder: "Dashboard screenshot" },
+              { key: "title",       label: "Title",                    placeholder: "e.g. Sales dashboard overview" },
               { key: "category",    label: "Category",                 isSelect: true },
-              { key: "projectLink", label: "Project Link (optional)",  placeholder: "/portfolio/1", mono: true },
+              { key: "projectLink", label: "Project Link (optional)",  placeholder: "e.g. /portfolio/1 or https://…", mono: true },
             ].map(({ key, label, placeholder, mono, isSelect }) => (
               <div key={key}>
                 <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1.5">{label}</Label>
@@ -96,6 +101,11 @@ export default function AdminPortfolioGallery({ initial }: { initial: GalleryIte
                     className="w-full">
                     {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </NativeSelect>
+                ) : key === "projectLink" ? (
+                  <UrlInput allowPath id={`${uid}-${key}`} variant="unstyled" value={form.projectLink}
+                    onChange={v => setForm(prev => ({ ...prev, projectLink: v }))}
+                    placeholder={placeholder}
+                    className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500 font-mono" />
                 ) : (
                   <Input id={`${uid}-${key}`} variant="unstyled" value={form[key as keyof typeof form] as string}
                     onChange={e => setForm({ ...form, [key]: e.target.value })}

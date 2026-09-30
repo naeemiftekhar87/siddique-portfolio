@@ -9,10 +9,12 @@ import { deletePaper, savePaper } from "@/lib/actions/content";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { PdfUploadField } from "@/components/admin/pdf-upload-field";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/admin/url-input";
 import { ListInput } from "@/components/admin/list-input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -48,31 +50,32 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-blue-800/40 p-6 mb-6 space-y-4">
+    <div ref={revealForm} className="bg-slate-900 rounded-2xl border border-blue-800/40 p-6 mb-6 space-y-4">
       <h3 className="font-serif text-lg text-white">{initial?.title ? "Edit Paper" : "Add Research Paper"}</h3>
       <div>
         <Label htmlFor={`${uid}-title`} variant="admin-label" className="mb-1">Title *</Label>
         <Input id={`${uid}-title`} variant="admin-field" value={f.title ?? ""} onChange={(e) => set("title", e.target.value)}
-          className="w-full" />
+          placeholder="Full title of the paper" className="w-full" />
       </div>
       <div>
         <Label htmlFor={`${uid}-authors-comma-separated`} variant="admin-label" className="mb-1">Authors (comma-separated)</Label>
         <ListInput id={`${uid}-authors-comma-separated`} variant="admin-field"
           value={f.authors}
           onChange={(list) => set("authors", list)}
+          placeholder="e.g. Your Name, Co-author Name, Another Author"
           className="w-full"
         />
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <Label variant="admin-label" className="mb-1">{isInProgress(f.status) ? "Journal / Conference (target)" : "Journal / Conference"}</Label>
-          <Input variant="admin-field" value={f.journal ?? ""} onChange={(e) => set("journal", e.target.value)}
-            className="w-full" />
+          <Label htmlFor={`${uid}-journal`} variant="admin-label" className="mb-1">{isInProgress(f.status) ? "Journal / Conference (target)" : "Journal / Conference"}</Label>
+          <Input id={`${uid}-journal`} variant="admin-field" value={f.journal ?? ""} onChange={(e) => set("journal", e.target.value)}
+            placeholder="e.g. Journal of Development Economics" className="w-full" />
         </div>
         <div>
           <Label htmlFor={`${uid}-year`} variant="admin-label" className="mb-1">Year</Label>
           <Input id={`${uid}-year`} variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
-            className="w-full" />
+            placeholder="e.g. 2025" className="w-full" />
         </div>
         <div>
           <Label htmlFor={`${uid}-status`} variant="admin-label" className="mb-1">Status</Label>
@@ -97,13 +100,14 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
         <div>
           <Label htmlFor={`${uid}-doi`} variant="admin-label" className="mb-1">DOI</Label>
           <Input id={`${uid}-doi`} variant="admin-field" value={f.doi ?? ""} onChange={(e) => set("doi", e.target.value)}
-            className="w-full" placeholder="10.xxxx/..." />
+            className="w-full" placeholder="e.g. 10.1234/journal.2025.001" />
         </div>
         <div>
           <Label htmlFor={`${uid}-keywords-comma-separated`} variant="admin-label" className="mb-1">Keywords (comma-separated)</Label>
           <ListInput id={`${uid}-keywords-comma-separated`} variant="admin-field"
             value={f.keywords}
             onChange={(list) => set("keywords", list)}
+            placeholder="e.g. poverty, microfinance, panel data"
             className="w-full"
           />
         </div>
@@ -111,7 +115,7 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
       <div>
         <Label htmlFor={`${uid}-abstract`} variant="admin-label" className="mb-1">Abstract</Label>
         <Textarea id={`${uid}-abstract`} variant="admin-field" rows={4} value={f.abstract ?? ""} onChange={(e) => set("abstract", e.target.value)}
-          className="w-full resize-none" />
+          placeholder="Paste the paper's abstract here…" className="w-full resize-none" />
       </div>
 
       {isInProgress(f.status) && (
@@ -128,16 +132,16 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
           </div>
           <div>
             <Label htmlFor={`${uid}-ssrn-preprint-url`} variant="admin-label" className="mb-1">SSRN / Preprint URL</Label>
-            <Input id={`${uid}-ssrn-preprint-url`} variant="admin-field" value={f.preprintUrl ?? ""} onChange={(e) => set("preprintUrl", e.target.value)}
-              className="w-full font-mono" placeholder="https://..." />
+            <UrlInput id={`${uid}-ssrn-preprint-url`} value={f.preprintUrl ?? ""} onChange={(v) => set("preprintUrl", v)}
+              className="w-full font-mono" placeholder="https://papers.ssrn.com/..." />
           </div>
         </div>
       )}
 
       <div>
         <Label htmlFor={`${uid}-paper-url-journal-page`} variant="admin-label" className="mb-1">Paper URL (journal page)</Label>
-        <Input id={`${uid}-paper-url-journal-page`} variant="admin-field" value={f.url} onChange={(e) => set("url", e.target.value)}
-          className="w-full font-mono" placeholder="https://..." />
+        <UrlInput id={`${uid}-paper-url-journal-page`} value={f.url} onChange={(v) => set("url", v)}
+          className="w-full font-mono" placeholder="https://journal-website.com/article/..." />
       </div>
 
       {/* PDF upload */}
@@ -213,12 +217,15 @@ export default function AdminResearch({ initial, areas }: { initial: Pub[]; area
           <h1 className="font-serif text-3xl text-white mb-1">Research Papers</h1>
           <p className="text-slate-400 text-sm">{pubs.length} {pubs.length === 1 ? "paper" : "papers"}, from working paper to published</p>
         </div>
-        <Button variant="admin-primary"
-          onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5"
-        >
-          <Plus size={16} /> Add Paper
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!showAdd && editing === null && (
+          <Button variant="admin-primary"
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2.5"
+          >
+            <Plus size={16} /> Add Paper
+          </Button>
+        )}
       </div>
 
       {showAdd && <PubForm areas={areas} onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}

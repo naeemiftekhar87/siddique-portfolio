@@ -5,6 +5,7 @@ import { Save, Home, Type, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/admin/url-input";
 import { Label } from "@/components/ui/label";
 import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
 import type { HomeSettings } from "@/lib/data";
@@ -54,16 +55,22 @@ export default function AdminWebsiteHome({ initial }: { initial: HomeSettings })
 
         <div className="grid sm:grid-cols-2 gap-4">
           {[
-            { key: "cta1Label", label: "Primary CTA Label" },
-            { key: "cta1Link", label: "Primary CTA Link" },
-            { key: "cta2Label", label: "Secondary CTA Label" },
-            { key: "cta2Link", label: "Secondary CTA Link" },
-          ].map(({ key, label }) => (
+            { key: "cta1Label", label: "Primary CTA Label", placeholder: "e.g. View My Work" },
+            { key: "cta1Link", label: "Primary CTA Link", placeholder: "e.g. /portfolio" },
+            { key: "cta2Label", label: "Secondary CTA Label", placeholder: "e.g. Get in Touch" },
+            { key: "cta2Link", label: "Secondary CTA Link", placeholder: "e.g. /contact" },
+          ].map(({ key, label, placeholder }) => (
             <div key={key}>
               <Label variant="admin-label" htmlFor={`home-${key}`} className="mb-1.5">{label}</Label>
-              <Input variant="unstyled" id={`home-${key}`} value={hero[key as keyof typeof hero] as string}
-                onChange={e => setHero({ ...hero, [key]: e.target.value })}
-                className={key.includes("Link") ? `${inputClass} font-mono` : inputClass} />
+              {key.includes("Link") ? (
+                <UrlInput allowPath variant="unstyled" id={`home-${key}`} value={hero[key as keyof typeof hero] as string}
+                  onChange={v => setHero(prev => ({ ...prev, [key]: v }))}
+                  placeholder={placeholder} className={`${inputClass} font-mono`} />
+              ) : (
+                <Input variant="unstyled" id={`home-${key}`} value={hero[key as keyof typeof hero] as string}
+                  onChange={e => setHero({ ...hero, [key]: e.target.value })}
+                  placeholder={placeholder} className={inputClass} />
+              )}
             </div>
           ))}
         </div>

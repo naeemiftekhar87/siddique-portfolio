@@ -8,6 +8,7 @@ import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -51,15 +52,23 @@ function ExpForm({
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <Card variant="admin-panel" className="p-6 mb-6 space-y-4">
+    <Card ref={revealForm} variant="admin-panel" className="p-6 mb-6 space-y-4">
       <h3 className="font-serif text-lg text-white">{initial?.company ? "Edit Experience" : "Add Experience"}</h3>
       <div className="grid sm:grid-cols-2 gap-4">
-        {([["position", "Job Title *"], ["company", "Company *"], ["type", "Employment Type"], ["location", "Location"], ["startDate", "Start Date"], ["endDate", "End Date"]] as [keyof Exp, string][]).map(([key, label]) => (
+        {([
+          ["position", "Job Title *", "e.g. Senior Data Analyst"],
+          ["company", "Company *", "e.g. Company or organisation name"],
+          ["type", "Employment Type", "e.g. Full-time, Part-time, Contract"],
+          ["location", "Location", "e.g. Dhaka, Bangladesh or Remote"],
+          ["startDate", "Start Date", "e.g. Jan 2022"],
+          ["endDate", "End Date", "e.g. Dec 2024, or Present"],
+        ] as [keyof Exp, string, string][]).map(([key, label, placeholder]) => (
           <div key={key}>
             <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1">{label}</Label>
             <Input id={`${uid}-${key}`} variant="admin-field"
               value={(f[key] as string) ?? ""}
               onChange={(e) => set(key, e.target.value)}
+              placeholder={placeholder}
               className="w-full"
             />
           </div>
@@ -71,6 +80,7 @@ function ExpForm({
           rows={3}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
+          placeholder="A short overview of the role and your main focus…"
           className="w-full resize-none"
         />
       </div>
@@ -81,6 +91,7 @@ function ExpForm({
             rows={4}
             defaultValue={f.responsibilities.join("\n")}
             onChange={(e) => set("responsibilities", lines(e.target.value))}
+            placeholder={"Led the monthly reporting process\nBuilt dashboards for the sales team"}
             className="w-full resize-none"
           />
         </div>
@@ -90,6 +101,7 @@ function ExpForm({
             rows={4}
             defaultValue={f.achievements.join("\n")}
             onChange={(e) => set("achievements", lines(e.target.value))}
+            placeholder={"Cut report preparation time by 40%\nEmployee of the Quarter, Q3 2023"}
             className="w-full resize-none"
           />
         </div>
@@ -104,7 +116,7 @@ function ExpForm({
           value={f.skills}
           onChange={(list) => set("skills", list)}
           className="w-full"
-          placeholder="Skill 1, Skill 2, Skill 3"
+          placeholder="e.g. Python, SQL, Power BI"
         />
       </div>
       <div className="flex gap-3">
@@ -184,12 +196,15 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
           <h1 className="font-serif text-3xl text-white mb-1">Experience Manager</h1>
           <p className="text-slate-400 text-sm">{exps.length} experience entries</p>
         </div>
-        <Button variant="admin-primary"
-          onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5"
-        >
-          <Plus size={16} /> Add Experience
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!showAdd && editing === null && (
+          <Button variant="admin-primary"
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2.5"
+          >
+            <Plus size={16} /> Add Experience
+          </Button>
+        )}
       </div>
 
       {showAdd && <ExpForm onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatSize, uploadMedia } from "./upload";
 import { MediaPicker } from "./media-picker";
+import { UrlInput } from "./url-input";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 // Raw files up to 25 MB are accepted here: photos are resized and converted to
@@ -31,7 +32,7 @@ type ImageSourceFieldProps = {
  * Uploads go straight to the media library (Supabase Storage via /api/media)
  * and the field receives the stored file's public URL.
  */
-export function ImageSourceField({ value, onChange, showPreview = false, urlPlaceholder = "https://...", onUploadingChange }: ImageSourceFieldProps) {
+export function ImageSourceField({ value, onChange, showPreview = false, urlPlaceholder = "https://example.com/image.jpg", onUploadingChange }: ImageSourceFieldProps) {
   const [mode, setMode] = useState<Mode>(value ? "url" : "upload");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
@@ -120,8 +121,7 @@ export function ImageSourceField({ value, onChange, showPreview = false, urlPlac
               </div>
             )
           )}
-          <Input variant="admin-field" type="url" value={value}
-            onChange={(e) => { setError(""); onChange(e.target.value.trim()); }}
+          <UrlInput value={value} onChange={(v) => { setError(""); onChange(v); }}
             placeholder={urlPlaceholder} aria-label="Image URL" className="w-full font-mono" />
         </div>
       )}

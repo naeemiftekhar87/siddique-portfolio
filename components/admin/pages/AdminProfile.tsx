@@ -15,6 +15,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 
+// Hero statistics are free text, so "8+" or "15" both work.
+const statPlaceholders: Record<string, string> = {
+  experience: "e.g. 8+ (years)",
+  degrees: "e.g. 2",
+  certificates: "e.g. 15+",
+  research: "e.g. 6",
+  publications: "e.g. 4",
+  skills: "e.g. 30+",
+};
+
 export default function AdminProfile({ initial, languages }: { initial: ProfileSettings; languages: Language[] }) {
   const uid = useId();
   const [p, setP] = useState<ProfileSettings>(initial);
@@ -76,12 +86,12 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
               <div>
                 <Label htmlFor={`${uid}-full-name`} variant="admin-label" className="mb-1">Full Name</Label>
                 <Input id={`${uid}-full-name`} variant="admin-field" value={p.name} onChange={(e) => set("name", e.target.value)}
-                  className="w-full" />
+                  placeholder="Your full name, as shown on the site" className="w-full" />
               </div>
               <div>
                 <Label htmlFor={`${uid}-badge-label`} variant="admin-label" className="mb-1">Badge Label</Label>
                 <Input id={`${uid}-badge-label`} variant="admin-field" value={p.badge} onChange={(e) => set("badge", e.target.value)}
-                  className="w-full font-mono" />
+                  placeholder="e.g. Open to research collaborations" className="w-full font-mono" />
               </div>
             </div>
           </div>
@@ -100,7 +110,7 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
             <div>
               <Label htmlFor={`${uid}-headline`} variant="admin-label" className="mb-1">Headline</Label>
               <Input id={`${uid}-headline`} variant="admin-field" value={p.headline} onChange={(e) => set("headline", e.target.value)}
-                className="w-full" />
+                placeholder="e.g. Data Analyst & Economics Researcher" className="w-full" />
             </div>
             <div>
               <Label htmlFor={`${uid}-professional-summary`} variant="admin-label" className="mb-1">Professional Summary</Label>
@@ -108,6 +118,7 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
                 rows={5}
                 value={p.summary}
                 onChange={(e) => set("summary", e.target.value)}
+                placeholder="A few sentences about who you are, what you work on and what you are looking for…"
                 className="w-full resize-none"
               />
             </div>
@@ -123,12 +134,12 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
             <div>
               <Label htmlFor={`${uid}-location`} variant="admin-label" className="mb-1">Location</Label>
               <Input id={`${uid}-location`} variant="admin-field" value={p.location} onChange={(e) => set("location", e.target.value)}
-                className="w-full" />
+                placeholder="e.g. Dhaka, Bangladesh" className="w-full" />
             </div>
             <div>
               <Label htmlFor={`${uid}-email`} variant="admin-label" className="mb-1">Email</Label>
               <Input id={`${uid}-email`} variant="admin-field" type="email" value={p.email} onChange={(e) => set("email", e.target.value)}
-                className="w-full" />
+                placeholder="e.g. name@example.com" className="w-full" />
             </div>
           </div>
         </Card>
@@ -143,6 +154,7 @@ export default function AdminProfile({ initial, languages }: { initial: ProfileS
                 <Input id={`${uid}-${key}`} variant="admin-field"
                   value={value}
                   onChange={(e) => set("stats", { ...p.stats, [key]: e.target.value })}
+                  placeholder={statPlaceholders[key] ?? "e.g. 10+"}
                   className="w-full font-mono"
                 />
               </div>

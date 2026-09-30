@@ -10,6 +10,7 @@ import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/admin/url-input";
 import { Label } from "@/components/ui/label";
 
 export default function AdminSettings({ initial, email: initialEmail }: { initial: LinksSettings; email: string }) {
@@ -95,22 +96,21 @@ export default function AdminSettings({ initial, email: initialEmail }: { initia
           <Globe size={18} className="text-teal-400" /> Social & Academic Links
         </h2>
         {[
-          { key: "linkedin", label: "LinkedIn", Icon: Link2 },
-          { key: "github", label: "GitHub", Icon: GitFork },
-          { key: "scholar", label: "Google Scholar", Icon: GraduationCap },
-          { key: "researchgate", label: "ResearchGate", Icon: GraduationCap },
-          { key: "orcid", label: "ORCID", Icon: GraduationCap },
-        ].map(({ key, label, Icon }) => (
+          { key: "linkedin", label: "LinkedIn", Icon: Link2, placeholder: "https://www.linkedin.com/in/your-profile" },
+          { key: "github", label: "GitHub", Icon: GitFork, placeholder: "https://github.com/your-username" },
+          { key: "scholar", label: "Google Scholar", Icon: GraduationCap, placeholder: "https://scholar.google.com/citations?user=…" },
+          { key: "researchgate", label: "ResearchGate", Icon: GraduationCap, placeholder: "https://www.researchgate.net/profile/Your-Name" },
+          { key: "orcid", label: "ORCID", Icon: GraduationCap, placeholder: "https://orcid.org/0000-0000-0000-0000" },
+        ].map(({ key, label, Icon, placeholder }) => (
           <div key={key}>
             <Label variant="unstyled" htmlFor={`link-${key}`} className="block text-xs text-slate-400 mb-1.5 flex items-center gap-1.5">
               <Icon size={12} /> {label} URL
             </Label>
-            <Input variant="admin-field"
+            <UrlInput
               id={`link-${key}`}
-              type="url"
-              placeholder="https://..."
+              placeholder={placeholder}
               value={profile_[key as keyof typeof profile_]}
-              onChange={(e) => setProfile({ ...profile_, [key]: e.target.value })}
+              onChange={(v) => setProfile((prev) => ({ ...prev, [key]: v }))}
               className="w-full font-mono"
             />
           </div>
@@ -139,13 +139,13 @@ export default function AdminSettings({ initial, email: initialEmail }: { initia
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <Label variant="admin-label" htmlFor={`${uid}-new-email`} className="mb-1.5">New Email</Label>
-            <Input variant="admin-field" id={`${uid}-new-email`} type="email" autoComplete="email"
+            <Input variant="admin-field" id={`${uid}-new-email`} type="email" autoComplete="email" placeholder="e.g. new-address@example.com"
               value={emailForm.newEmail} onChange={(e) => setEmailForm({ ...emailForm, newEmail: e.target.value })}
               className="w-full" />
           </div>
           <div>
             <Label variant="admin-label" htmlFor={`${uid}-confirm-email`} className="mb-1.5">Confirm New Email</Label>
-            <Input variant="admin-field" id={`${uid}-confirm-email`} type="email" autoComplete="off"
+            <Input variant="admin-field" id={`${uid}-confirm-email`} type="email" autoComplete="off" placeholder="Type the new email again"
               value={emailForm.confirmEmail} onChange={(e) => setEmailForm({ ...emailForm, confirmEmail: e.target.value })}
               className="w-full" />
           </div>
@@ -153,7 +153,7 @@ export default function AdminSettings({ initial, email: initialEmail }: { initia
         <div>
           <Label variant="admin-label" htmlFor={`${uid}-email-password`} className="mb-1.5">Current Password</Label>
           <div className="relative">
-            <Input variant="admin-field" id={`${uid}-email-password`} autoComplete="current-password"
+            <Input variant="admin-field" id={`${uid}-email-password`} autoComplete="current-password" placeholder="Your current password"
               type={showEmailPass ? "text" : "password"}
               value={emailForm.password} onChange={(e) => setEmailForm({ ...emailForm, password: e.target.value })}
               className="w-full pr-10" />
@@ -185,6 +185,7 @@ export default function AdminSettings({ initial, email: initialEmail }: { initia
             <Input variant="admin-field"
               type={showCurrent ? "text" : "password"}
               id="pw-current"
+              placeholder="Your current password"
               autoComplete="current-password"
               value={password.current}
               onChange={(e) => setPassword({ ...password, current: e.target.value })}
@@ -202,6 +203,7 @@ export default function AdminSettings({ initial, email: initialEmail }: { initia
               <Input variant="admin-field"
                 type={showNew ? "text" : "password"}
                 id="pw-new"
+                placeholder="At least 12 characters"
               autoComplete="new-password"
               value={password.next}
                 onChange={(e) => setPassword({ ...password, next: e.target.value })}
@@ -217,6 +219,7 @@ export default function AdminSettings({ initial, email: initialEmail }: { initia
             <Input variant="admin-field"
               type="password"
               id="pw-confirm"
+              placeholder="Type the new password again"
               autoComplete="new-password"
               value={password.confirm}
               onChange={(e) => setPassword({ ...password, confirm: e.target.value })}

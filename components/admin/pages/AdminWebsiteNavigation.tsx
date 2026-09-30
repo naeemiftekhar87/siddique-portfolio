@@ -8,6 +8,7 @@ import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/admin/url-input";
 
 export default function AdminWebsiteNavigation({ initial }: { initial: NavLink[] }) {
   const [links, setLinks] = useState<NavLink[]>(initial);
@@ -138,11 +139,11 @@ export default function AdminWebsiteNavigation({ initial }: { initial: NavLink[]
       {/* Add link */}
       <Card variant="admin-panel" className="p-6 space-y-3">
         <h2 className="font-serif text-lg text-white">Add Custom Link</h2>
-        <div className="flex gap-3">
-          <Input variant="admin-field" value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label" aria-label="Link label"
-            className="flex-1" />
-          <Input variant="admin-field" value={newTo} onChange={e => setNewTo(e.target.value)} placeholder="/path-or-url" aria-label="Link path or URL"
-            className="flex-1 font-mono" />
+        <div className="flex items-start gap-3">
+          <Input variant="admin-field" value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label, e.g. Blog" aria-label="Link label"
+            className="flex-1 min-w-0" />
+          <UrlInput allowPath wrapperClassName="flex-1 min-w-0" value={newTo} onChange={setNewTo} placeholder="/page-path or https://…" aria-label="Link path or URL"
+            className="w-full font-mono" />
           <Button variant="admin-primary" onClick={addLink} className="flex items-center gap-2 px-4 py-2.5">
             <Plus size={14} /> Add
           </Button>

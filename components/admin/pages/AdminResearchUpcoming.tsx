@@ -5,6 +5,7 @@ import { Plus, Edit2, Trash2, Save, X, Microscope, ChevronDown, ChevronUp } from
 import { upcomingStatuses, type UpcomingResearch } from "@/lib/data";
 import { deleteUpcomingResearch, saveUpcomingResearch } from "@/lib/actions/content";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -73,9 +74,12 @@ export default function AdminResearchUpcoming({ initial, areas }: { initial: Top
           <h1 className="font-serif text-3xl text-white mb-1">Upcoming Research</h1>
           <p className="text-slate-400 text-sm">Manage research topics in the pipeline</p>
         </div>
-        <Button variant="admin-primary" onClick={startNew} className="flex items-center gap-2 px-5 py-2.5">
-          <Plus size={15} /> Add Topic
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!editing && (
+          <Button variant="admin-primary" onClick={startNew} className="flex items-center gap-2 px-5 py-2.5">
+            <Plus size={15} /> Add Topic
+          </Button>
+        )}
       </div>
 
       {saved && (
@@ -86,7 +90,7 @@ export default function AdminResearchUpcoming({ initial, areas }: { initial: Top
 
       {/* Edit form */}
       {editing && (
-        <div className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
+        <div key={isNew ? "new" : editing.id} ref={revealForm} className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
           <h2 className="font-serif text-lg text-white">{isNew ? "Add Research Topic" : "Edit Topic"}</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">

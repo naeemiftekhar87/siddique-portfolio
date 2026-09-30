@@ -8,6 +8,7 @@ import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { useUploadTracker } from "@/components/admin/use-upload-tracker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -33,22 +34,23 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
   const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <Card variant="admin-panel" className="p-6 mb-4 space-y-4">
+    <Card ref={revealForm} variant="admin-panel" className="p-6 mb-4 space-y-4">
       <h3 className="font-serif text-lg text-white">{initial?.university ? "Edit Education" : "Add Education"}</h3>
       <div className="grid sm:grid-cols-2 gap-4">
         {([
-          ["university", "University / Institution *"],
-          ["degree", "Degree *"],
-          ["major", "Major / Field of Study"],
-          ["gpa", "GPA / CGPA"],
-          ["startDate", "Start Date"],
-          ["endDate", "End Date"],
-        ] as [keyof Edu, string][]).map(([key, label]) => (
+          ["university", "University / Institution *", "e.g. University name"],
+          ["degree", "Degree *", "e.g. Master of Science (MSc)"],
+          ["major", "Major / Field of Study", "e.g. Economics"],
+          ["gpa", "GPA / CGPA", "e.g. 3.85 / 4.00"],
+          ["startDate", "Start Date", "e.g. Sep 2020"],
+          ["endDate", "End Date", "e.g. Jun 2024, or Present"],
+        ] as [keyof Edu, string, string][]).map(([key, label, placeholder]) => (
           <div key={key}>
             <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1">{label}</Label>
             <Input id={`${uid}-${key}`} variant="admin-field"
               value={(f[key] as string) ?? ""}
               onChange={(e) => set(key, e.target.value)}
+              placeholder={placeholder}
               className="w-full"
             />
           </div>
@@ -70,6 +72,7 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
           rows={3}
           value={f.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
+          placeholder="Thesis topic, honours, activities or anything else worth noting…"
           className="w-full resize-none"
         />
       </div>
@@ -80,7 +83,7 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
             value={f.coursework}
             onChange={(list) => set("coursework", list)}
             className="w-full"
-            placeholder="Course 1, Course 2, Course 3"
+            placeholder="e.g. Econometrics, Statistics, Research Methods"
           />
         </div>
         <div>
@@ -89,7 +92,7 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
             value={f.skills}
             onChange={(list) => set("skills", list)}
             className="w-full"
-            placeholder="Skill 1, Skill 2"
+            placeholder="e.g. Stata, R, Academic writing"
           />
         </div>
       </div>
@@ -161,12 +164,15 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
           <h1 className="font-serif text-3xl text-white mb-1">Education Manager</h1>
           <p className="text-slate-400 text-sm">{list.length} education entries</p>
         </div>
-        <Button variant="admin-primary"
-          onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-4 py-2.5"
-        >
-          <Plus size={16} /> Add Education
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!showAdd && editing === null && (
+          <Button variant="admin-primary"
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2.5"
+          >
+            <Plus size={16} /> Add Education
+          </Button>
+        )}
       </div>
 
       {showAdd && <EduForm onSave={handleAdd} onCancel={() => setShowAdd(false)} pending={pending} />}

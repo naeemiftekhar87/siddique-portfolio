@@ -8,6 +8,7 @@ import { useAction } from "@/components/admin/use-action";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/admin/url-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SharedFieldsNote } from "@/components/admin/shared-fields-note";
@@ -60,6 +61,7 @@ export default function AdminWebsiteFooter({ initial, name }: { initial: FooterS
         <div>
           <Label variant="admin-label" htmlFor="footer-tagline" className="mb-1.5">Tagline / About Blurb</Label>
           <Textarea variant="unstyled" id="footer-tagline" rows={3} value={tagline} onChange={e => setTagline(e.target.value)}
+            placeholder="One or two sentences about you, shown in the footer on every page."
             className={`${inputClass} resize-none`} />
         </div>
         <div>
@@ -87,11 +89,11 @@ export default function AdminWebsiteFooter({ initial, name }: { initial: FooterS
             </div>
           ))}
         </div>
-        <div className="flex gap-3 pt-1">
-          <Input variant="admin-field" value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label" aria-label="Link label"
-            className="flex-1" />
-          <Input variant="admin-field" value={newTo} onChange={e => setNewTo(e.target.value)} placeholder="/path" aria-label="Link path"
-            className="flex-1 font-mono" />
+        <div className="flex items-start gap-3 pt-1">
+          <Input variant="admin-field" value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label, e.g. Publications" aria-label="Link label"
+            className="flex-1 min-w-0" />
+          <UrlInput allowPath wrapperClassName="flex-1 min-w-0" value={newTo} onChange={setNewTo} placeholder="/page-path or https://…" aria-label="Link path"
+            className="w-full font-mono" />
           <Button variant="unstyled" onClick={addLink} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-700 text-white text-sm font-medium rounded-xl hover:bg-slate-600 transition-colors border border-slate-600">
             <Plus size={14} /> Add
           </Button>

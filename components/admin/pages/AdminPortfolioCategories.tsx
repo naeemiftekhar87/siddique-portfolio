@@ -5,6 +5,7 @@ import { Save, Plus, Edit2, Trash2, X, FolderOpen } from "lucide-react";
 import { portfolioColors, type PortfolioCategory } from "@/lib/data";
 import { deletePortfolioCategory, reorderPortfolioCategories, savePortfolioCategory } from "@/lib/actions/content";
 import { useAction } from "@/components/admin/use-action";
+import { revealForm } from "@/components/admin/reveal-form";
 import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -82,10 +83,13 @@ export default function AdminPortfolioCategories({ initial }: { initial: Categor
           </h1>
           <p className="text-slate-400 text-sm">Manage project categories and their display settings</p>
         </div>
-        <Button variant="admin-primary" onClick={startNew}
-          className="flex items-center gap-2 px-5 py-2.5">
-          <Plus size={15} /> Add Category
-        </Button>
+        {/* Hidden while a form is open: the form's own Save / Cancel finish it. */}
+        {!editing && (
+          <Button variant="admin-primary" onClick={startNew}
+            className="flex items-center gap-2 px-5 py-2.5">
+            <Plus size={15} /> Add Category
+          </Button>
+        )}
       </div>
 
       {saved && (
@@ -96,20 +100,21 @@ export default function AdminPortfolioCategories({ initial }: { initial: Categor
 
       {/* Edit form */}
       {editing && (
-        <div className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
+        <div key={isNew ? "new" : editing.id} ref={revealForm} className="bg-slate-900 rounded-2xl border border-blue-800/60 p-6 space-y-4">
           <h2 className="font-serif text-lg text-white">{isNew ? "Add Category" : "Edit Category"}</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor={`${uid}-name`} variant="admin-label" className="mb-1.5">Name</Label>
               <Input id={`${uid}-name`} variant="admin-field" value={editing.name}
                 onChange={e => setEditing({ ...editing, name: e.target.value, slug: toSlug(e.target.value) })}
-                placeholder="Sample Category"
+                placeholder="e.g. Data Analytics"
                 className="w-full" />
             </div>
             <div>
               <Label htmlFor={`${uid}-slug`} variant="admin-label" className="mb-1.5">Slug</Label>
               <Input id={`${uid}-slug`} variant="admin-field" value={editing.slug}
                 onChange={e => setEditing({ ...editing, slug: e.target.value })}
+                placeholder="e.g. data-analytics (filled from the name)"
                 className="w-full font-mono" />
             </div>
             <div className="sm:col-span-2">

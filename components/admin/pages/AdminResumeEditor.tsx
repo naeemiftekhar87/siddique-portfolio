@@ -5,6 +5,7 @@ import { ExternalLink, FileText, Save } from "lucide-react";
 import { useId, useState } from "react";
 import { saveSettings } from "@/lib/actions/settings";
 import { useAction } from "@/components/admin/use-action";
+import { HexColorInput } from "@/components/admin/hex-color-input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -164,22 +165,10 @@ export default function AdminResumeEditor({
               <Label htmlFor={`${uid}-accent`} variant="admin-label" className="mb-2">
                 Accent Color
               </Label>
-              <div className="flex items-center gap-3">
-                <Input id={`${uid}-accent`} variant="unstyled"
-                  type="color"
-                  value={settings.accentColor}
-                  onChange={(e) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      accentColor: e.target.value,
-                    }))
-                  }
-                  className="w-10 h-10 rounded-lg border-0 cursor-pointer bg-transparent"
-                />
-                <span className="text-slate-400 text-xs font-mono">
-                  {settings.accentColor}
-                </span>
-              </div>
+              <HexColorInput id={`${uid}-accent`} label="Accent Color"
+                value={settings.accentColor}
+                onChange={(hex) => setSettings((prev) => ({ ...prev, accentColor: hex }))}
+              />
             </div>
             <div>
               <Label htmlFor={`${uid}-font`} variant="admin-label" className="mb-2">
