@@ -302,6 +302,7 @@ These are link targets only: use them for social icons, the footer, and research
   - **Automated tests:** a test framework plus a separate test database (Supabase branch or second project). The Playwright/axe scripts currently live only in the session scratchpad and write to the live DB.
   - **Deployment (7.6):** Vercel project and env vars, Namecheap DNS, CI/CD, backups, error/uptime monitoring. Also 1.1's Git branching strategy.
   - **1.2 / 5.3:** extract reusable design-system components (Hero, StatCard, …) plus a demo page, and generic CRUD components? The ported design keeps these inline by owner instruction. Decide whether these tracker items are still wanted.
+- **Owner action (security, 2026-09-30):** disable "Allow new users to sign up" in the Supabase dashboard (Authentication).
 - **Owner checks:** confirm the contact test email arrived; open an eBook's "Read online" in real Chrome, Firefox and Safari (automation browsers can't show inline PDFs); test on a real iPhone/Android.
 - **After deploy:** re-run Lighthouse and LCP behind Vercel's CDN; WebKit/Safari and Edge runs.
 - Minor, by design: uploads abandoned before saving a form stay in the Media Library (deletable there); signed-but-never-finalised files could remain in Storage without a library row (rare).
@@ -397,3 +398,17 @@ Newest last. Add one entry per work session.
   - `scripts/seed-admin.mts` now refuses to create a second admin when an admin with a different email exists (it tells the owner to update `ADMIN_EMAIL`). **After changing the email in Settings, update `ADMIN_EMAIL` in `.env`.**
   - Verified in a browser (18/18: new tabs, validation errors, the change, sign-out and notice, the old session revoked, new-email login, old-email refused, the seed guard, the change back via the UI). The admin email was restored and confirmed; the test's download count and rate-limit rows were undone. tsc, lint (0) and build pass.
 
+- **2026-09-30 (Claude Code), security test and fixes.** The owner asked to test the site's security and fix any issues.
+  - **Checked, no issue found:**
+    - `npm audit`: 0 vulnerabilities. `.env` was never committed. No secrets in client bundles, prerendered HTML, tracked files or git history.
+    - RLS is on for every table, with SELECT-only public policies. Anonymous writes, private reads, RPCs, and Storage upload/list/delete are all denied.
+    - Unauthenticated admin pages redirect, and the upload APIs return 401. Forged or bypass cookies and headers don't help.
+    - All 32 protected Server Actions return `unauthenticated` without a session.
+    - A non-admin Supabase user can't enter the admin, write, read private tables or self-escalate. The test user was deleted.
+    - XSS probes are escaped; bad IDs return 404; security headers are present on API and 404 responses. The only `dangerouslySetInnerHTML` is shadcn's constant chart CSS.
+  - **Fixed:**
+    1. The Supabase auth cookie was readable by JS, not Secure, and lasted 400 days. `lib/auth/session-cookie.ts` now exports `supabaseCookieOptions` (httpOnly, Secure in prod, Lax) and `capSupabaseCookie` (max 8 h, matching the admin session). Both are used in `lib/db/server.ts` and `proxy.ts`.
+    2. The admin Route Handlers accepted cross-site POSTs; Server Actions already had Next's origin check. The new `lib/security/same-origin.ts` (`isSameOrigin`, which requires Origin to match the host) is now the first check in `POST /api/media/sign`, `/api/media`, `/api/contact` and `/api/downloads/resume`.
+    3. Migration `20260930000000_harden_function_grants.sql` revokes EXECUTE on `set_updated_at()` from anon and authenticated. Applied; the triggers still work.
+  - **Verification:** 15/15 browser checks: cookie httpOnly with an 8 h lifetime, `document.cookie` has no token, admin save/delete/upload still work, cross-site and missing Origin give 403, same-origin requests are accepted, and sign-out clears the cookie. The test upload and rate-limit rows were removed.
+  - **Owner action (open):** public sign-up is still enabled in Supabase Auth. It is not exploitable (the admin needs `app_metadata.role`, which users can't set), but turn it off in the Supabase dashboard → Authentication → Sign In / Providers → "Allow new users to sign up".

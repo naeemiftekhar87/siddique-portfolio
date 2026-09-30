@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { SESSION_COOKIE, isSessionCookieValid } from "@/lib/auth/session-cookie";
+import { SESSION_COOKIE, capSupabaseCookie, isSessionCookieValid, supabaseCookieOptions } from "@/lib/auth/session-cookie";
 
 /**
  * Admin routes: refreshes the Supabase session cookies and makes an
@@ -15,12 +15,13 @@ export async function proxy(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
+      cookieOptions: supabaseCookieOptions,
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll: (toSet) => {
           toSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
-          toSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+          toSet.forEach(({ name, value, options }) => response.cookies.set(name, value, capSupabaseCookie(options)));
         },
       },
     },

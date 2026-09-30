@@ -402,7 +402,7 @@
 
 - [ ] HTTPS enforced
 - [x] Input validation and sanitisation on all endpoints
-- [x] CSRF/XSS protections, secure headers (security headers + a Content-Security-Policy without nonces in `next.config.ts`; Server Actions carry Next's origin check; SameSite=Lax cookies; validated links; no raw HTML rendering)
+- [x] CSRF/XSS protections, secure headers (security headers + a Content-Security-Policy without nonces in `next.config.ts`; Server Actions carry Next's origin check; SameSite=Lax httpOnly auth cookies capped at 8 h; same-origin check on the POST Route Handlers; validated links; no raw HTML rendering; security test passed 2026-09-30)
 - [x] File upload validation
 
 ### 7.5 Content

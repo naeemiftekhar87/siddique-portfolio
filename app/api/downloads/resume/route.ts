@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/db/admin";
 import { clientAddress, hitRateLimit } from "@/lib/security/rate-limit";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security/same-origin";
 
 const bodySchema = z.object({ variant: z.enum(["professional", "infographic"]) });
 
@@ -13,6 +14,7 @@ const LIMIT = 20;
 const WINDOW_SECONDS = 60 * 60;
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
 

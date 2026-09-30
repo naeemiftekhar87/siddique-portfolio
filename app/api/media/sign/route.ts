@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAdminUser } from "@/lib/auth/session";
 import { UploadError, createUploadTarget } from "@/lib/storage/media";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security/same-origin";
 
 const bodySchema = z.object({ type: z.string().max(100), size: z.number().int().nonnegative() });
 
 // Upload step 1 (admin only): validate the file's type and size and return a
 // signed URL so the browser uploads directly to Supabase Storage.
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   if (!(await getAdminUser())) {
     return NextResponse.json({ ok: false, error: "Your session has expired. Please sign in again." }, { status: 401 });
   }

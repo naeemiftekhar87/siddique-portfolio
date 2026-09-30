@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getAdminUser } from "@/lib/auth/session";
 import { UploadError, finalizeUpload } from "@/lib/storage/media";
 import { revalidateSite } from "@/lib/actions/helpers";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security/same-origin";
 
 const bodySchema = z.object({
   bucket: z.enum(["images", "documents"]),
@@ -13,6 +14,7 @@ const bodySchema = z.object({
 // Upload step 2 (admin only): verify the object the browser uploaded with the
 // signed URL and record it in the media library.
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   if (!(await getAdminUser())) {
     return NextResponse.json({ ok: false, error: "Your session has expired. Please sign in again." }, { status: 401 });
   }

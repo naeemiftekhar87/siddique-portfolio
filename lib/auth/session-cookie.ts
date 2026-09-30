@@ -35,3 +35,23 @@ export const sessionCookieOptions = {
   path: "/",
   maxAge: SESSION_MAX_AGE_SECONDS,
 };
+
+/**
+ * Options for the Supabase Auth cookies (sb-<ref>-auth-token). The app never
+ * uses a browser Supabase client, so they are httpOnly: page scripts (and any
+ * XSS) cannot read the session tokens.
+ */
+export const supabaseCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+};
+
+/**
+ * @supabase/ssr always writes a 400-day maxAge; cap it at the admin session
+ * length. maxAge 0 (a deletion) is kept as is.
+ */
+export function capSupabaseCookie<T extends { maxAge?: number }>(options: T): T {
+  return options.maxAge && options.maxAge > SESSION_MAX_AGE_SECONDS ? { ...options, maxAge: SESSION_MAX_AGE_SECONDS } : options;
+}

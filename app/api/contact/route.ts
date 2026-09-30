@@ -4,6 +4,7 @@ import { getSettings } from "@/lib/data/queries";
 import { sendEmail } from "@/lib/email/resend";
 import { contactNotificationEmail } from "@/lib/email/templates/contact-notification";
 import { clientAddress, hitRateLimit } from "@/lib/security/rate-limit";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security/same-origin";
 
 // Contact form → owner's inbox via Resend. Nothing is stored (docs/memory.md
 // decision 18). Limits: 5 messages per hour per client address.
@@ -13,6 +14,7 @@ const WINDOW_SECONDS = 60 * 60;
 const json = (status: number, body: { ok: boolean; error?: string }) => NextResponse.json(body, { status });
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   let payload: unknown;
   try {
     payload = await request.json();
