@@ -106,7 +106,7 @@ export default function EBooks({ ebooks }: { ebooks: EBook[] }) {
                 )}
                 {book.fileUrl && (
                   <div className="absolute top-4 right-4">
-                    <Badge variant="unstyled" className="text-xs font-bold px-2.5 py-1 rounded-full bg-green-400 text-white">
+                    <Badge variant="unstyled" className="text-xs font-bold px-2.5 py-1 rounded-full bg-green-400 text-green-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]">
                       Free
                     </Badge>
                   </div>

@@ -11,7 +11,7 @@ function SkillBar({ name, level }: { name: string; level: number }) {
     <div className="mb-3 break-inside-avoid">
       <div className="flex justify-between text-xs mb-1">
         <span className="text-slate-700 font-medium">{name}</span>
-        <span className="text-slate-400 font-mono">{level}%</span>
+        <span className="text-slate-500 font-mono">{level}%</span>
       </div>
       <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
         <div
@@ -88,7 +88,7 @@ export default function InfographicResume({ profile, config, experiences, educat
               <div>
                 <h2 className={`${heading} text-4xl text-white mb-1`}>{profile.name}</h2>
                 {profile.headline && <p className="text-cyan-300 text-sm font-medium mb-3">{profile.headline}</p>}
-                <p className="text-xs text-slate-400">{[profile.location, profile.email].filter(Boolean).join(" · ")}</p>
+                <p className="text-xs text-slate-500">{[profile.location, profile.email].filter(Boolean).join(" · ")}</p>
               </div>
               <div className="md:ml-auto grid grid-cols-3 gap-4">
                 {headerStats.map(([v, l]) => (
@@ -141,7 +141,7 @@ export default function InfographicResume({ profile, config, experiences, educat
                   {certificates.slice(0, 4).map((c) => (
                     <div key={c.id} className="text-xs break-inside-avoid">
                       <p className="text-slate-800 font-medium">{c.title}</p>
-                      <p className="text-slate-400">{[c.issuer, c.completionDate.split(",")[1]?.trim() || c.completionDate].filter(Boolean).join(" · ")}</p>
+                      <p className="text-slate-500">{[c.issuer, c.completionDate.split(",")[1]?.trim() || c.completionDate].filter(Boolean).join(" · ")}</p>
                     </div>
                   ))}
                 </div>
@@ -182,7 +182,7 @@ export default function InfographicResume({ profile, config, experiences, educat
                       <div className="absolute -left-[25px] w-3 h-3 rounded-full border-2 border-white shadow" style={{ backgroundColor: config.accentColor }} />
                       <div className="flex flex-wrap items-start justify-between gap-2 mb-0.5">
                         <h4 className="font-semibold text-slate-900 text-sm">{exp.position}</h4>
-                        <span className="text-xs text-slate-400 font-mono">{dateRange(exp.startDate, exp.endDate)}</span>
+                        <span className="text-xs text-slate-500 font-mono">{dateRange(exp.startDate, exp.endDate)}</span>
                       </div>
                       <p className="text-xs font-medium" style={accent}>{[exp.company, exp.location].filter(Boolean).join(" · ")}</p>
                     </div>
@@ -195,7 +195,7 @@ export default function InfographicResume({ profile, config, experiences, educat
               {config.showEducation && education.length > 0 && (
               <section>
                 <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-5 flex items-center gap-2`}>
-                  <GraduationCap size={16} className="text-teal-600" /> Education
+                  <GraduationCap size={16} className="text-teal-700" /> Education
                 </h3>
                 <div className="space-y-4">
                   {education.map((edu) => (
@@ -204,7 +204,7 @@ export default function InfographicResume({ profile, config, experiences, educat
                       <div>
                         <h4 className="font-semibold text-slate-900 text-sm">{edu.degree}</h4>
                         <p className="text-slate-600 text-xs">{edu.university}</p>
-                        <p className="text-slate-400 text-xs font-mono">{[dateRange(edu.startDate, edu.endDate), edu.gpa && `GPA: ${edu.gpa}`].filter(Boolean).join(" · ")}</p>
+                        <p className="text-slate-500 text-xs font-mono">{[dateRange(edu.startDate, edu.endDate), edu.gpa && `GPA: ${edu.gpa}`].filter(Boolean).join(" · ")}</p>
                       </div>
                     </div>
                   ))}
@@ -220,7 +220,7 @@ export default function InfographicResume({ profile, config, experiences, educat
                   {researchPapers.map((p) => (
                     <div key={p.id} className="border-l-2 border-teal-200 pl-3 break-inside-avoid">
                       <p className="text-slate-800 text-xs font-medium leading-snug">{p.title}</p>
-                      <p className="text-slate-400 text-xs">{[p.journal, p.year].filter(Boolean).join(" · ")}</p>
+                      <p className="text-slate-500 text-xs">{[p.journal, p.year].filter(Boolean).join(" · ")}</p>
                     </div>
                   ))}
                 </div>

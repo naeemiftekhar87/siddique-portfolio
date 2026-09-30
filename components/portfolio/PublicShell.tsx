@@ -1,6 +1,7 @@
 import Navbar from "@/components/portfolio/Navbar";
 import Footer from "@/components/portfolio/Footer";
 import SiteColorStyle from "@/components/portfolio/SiteColorStyle";
+import SiteMotion from "@/components/portfolio/site-motion";
 import { getSettings, getSiteProfile } from "@/lib/data/queries";
 
 /** Public site chrome (colours, Navbar, Footer) driven by the admin's saved settings. */
@@ -14,6 +15,11 @@ export default async function PublicShell({ children }: { children: React.ReactN
   return (
     <>
       <SiteColorStyle colors={colors} />
+      {/* Without JavaScript the header content must not wait for the animation. */}
+      <noscript>
+        <style>{".site-public .site-hero > * > * { opacity: 1 !important; animation: none !important; }"}</style>
+      </noscript>
+      <SiteMotion />
       <div className="site-public contents">
       <Navbar
         name={profile.name}

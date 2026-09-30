@@ -197,7 +197,6 @@ Combined page with a 3-section toggle.
 - **P0** Filterable grid: cover, category, page count, description.
 - **P0** Detail page: title, subtitle, author, description, ISBN, pages, year, category, _Download/Get_ button, back navigation.
 - **P0** eBook content is a PDF uploaded by the owner (Supabase Storage). The detail page shows it in an in-site PDF viewer (_Read online_), with a _Download_ button; downloads are counted anonymously (`DownloadStat`).
-- **P2** Payment integration (future phase; not planned).
 
 ### 5.17 Resume Center (`/resume`)
 
@@ -393,10 +392,6 @@ Combined page with a 3-section toggle.
 - Accessibility audit, performance tuning, security review.
 - Cross-browser/device QA, content migration.
 - Production deployment, backups, monitoring.
-
-### Future (Post-launch)
-
-- Payments for eBooks, blog/news section, multi-language site, newsletter, testimonials, Google Scholar auto-sync, ORCID import, dark/light theme toggle.
 
 ---
 

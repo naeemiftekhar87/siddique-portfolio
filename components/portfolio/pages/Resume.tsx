@@ -97,12 +97,12 @@ export default function Resume({ profile, config, experiences, education, skills
           <div className="bg-gradient-to-r from-[#040d1f] to-[#071428] px-10 py-10 text-white print-color">
             <h2 className={`${heading} text-3xl mb-2`}>{profile.name}</h2>
             {profile.headline && <p className="text-cyan-300 text-sm mb-1">{profile.headline}</p>}
-            <p className="text-slate-400 text-sm">{[profile.location, profile.email].filter(Boolean).join(" · ")}</p>
+            <p className="text-slate-500 text-sm">{[profile.location, profile.email].filter(Boolean).join(" · ")}</p>
           </div>
 
           <div className="p-10 space-y-10">
             {sections.length === 0 && (
-              <p className="text-slate-400 text-center py-8">The resume will appear here once content is added.</p>
+              <p className="text-slate-500 text-center py-8">The resume will appear here once content is added.</p>
             )}
 
             {/* Summary */}
@@ -127,7 +127,7 @@ export default function Resume({ profile, config, experiences, education, skills
                   <div key={exp.id} className="pl-4 border-l-2 border-blue-100 break-inside-avoid">
                     <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
                       <h4 className="font-semibold text-slate-900">{exp.position}</h4>
-                      <span className="text-slate-400 text-xs font-mono">{dateRange(exp.startDate, exp.endDate)}</span>
+                      <span className="text-slate-500 text-xs font-mono">{dateRange(exp.startDate, exp.endDate)}</span>
                     </div>
                     <p className="text-sm mb-2" style={accent}>{[exp.company, exp.location].filter(Boolean).join(" · ")}</p>
                     <p className="text-slate-600 text-sm">{exp.description}</p>
@@ -149,9 +149,9 @@ export default function Resume({ profile, config, experiences, education, skills
                   <div key={edu.id} className="pl-4 border-l-2 border-teal-100 break-inside-avoid">
                     <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
                       <h4 className="font-semibold text-slate-900">{edu.degree}</h4>
-                      <span className="text-slate-400 text-xs font-mono">{dateRange(edu.startDate, edu.endDate)}</span>
+                      <span className="text-slate-500 text-xs font-mono">{dateRange(edu.startDate, edu.endDate)}</span>
                     </div>
-                    <p className="text-teal-600 text-sm mb-1">{edu.university}</p>
+                    <p className="text-teal-700 text-sm mb-1">{edu.university}</p>
                     <p className="text-slate-500 text-sm">{[edu.major, edu.gpa && `GPA: ${edu.gpa}`].filter(Boolean).join(" · ")}</p>
                   </div>
                 ))}
@@ -188,9 +188,9 @@ export default function Resume({ profile, config, experiences, education, skills
                   <div key={cert.id} className="flex items-start justify-between gap-4 break-inside-avoid">
                     <div>
                       <span className="text-slate-800 font-medium text-sm">{cert.title}</span>
-                      <span className="text-slate-400 text-sm"> · {cert.issuer}</span>
+                      <span className="text-slate-500 text-sm"> · {cert.issuer}</span>
                     </div>
-                    <span className="text-slate-400 text-xs font-mono flex-shrink-0">{cert.completionDate}</span>
+                    <span className="text-slate-500 text-xs font-mono flex-shrink-0">{cert.completionDate}</span>
                   </div>
                 ))}
               </div>
@@ -208,7 +208,7 @@ export default function Resume({ profile, config, experiences, education, skills
                 {papers.map((p) => (
                   <div key={p.id} className="break-inside-avoid">
                     <p className="text-slate-800 font-medium text-sm">{p.title}</p>
-                    <p className="text-slate-400 text-xs">{[p.journal, p.year, p.status].filter(Boolean).join(" · ")}</p>
+                    <p className="text-slate-500 text-xs">{[p.journal, p.year, p.status].filter(Boolean).join(" · ")}</p>
                   </div>
                 ))}
               </div>
@@ -229,7 +229,7 @@ export default function Resume({ profile, config, experiences, education, skills
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-slate-800 font-medium text-sm">{lang.name}</span>
-                        <span className="text-slate-400 text-xs">{lang.level}</span>
+                        <span className="text-slate-500 text-xs">{lang.level}</span>
                       </div>
                       <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                         <div

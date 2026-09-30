@@ -164,7 +164,7 @@ These are link targets only: use them for social icons, the footer, and research
 
 1. **Full-stack Next.js in one repo.** Route Handlers under `app/api/` and Server Actions; no Express, Vite, React Router, or separate API repo. Deploy on a Node server runtime, not static export.
 2. **Supabase for data, media, and auth (Phase 5).** Postgres is the source of truth for entities, Storage holds media (only URLs and metadata go into Postgres), and Supabase Auth provides email/password login with cookie sessions. Server-only access sits behind `lib/db/` and `lib/storage/`, and the secret key (`sb_secret_…`) never reaches the client. Mixing in another persistence system needs a written decision record.
-3. **No analytics module and no visitor tracking** (reconfirmed 2026-09-23). There is no `/admin/analytics`, `/api/analytics`, `lib/analytics/`, page views, time on site, or bounce rate. The dashboard has 8 stat cards (Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks) plus two Recharts charts: **content items per section** (bar), which replaced "top pages", and **downloads over time** (area). Downloads come from the `DownloadStat` entity: anonymous daily counts per resume variant or eBook, with no IP, cookie, or visitor ID. A cookieless hosted analytics tool (Plausible, Umami, Vercel) is only a post-launch backlog idea and needs owner approval.
+3. **No analytics module and no visitor tracking** (reconfirmed 2026-09-23). There is no `/admin/analytics`, `/api/analytics`, `lib/analytics/`, page views, time on site, or bounce rate. The dashboard has 8 stat cards (Experience, Degrees, Skills, Certificates, Projects, Research Papers, Publications, eBooks) plus two Recharts charts: **content items per section** (bar), which replaced "top pages", and **downloads over time** (area). Downloads come from the `DownloadStat` entity: anonymous daily counts per resume variant or eBook, with no IP, cookie, or visitor ID.
 4. **No 2FA.** It was removed from PRD §6.1 and phases.md §7.4 by the owner (2026-09-23).
 5. Single owner and admin, with no public accounts. Content is in English. Scholar metrics are entered manually in v1.
 6. Route groups `(public)` and `(admin)` are organizational only, and URLs match PRD §14.
@@ -302,6 +302,7 @@ These are link targets only: use them for social icons, the footer, and research
   - **Automated tests:** a test framework plus a separate test database (Supabase branch or second project). The Playwright/axe scripts currently live only in the session scratchpad and write to the live DB.
   - **Deployment (7.6):** Vercel project and env vars, Namecheap DNS, CI/CD, backups, error/uptime monitoring. Also 1.1's Git branching strategy.
   - **1.2 / 5.3:** extract reusable design-system components (Hero, StatCard, …) plus a demo page, and generic CRUD components? The ported design keeps these inline by owner instruction. Decide whether these tracker items are still wanted.
+- **Database is empty (reset 2026-09-30):** the owner enters real content from scratch; backup of the old test content is in the session scratchpad only.
 - **Public redesign (2026-09-30):** glossy dark theme is applied to all public pages, and the Colours admin now controls accent and glow. Owner to review on a real device. Colour-contrast audit (the earlier 334 AA failures) should be re-run against the dark theme.
 - **Owner action (security, 2026-09-30):** disable "Allow new users to sign up" in the Supabase dashboard (Authentication).
 - **Owner checks:** confirm the contact test email arrived; open an eBook's "Read online" in real Chrome, Firefox and Safari (automation browsers can't show inline PDFs); test on a real iPhone/Android.
@@ -457,3 +458,42 @@ Newest last. Add one entry per work session.
     - Admin dashboard unaffected.
     - Colour save → public `--site-accent/--site-glow` updated → reset restores the defaults.
     - tsc, lint (0) and build pass.
+- **2026-09-30 (Claude Code), animations with Motion (Framer Motion).** The owner asked for "cool and classy" animations, then chose Framer Motion.
+  - **Dependency:** `motion@^13.4.6` (Framer Motion's current package name; `motion/react` + vanilla `motion`). `npm audit` reports 0 vulnerabilities. No CSP change was needed.
+  - **Site-wide** (`components/portfolio/site-motion.tsx`, mounted in `PublicShell`; runs on the server-rendered DOM, so page components are unchanged):
+    - **Header entrance:** `.site-hero` content rises in with a staggered fade, lift and blur. CSS pre-hides it (`.site-public .site-hero > * > *`). Two safety nets keep it from staying hidden: a `<noscript>` style and a 2.5 s `site-failsafe` keyframe.
+    - **Scroll reveal:** off-screen `.glass-card`, `h2` and `[data-reveal]` rise in via `inView` + `animate`, staggered among siblings. Inline styles are cleared afterwards (`data-motion-done`).
+    - **Robustness:** a MutationObserver (one scan per frame) picks up content from filters and tabs. Cleanup resets unfinished elements, which covers route changes and React's dev-mode double effects.
+  - **Home** (`motion/react`, root `data-motion-managed`, so the site-wide reveal skips it):
+    - Hero: staggered entrance, an accent light band gliding through the name, and a portrait that pops in, floats and tilts toward the pointer (springs) with a moving glare.
+    - Ambient: glows drift slowly.
+    - Scrolling: in-view staggered reveals for stats, cards, the featured panel, experience and research. Section eyebrow lines draw in.
+    - Hover and tap: spring lift on cards and press feedback on buttons. The CTA panel scales in and a light beam sweeps across it every few seconds.
+    - `[data-motion-managed] :is(a,button)` limits CSS transitions to colours and shadows, so they don't fight Motion's transforms.
+  - **Glass cards:** a CSS hover sheen (a diagonal light sweep via `background-position`). The transform transition applies only when Motion isn't animating the element.
+  - **Reduced motion:** the base rule now also zeroes iteration counts and delays. `site-motion` shows everything at once. Home forces Motion-driven inline styles to their final state via CSS, and pulses (glare, beam) are hidden with `motion-reduce:hidden`, so there is no JS branch and no hydration mismatch.
+  - **Print:** `[data-motion-pending]` and hero content are forced visible.
+  - **Verified:**
+    - 18 routes, motion and reduced-motion passes: after scrolling nothing is left hidden, and there are no page errors or hydration errors.
+    - Mid-animation frames checked (header stagger, name shimmer, portrait tilt, card hover lift).
+    - tsc, lint (0) and build pass.
+- **2026-09-30 (Claude Code), feature completion check, full test pass, database reset, future ideas removed.**
+  - **Status:** every product feature in the PRD is built. The unticked tracker items are not app features:
+    - Deployment and operations: 1.1 git branching; 7.6 Vercel, DNS, Resend domain, CI/CD, backups, monitoring; 7.1 automated tests in the repo; HTTPS.
+    - Owner checks on real devices and browsers: 3.5 inline PDF in Chrome/Firefox/Safari, 6.x the contact email arriving, 7.1 devices and Safari/Edge, 7.2 Lighthouse and LCP after deploy.
+    - Content entry (7.5).
+    - Optional refactors: 1.2/5.3 design-system and generic CRUD components.
+  - **Full browser pass** on a production build, 86/86. The scratchpad script `e2e/full-suite.js` drives the real UI.
+    - Covered: auth (redirect, wrong password, login, sign-out); add/edit/delete plus public reflection for Experience, Education, Skills, Achievements, Certificates (with image upload), Projects, Papers (+ `?tab=` deep link), Upcoming, eBooks, Categories and Gallery.
+    - Also covered: Profile, Website Home (CTA and section toggle), About, Footer, Navigation (hide link), Research profile and interests, the resume section toggle, Colours, Media upload/delete, the Dashboard, the Contact form (validation, honeypot, mocked send), eBook and resume download counters, the certificate filter, 200/404 routes and 360 px.
+    - The security checks (`sec-verify.js`) were re-run: 15/15.
+  - **Accessibility:** axe on 18 public routes (dark theme) found 16 contrast failures, now fixed, so 0 remain and there are 0 other A/AA violations.
+    - Fixes: resume-document meta text slate-400 → slate-500 and teal-600 → teal-700 (white paper only); the eBook "Free" badge now uses dark text. Phases 7.1 (manual pass, P0/P1 bugs) and 7.3 (contrast) are ticked; Phase 7 is 11/27.
+    - Also fixed: the footer copyright no longer shows "© 2026 ." when no name is set.
+  - **Database reset (owner chose "everything, keep login"):**
+    - Backup first: all 16 tables (as JSON) plus the 5 storage files, in the session scratchpad `db-backup-20260930-2152/`.
+    - Then `TRUNCATE … RESTART IDENTITY CASCADE` on all 16 public tables (content, `site_settings`, `download_stats`, `rate_limits`, `media_assets`), and all 10 objects in the `images`/`documents` buckets were removed (including files left over from test runs). The admin auth user is kept (1 admin).
+    - Verified: 0 rows, 0 files, admin login works, and the dashboard shows zeros.
+  - **Local stale-data gotcha:** `next build` reuses `.next/cache/fetch-cache`, and locally `dataCacheHeaders` has no `VERCEL_DEPLOYMENT_ID`, so the old data came back after a direct DB change. Clearing `.next/cache/fetch-cache` and rebuilding fixed it; all public pages were then clean. On Vercel each deployment has its own key, and any admin save revalidates.
+  - **Future ideas removed** (owner): the "Post-Launch Backlog (Future Ideas)" section in phases.md, "Future (Post-launch)" and the P2 payments line in the PRD, and the analytics-backlog sentence in decision 3. The non-goals stay as scope guardrails.
+  - Lint (0) and build pass.

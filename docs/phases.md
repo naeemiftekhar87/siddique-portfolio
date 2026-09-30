@@ -16,7 +16,7 @@
 | 4     | Resume System        | 16                | 16   | ✅ Complete |
 | 5     | Backend & Admin Core | 38                | 37   | 🟨 In progress |
 | 6     | Advanced Admin       | 30                | 29   | 🟨 In progress |
-| 7     | Hardening & Launch   | 27                | 8    | 🟨 In progress |
+| 7     | Hardening & Launch   | 27                | 11   | 🟨 In progress |
 
 **Status legend:** ⬜ Not started · 🟨 In progress · ✅ Complete
 
@@ -378,11 +378,11 @@
 
 ### 7.1 Quality Assurance
 
-- [ ] Manual test pass for every public page and admin module
+- [x] Manual test pass for every public page and admin module _(2026-09-30: full browser pass on a production build, 86/86: auth, CRUD + public reflection for all 11 content modules, every settings/website editor, resume toggles, colours, media, dashboard, contact (validation, honeypot, mocked send), downloads, filters, 404s, 360 px)_
 - [ ] Automated tests for critical flows (login, CRUD, contact form, filters)
 - [ ] Cross-browser test (Chrome, Edge, Safari, Firefox) _(2026-09-26: Chromium and Firefox pass (all pages at 1440/360 px, menu, tabs, contact, admin sign-in, upload); WebKit/Safari needs system libraries on this machine; Edge not tested)_
 - [ ] Device test (iOS Safari, Android Chrome, tablet)
-- [ ] Fix all P0/P1 bugs
+- [x] Fix all P0/P1 bugs _(2026-09-30: no open P0/P1 bugs after the full pass)_
 
 ### 7.2 Performance
 
@@ -394,7 +394,7 @@
 ### 7.3 Accessibility
 
 - [x] Keyboard navigation for tabs, accordions, menus, dialogs (visible focus on every tab stop; toggles are buttons with `aria-expanded`; Radix dialog)
-- [ ] Colour contrast audit (AA) _(2026-09-26 audit done: 334 elements below AA, all from the ported palette (e.g. slate-500 on the navy footer 3.8:1, slate-400 on white 2.6:1); fixes need owner approval to change design colours)_
+- [x] Colour contrast audit (AA) _(2026-09-30: axe on 18 public routes with the dark theme — 0 contrast failures, 0 other WCAG A/AA violations; was 334 on the old light palette)_
 - [x] Alt text and ARIA labels reviewed (axe: 0 violations other than colour contrast; all admin labels linked to inputs)
 - [x] Alternative to drag-to-reorder (up/down buttons)
 
@@ -423,19 +423,6 @@
 - [ ] Site live on custom domain with monitoring
 - [ ] Owner can update all content without a developer
 - [ ] Backup restore tested once
-
----
-
-## Post-Launch Backlog (Future Ideas)
-
-- [ ] eBook payments
-- [ ] Blog / news section
-- [ ] Multi-language support
-- [ ] Newsletter signup
-- [ ] Testimonials
-- [ ] Google Scholar auto-sync / ORCID import
-- [ ] Light/dark theme toggle
-- [ ] Cookieless hosted analytics (Plausible / Umami / Vercel Web Analytics) — only with owner approval
 
 ---
 

@@ -122,7 +122,7 @@ export default function Footer({ profile, footer }: FooterProps) {
 
         {/* Bottom bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-slate-400 text-sm">{footer.copyright || `© ${year} ${profile.name}. All rights reserved.`}</p>
+          <p className="text-slate-400 text-sm">{footer.copyright || `© ${[year, profile.name.trim()].filter(Boolean).join(" ")}. All rights reserved.`}</p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-300">
             {profile.location && <><span>{profile.location}</span><span>·</span></>}
             {profile.email && (

@@ -322,7 +322,10 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      animation-delay: 0s !important;
       transition-duration: 0.01ms !important;
+      transition-delay: 0s !important;
     }
   }
 }
@@ -373,7 +376,14 @@
    Translucent fill with a top-lit sheen, hairline border and an inner
    highlight along the top edge; hover picks up the glow colour. */
 .glass-card {
-  background: linear-gradient(to bottom, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.02));
+  /* Layer 1: a diagonal light sheen parked off-card, swept across on hover. */
+  background:
+    linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.07) 50%, transparent 65%) 150% 0 / 250% 100% no-repeat,
+    linear-gradient(to bottom, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.02));
+  transition:
+    background-position 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
   border: 1px solid rgb(255 255 255 / 0.1);
@@ -384,11 +394,56 @@
 a.glass-card:hover,
 .group.glass-card:hover,
 .glass-card.is-interactive:hover {
-  background: linear-gradient(to bottom, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04));
+  background:
+    linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.1) 50%, transparent 65%) -50% 0 / 250% 100% no-repeat,
+    linear-gradient(to bottom, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04));
   border-color: color-mix(in oklab, var(--site-accent, #93c5fd) 30%, transparent);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.14),
     0 24px 48px -20px color-mix(in oklab, var(--site-glow, #2563eb) 45%, transparent);
+}
+
+/* ---- Motion (public site) ----
+   Animations run on Motion (the "motion" package, formerly Framer Motion):
+   components/portfolio/site-motion.tsx animates header banners and scroll
+   reveals; Home uses motion/react components.
+   Header banner content starts hidden so it can rise in without a flash of
+   the final state. Two safety nets keep it from staying hidden: <noscript>
+   CSS in PublicShell, and this delayed keyframe that forces it visible if the
+   script never runs. Reduced motion: shown at once (base-layer rule + JS). */
+@keyframes site-failsafe {
+  to { opacity: 1; }
+}
+.site-public .site-hero > * > * {
+  opacity: 0;
+  animation: site-failsafe 0s 2.5s forwards;
+}
+/* Reduced motion on Home: show Motion-driven elements in their final state
+   at once (no JS branch, so server and client markup stay identical). */
+@media (prefers-reduced-motion: reduce) {
+  [data-motion-managed] [style*="opacity"] { opacity: 1 !important; }
+  [data-motion-managed] [style*="transform"] { transform: none !important; }
+  [data-motion-managed] [style*="filter"] { filter: none !important; }
+}
+
+/* Smooth CSS hover transforms on cards (e.g. hover:scale), except while Motion
+   is animating the element (scroll reveal) or owns it (Home). */
+.glass-card:not([data-motion-pending]):not([data-motion-managed] *) {
+  transition:
+    background-position 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+/* Motion drives transforms/opacity on Home; CSS transitions on those
+   properties (e.g. the global a/button "transition: all") would fight it. */
+[data-motion-managed] :is(a, button) {
+  transition-property: color, background-color, background-position, border-color, box-shadow, text-decoration-color;
+}
+.site-public .site-hero > * > *[data-motion-done] {
+  animation: none;
+  opacity: 1;
 }
 
 /* Same lit background as the public <body>, for previews (admin Colours). */
@@ -519,6 +574,13 @@ button {
 @media print {
   body {
     background: #fff !important;
+  }
+  /* Scroll-reveal targets not yet scrolled into view (inline styles). */
+  [data-motion-pending],
+  .site-hero > * > * {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
   }
   .print-color {
     -webkit-print-color-adjust: exact;
