@@ -22,16 +22,16 @@ export default function Skills({ skills }: { skills: Skill[] }) {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
+      <section className="site-hero bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-cyan-400/30 flex items-center justify-center">
-              <BarChart2 size={18} className="text-cyan-400" />
+            <div className="w-10 h-10 rounded-xl bg-site-accent/15 border border-site-accent/30 flex items-center justify-center">
+              <BarChart2 size={18} className="text-site-accent" />
             </div>
-            <span className="text-cyan-400 text-sm font-medium tracking-wide uppercase">Competencies</span>
+            <span className="text-site-accent text-sm font-medium tracking-wide uppercase">Competencies</span>
           </div>
           <h1 className="font-serif text-5xl lg:text-6xl text-white mb-5 leading-tight">
-            Skills &<br /><span className="italic text-cyan-300">Expertise</span>
+            Skills &<br /><span className="italic text-site-accent">Expertise</span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl leading-relaxed mb-10">
             A broad technical and analytical skill set built through professional practice, academic research, and continuous self-development.
@@ -63,7 +63,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search skills..."
               aria-label="Search skills"
-              className="w-full focus:ring-blue-100"
+              className="w-full focus:ring-site-accent/20"
             />
           </div>
 
@@ -77,7 +77,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
                 className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
                   activeCategory === cat
                     ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-white text-slate-600 border border-slate-200 hover:border-cyan-300 hover:text-blue-600"
+                    : "bg-white/[0.04] text-slate-300 border border-white/10 hover:border-site-accent/40 hover:text-site-accent"
                 }`}
               >
                 {cat}
@@ -91,16 +91,16 @@ export default function Skills({ skills }: { skills: Skill[] }) {
           {filtered.map((skill) => (
             <Card variant="site-glass-card"
               key={skill.id}
-              className="p-5 hover:border-blue-200 hover:shadow-sm transition-all group"
+              className="p-5 hover:border-site-accent/40 hover:shadow-sm transition-all group"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h4 className="font-semibold text-slate-900 text-sm">{skill.name}</h4>
+                  <h4 className="font-semibold text-slate-100 text-sm">{skill.name}</h4>
                   <span className={`text-xs font-mono mt-0.5 inline-block ${
-                    skill.category === "TOOLS & TECHNOLOGIES" ? "text-blue-500" :
-                    skill.category === "INDUSTRY KNOWLEDGE" ? "text-teal-500" :
-                    skill.category === "INTERPERSONAL" ? "text-blue-500" :
-                    "text-orange-500"
+                    skill.category === "TOOLS & TECHNOLOGIES" ? "text-site-accent" :
+                    skill.category === "INDUSTRY KNOWLEDGE" ? "text-teal-300" :
+                    skill.category === "INTERPERSONAL" ? "text-site-accent" :
+                    "text-orange-300"
                   }`}>
                     {skill.category}
                   </span>
@@ -108,7 +108,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
                 <span className="font-mono text-xs text-slate-400">{skill.level}%</span>
               </div>
               {/* Progress bar */}
-              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700 bg-gradient-to-r from-blue-500 to-teal-500"
                   style={{ width: `${skill.level}%` }}

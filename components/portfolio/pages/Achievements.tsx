@@ -4,12 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
 const categoryConfig: Record<string, { color: string; bg: string; dot: string; icon: React.ReactNode }> = {
-  Academic:     { color: "text-blue-700",   bg: "bg-blue-50 border-blue-100",    dot: "bg-blue-500",    icon: <Star size={14} className="text-blue-500" /> },
-  Professional: { color: "text-teal-700",   bg: "bg-teal-50 border-teal-100",    dot: "bg-teal-500",    icon: <Zap size={14} className="text-teal-500" /> },
-  Research:     { color: "text-cyan-700",   bg: "bg-cyan-50 border-cyan-100",    dot: "bg-cyan-500",    icon: <Award size={14} className="text-cyan-600" /> },
-  Competition:  { color: "text-amber-700",  bg: "bg-amber-50 border-amber-100",  dot: "bg-amber-500",   icon: <Trophy size={14} className="text-amber-500" /> },
-  Community:    { color: "text-rose-700",   bg: "bg-rose-50 border-rose-100",    dot: "bg-rose-500",    icon: <Star size={14} className="text-rose-500" /> },
-  Awards:       { color: "text-amber-700",  bg: "bg-amber-50 border-amber-100",  dot: "bg-amber-500",   icon: <Trophy size={14} className="text-amber-500" /> },
+  Academic:     { color: "text-site-accent",   bg: "bg-site-accent/10 border-site-accent/20",    dot: "bg-blue-500",    icon: <Star size={14} className="text-site-accent" /> },
+  Professional: { color: "text-teal-300",   bg: "bg-teal-400/10 border-teal-400/20",    dot: "bg-teal-500",    icon: <Zap size={14} className="text-teal-300" /> },
+  Research:     { color: "text-site-accent",   bg: "bg-site-accent/10 border-site-accent/20",    dot: "bg-cyan-500",    icon: <Award size={14} className="text-site-accent" /> },
+  Competition:  { color: "text-amber-300",  bg: "bg-amber-400/10 border-amber-400/20",  dot: "bg-amber-500",   icon: <Trophy size={14} className="text-amber-300" /> },
+  Community:    { color: "text-rose-300",   bg: "bg-rose-400/10 border-rose-400/20",    dot: "bg-rose-500",    icon: <Star size={14} className="text-rose-300" /> },
+  Awards:       { color: "text-amber-300",  bg: "bg-amber-400/10 border-amber-400/20",  dot: "bg-amber-500",   icon: <Trophy size={14} className="text-amber-300" /> },
 };
 
 export default function Achievements({ achievements: allAchievements }: { achievements: Achievement[] }) {
@@ -35,7 +35,7 @@ export default function Achievements({ achievements: allAchievements }: { achiev
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
+      <section className="site-hero bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center">
@@ -68,9 +68,9 @@ export default function Achievements({ achievements: allAchievements }: { achiev
       {/* Featured / pinned achievement */}
       {featured && (
       <section className="max-w-5xl mx-auto px-6 -mt-8">
-        <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-3xl p-8 shadow-xl">
+        <div className="bg-gradient-to-br from-amber-500/30 via-orange-500/15 to-white/[0.03] border border-amber-300/30 backdrop-blur-xl rounded-3xl p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_30px_60px_-30px_rgba(245,158,11,0.45)]">
           <div className="flex items-start gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
               <Trophy size={28} className="text-white" />
             </div>
             <div>
@@ -90,15 +90,15 @@ export default function Achievements({ achievements: allAchievements }: { achiev
       {/* All achievements by category */}
       <section className="max-w-5xl mx-auto px-6 py-16 space-y-12">
         {Object.entries(categoryGroups).map(([category, items]) => {
-          const cfg = categoryConfig[category] ?? { color: "text-slate-600", bg: "bg-slate-50 border-slate-100", icon: <Star size={14} /> };
+          const cfg = categoryConfig[category] ?? { color: "text-slate-300", bg: "bg-white/[0.03] border-white/10", icon: <Star size={14} /> };
           return (
             <div key={category}>
               <div className="flex items-center gap-3 mb-6">
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center border ${cfg.bg}`}>
                   {cfg.icon}
                 </div>
-                <h2 className="font-serif text-2xl text-[#040d1f]">{category}</h2>
-                <span className="ml-1 w-6 h-6 rounded-full bg-slate-100 text-slate-500 text-xs flex items-center justify-center font-medium">{items.length}</span>
+                <h2 className="font-serif text-2xl text-slate-100">{category}</h2>
+                <span className="ml-1 w-6 h-6 rounded-full bg-white/[0.06] text-slate-400 text-xs flex items-center justify-center font-medium">{items.length}</span>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
@@ -112,14 +112,14 @@ export default function Achievements({ achievements: allAchievements }: { achiev
                         {cfg.icon}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-serif text-lg text-[#040d1f] mb-1 leading-snug group-hover:text-blue-600 transition-colors">
+                        <h3 className="font-serif text-lg text-slate-100 mb-1 leading-snug group-hover:text-site-accent transition-colors">
                           {ach.title}
                         </h3>
                         <div className="flex flex-wrap gap-3 text-xs text-slate-400 mb-3">
                           {ach.organization && <span className="flex items-center gap-1"><Building size={11} /> {ach.organization}</span>}
                           {ach.date && <span className="flex items-center gap-1"><Calendar size={11} /> {ach.date}</span>}
                         </div>
-                        <p className="text-slate-500 text-sm leading-relaxed">{ach.description}</p>
+                        <p className="text-slate-400 text-sm leading-relaxed">{ach.description}</p>
                       </div>
                     </div>
                   </Card>
@@ -132,21 +132,21 @@ export default function Achievements({ achievements: allAchievements }: { achiev
 
       {/* Timeline strip */}
       {allAchievements.length > 0 && (
-      <section className="bg-blue-50/30 border-t border-blue-100/40 py-16 px-6">
+      <section className="bg-site-accent/5 border-t border-site-accent/20 py-16 px-6">
         <div className="max-w-5xl mx-auto">
-          <h2 className="font-serif text-2xl text-[#040d1f] mb-10 text-center">Achievement Timeline</h2>
+          <h2 className="font-serif text-2xl text-slate-100 mb-10 text-center">Achievement Timeline</h2>
           <div className="relative">
             {/* Line */}
-            <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-px bg-slate-200 hidden sm:block" />
+            <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-px bg-white/10 hidden sm:block" />
             <div className="space-y-6">
               {byDateDesc.map((ach, idx) => {
-                const cfg = categoryConfig[ach.category] ?? { color: "text-slate-600", bg: "bg-slate-50 border-slate-100", dot: "bg-slate-400", icon: <Star size={14} /> };
+                const cfg = categoryConfig[ach.category] ?? { color: "text-slate-300", bg: "bg-white/[0.03] border-white/10", dot: "bg-slate-400", icon: <Star size={14} /> };
                 const isLeft = idx % 2 === 0;
                 return (
                   <div key={ach.id} className={`sm:flex items-center gap-8 ${isLeft ? "sm:flex-row" : "sm:flex-row-reverse"}`}>
                     <div className="flex-1 hidden sm:block" />
                     {/* Dot */}
-                    <div className="hidden sm:flex w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border-2 border-blue-200/60 items-center justify-center flex-shrink-0 z-10 shadow-md">
+                    <div className="hidden sm:flex w-8 h-8 rounded-full bg-slate-950/70 backdrop-blur-sm border-2 border-site-accent/20 items-center justify-center flex-shrink-0 z-10 shadow-md">
                       <div className={`w-3 h-3 rounded-full ${cfg.dot}`} />
                     </div>
                     <div className={`flex-1 glass-card rounded-2xl p-4 shadow-sm`}>
@@ -154,7 +154,7 @@ export default function Achievements({ achievements: allAchievements }: { achiev
                         <span className="font-mono text-xs text-slate-400">{ach.date}</span>
                         <Badge variant="unstyled" className={`text-xs px-2 py-0.5 rounded-full border ${cfg.bg} ${cfg.color}`}>{ach.category}</Badge>
                       </div>
-                      <p className="text-[#040d1f] font-medium text-sm">{ach.title}</p>
+                      <p className="text-slate-100 font-medium text-sm">{ach.title}</p>
                       <p className="text-slate-400 text-xs mt-0.5">{ach.organization}</p>
                     </div>
                   </div>

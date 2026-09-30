@@ -191,7 +191,7 @@ These are link targets only: use them for social icons, the footer, and research
     - **Hosting: Vercel** (2026-09-23). Use the Node.js runtime for routes that use the service-role client, Resend, or Chromium. The resume PDF uses `puppeteer-core` + `@sparticuz/chromium` (needs approval in Phase 4; watch Vercel's function size and duration limits). Rate limits for login and contact must be stored in Supabase, not in memory. Env vars live in Vercel project settings.
     - **Domain:** a custom domain is registered at **Namecheap**, with **no mailbox**. It points to Vercel via DNS, and Resend sends from it after SPF/DKIM/DMARC records are added at Namecheap (no mailbox needed to send). Contact submissions go to the owner's personal address (see decision 18), with Reply-To set to the visitor.
     - **Env vars still to add** (to the gitignored `.env`): `RESEND_API_KEY` and `CONTACT_FROM_EMAIL` (Phase 6). `CONTACT_TO_EMAIL` was added 2026-09-24.
-13. **Design source ported; design must stay identical** (2026-09-23). The owner's Vite prototype is the visual source of truth for all pages; where it differs from `docs/design.md` (hard-coded hex classes, `<img>` tags, admin styling), the **ported design wins**. Its person-specific content was replaced with obvious placeholders (owner's choice). Training/Awards certificate admin pages were kept (owner's choice).
+13. **Design source ported; design must stay identical** (2026-09-23). **Superseded for the public site on 2026-09-30** (owner): the public pages now use the glossy dark theme (see the 2026-09-30 session log); the admin still follows this rule. The owner's Vite prototype is the visual source of truth for all pages; where it differs from `docs/design.md` (hard-coded hex classes, `<img>` tags, admin styling), the **ported design wins**. Its person-specific content was replaced with obvious placeholders (owner's choice). Training/Awards certificate admin pages were kept (owner's choice).
 14. **No SEO module** (2026-09-23, owner: "remove the SEO fully"). The `/admin/seo` page, route, and sidebar link, the `SEOEntry` entity, and all SEO scope (per-page meta/OG/canonical editing, sitemap.xml, robots.txt, JSON-LD, the Lighthouse SEO target, Search Console) are removed from the code, PRD, phases, architecture, and AGENTS.md. **Kept:** plain page `<title>`s (browser tabs) and `noindex` on `/admin`. `docs/rules.md` §18 (the owner's file) still asks for SEO-friendly pages; this was flagged to the owner rather than edited.
 15. **Admin changes (2026-09-23):**
     - **Resume variants:** only **Professional** and **Infographic**. The Academic CV and Research CV were removed from the public `/resume` tabs, the Research & Publications block on those CVs, the admin editor tabs, the sidebar, the routes, and the PRD/phases.
@@ -211,7 +211,7 @@ These are link targets only: use them for social icons, the footer, and research
     - **Used in:** Website → Home (hero photo), Website → About (profile photo), Profile (the "+" on the photo reveals the chooser; `photo` was added to the Profile data type, and `emptyProfile.photo` is `""`), Projects (cover), Portfolio Gallery (image), and eBooks (cover, replacing the inert "Drag & drop" placeholder; new books no longer get a stock cover, and the list shows a neutral box when there is none).
     - **Not yet covered:** Certificates, Experience, and Education have no image field in their forms; new entries still get a stock Unsplash image/logo on add (leftover sample data).
 18. **Contact form → email only; no admin Messages inbox** (2026-09-24, owner). Submissions are emailed via Resend to **`mdtarakesiddique@gmail.com`** (env `CONTACT_TO_EMAIL`) with Reply-To = the visitor; they are **not stored** and there is no `Message` entity. Removed: `/admin/messages` route, `AdminMessages.tsx`, the sidebar link, the dashboard Messages card and "View Messages" quick action, and the placeholder `messages` array in `lib/data`. PRD §5.19/§6/§7/§10, phases 2.x/5.x/6.2, and architecture §4.3 updated. `docs/rules.md` (owner's file) still lists "Messages" among data models; flagged, not edited. The Contact page UI is unchanged (the form is still UI-only until Phase 6).
-19. **Admin-editable site colours** (2026-09-25, owner). New `/admin/website/colours` (`AdminWebsiteColors.tsx`, sidebar Website → Colours). **Site-wide only** (owner: "one change will reflect every page"): navbar, footer, page top (dark hero header), and page body. Each has a colour picker plus a hex field (6-digit applies while typing, `#rgb` on blur, invalid reverts on blur), a per-colour reset, "Reset all", a WCAG low-contrast warning (< 4.5 against the text drawn on it), and a live preview. **Save is UI-only until Phase 5** (owner choice).
+19. **Admin-editable site colours** (2026-09-25, owner). **Updated 2026-09-30 for the dark theme:** six colours — navbar, page header (`pageTop`), page background (`pageBackground`, replaces the light `pageBody`, which is now dropped on parse), footer, accent and glow — grouped as Layout/Theme, with contrast checks (accent vs page background) and a dark live preview; saves persist via `saveSettings("colors")`. Original note: New `/admin/website/colours` (`AdminWebsiteColors.tsx`, sidebar Website → Colours). **Site-wide only** (owner: "one change will reflect every page"): navbar, footer, page top (dark hero header), and page body. Each has a colour picker plus a hex field (6-digit applies while typing, `#rgb` on blur, invalid reverts on blur), a per-colour reset, "Reset all", a WCAG low-contrast warning (< 4.5 against the text drawn on it), and a live preview. **Save is UI-only until Phase 5** (owner choice).
     - `lib/site-colors.ts`: `SiteColors` type, `defaultSiteColors` (the design's exact colours: `#040d1f`, `#0a1628`, `#040d1f`, `#eef4ff`), `normalizeHex`, `contrastRatio`, `siteColorVars`/`siteColorCss`.
     - `components/portfolio/SiteColorStyle.tsx` renders the `--site-*` CSS variables in `app/(public)/layout.tsx` and `app/not-found.tsx`. **Phase 5:** pass the saved colours as its `colors` prop.
     - Public components use `bg-(color:--site-navbar)/…` (Navbar), `bg-(color:--site-footer)` (Footer), and `from-(color:--site-top) via-(color:--site-top-mid) …` on the heroes of 14 pages, plus the headers of Certificate/Research/Book detail and the 404. Body: `background: var(--site-body-bg, var(--gradient-body))` in globals.css.
@@ -302,6 +302,7 @@ These are link targets only: use them for social icons, the footer, and research
   - **Automated tests:** a test framework plus a separate test database (Supabase branch or second project). The Playwright/axe scripts currently live only in the session scratchpad and write to the live DB.
   - **Deployment (7.6):** Vercel project and env vars, Namecheap DNS, CI/CD, backups, error/uptime monitoring. Also 1.1's Git branching strategy.
   - **1.2 / 5.3:** extract reusable design-system components (Hero, StatCard, …) plus a demo page, and generic CRUD components? The ported design keeps these inline by owner instruction. Decide whether these tracker items are still wanted.
+- **Public redesign (2026-09-30):** glossy dark theme is applied to all public pages, and the Colours admin now controls accent and glow. Owner to review on a real device. Colour-contrast audit (the earlier 334 AA failures) should be re-run against the dark theme.
 - **Owner action (security, 2026-09-30):** disable "Allow new users to sign up" in the Supabase dashboard (Authentication).
 - **Owner checks:** confirm the contact test email arrived; open an eBook's "Read online" in real Chrome, Firefox and Safari (automation browsers can't show inline PDFs); test on a real iPhone/Android.
 - **After deploy:** re-run Lighthouse and LCP behind Vercel's CDN; WebKit/Safari and Edge runs.
@@ -412,3 +413,47 @@ Newest last. Add one entry per work session.
     3. Migration `20260930000000_harden_function_grants.sql` revokes EXECUTE on `set_updated_at()` from anon and authenticated. Applied; the triggers still work.
   - **Verification:** 15/15 browser checks: cookie httpOnly with an 8 h lifetime, `document.cookie` has no token, admin save/delete/upload still work, cross-site and missing Origin give 403, same-origin requests are accepted, and sign-out clears the cookie. The test upload and rate-limit rows were removed.
   - **Owner action (open):** public sign-up is still enabled in Supabase Auth. It is not exploitable (the admin needs `app_metadata.role`, which users can't set), but turn it off in the Supabase dashboard → Authentication → Sign In / Providers → "Allow new users to sign up".
+- **2026-09-30 (Claude Code), public redesign: Home sample.** The owner asked for a "modern and professional" UI refresh with no functionality changes. Answers: **public site only** (the admin keeps its look), and **redesign Home first as a sample for review** before touching other pages. This supersedes decision 13 ("design must stay identical") for the public site, pending the owner's approval of the sample.
+  - `components/portfolio/pages/Home.tsx` restyled. Props, section toggles, links and data logic are unchanged. The brand (navy/blue/cyan, DM Serif / Plus Jakarta / JetBrains Mono) is kept.
+  - What changed:
+    - Hero: white background with a faded grid, a status pill, larger type, and icon-button socials. The portrait is 4:5 with a single credential chip.
+    - Stats: the strip is now a 2/3/6-column grid.
+    - Background cards: white cards with the value in serif.
+    - Featured: one card split into 3 panels.
+    - Research: a single divided list.
+    - CTA: a rounded panel inside the page that uses `--site-top`, so the admin "page top" colour applies.
+    - Text is slate-600 or darker for contrast.
+  - Removed: the decorative "Analytics Growth" sparkline card, which showed no real data. `home-sparkline.tsx` is now unused but kept until the owner decides.
+  - Checked at 1440 and 390 px (no overflow). tsc, lint (0) and build pass.
+  - **Next:** once the owner approves or adjusts the sample, apply the same language to Navbar/Footer and the other public pages.
+- **2026-09-30 (Claude Code), Home sample → glossy dark theme.** At the owner's request, the Home sample was switched to a glossy dark theme.
+  - The page base is `--site-top` (admin "page top" colour, default navy), with blurred blue/cyan/indigo ambient glows and a faded grid in the hero.
+  - Surfaces use one shared `glass` class string in `Home.tsx`: a white/8→2% gradient, `backdrop-blur-xl`, a white/10 border and an inset top highlight. Hover adds a cyan edge and glow.
+  - Other details: the name has a white→cyan gradient; the primary CTA is a glossy blue gradient; the CTA panel is a blue/cyan gradient glass; paper status badges use translucent tints; body text is slate-300/400.
+  - The navbar and footer (already navy) now blend with the page. Props and logic are unchanged.
+  - Checked at 1440 and 390 px (no overflow). tsc, lint (0) and build pass. Awaiting the owner's review before the dark theme is rolled out to other public pages.
+- **2026-09-30 (Claude Code), Home dark theme softened.** The owner said the font and the cyan accent `#67e8f9` looked "sharp".
+  - The accent is now soft blue `#93c5fd` (blue-300), with `#bfdbfe` for hovers and the name gradient. Hover glows are blue.
+  - Text is off-white `#f1f5f9` instead of pure white. Section eyebrow labels use the sans font, semibold, with 0.14em tracking instead of mono. Page text has slight 0.01em tracking.
+  - Root cause of the harsh type: the `font-semibold` h3 titles were rendered in DM Serif Display (the global h1–h3 rule), which has no bold, so the browser faked one. Those titles now use `font-sans`.
+  - The mono font is kept for data (dates, years).
+- **2026-09-30 (Claude Code), glossy dark theme on all public pages and a new colour system.** The owner approved the Home sample and asked to apply it everywhere and update the dashboard colour control. The admin UI is unchanged.
+  - **Colour model:** `lib/site-colors.ts` + `colorSettingsSchema` now hold `navbar`, `pageTop`, `pageBackground`, `footer`, `accent` (default `#93c5fd`) and `glow` (default `#2563eb`).
+    - `siteColorVars` emits `--site-navbar/-footer/-top/-top-mid/-top-end/-bg/-accent/-glow`. The header stops are always derived via `color-mix`.
+    - The old saved `pageBody` (`#eef4ff`) is stripped on parse. The owner's row was re-saved in the new format (defaults) by the e2e test.
+  - **globals.css:**
+    - `@theme inline` adds `--color-site-accent/--color-site-glow`, giving the `text-site-accent`, `bg-site-glow/25`, … utilities.
+    - Public `body` is `--site-bg` with three fixed radial glow pools in the glow colour and slate-300 text. The admin body keeps `var(--background)`/`var(--foreground)`.
+    - `.glass-card` is now dark glossy glass; hover lights up on `a`, `.group` or `.is-interactive`. `.glass` is dark.
+    - New classes: `.site-hero` (grid and glow pseudo-layer on header banners), `.site-backdrop` (admin preview), and heading rules under `.site-public`. The heading rules stop faux-bold: bold h1–h3 without `font-serif` use the sans font, and `font-serif` loses synthetic weight. `PublicShell` wraps content in `<div className="site-public contents">`.
+  - **ui variants:** `site-primary` (glossy blue gradient), `site-glass`/`site-outline` (glass), `site-panel`/`site-white-card` (dark glass), `site-field`/`site-search` (dark inputs, accent focus), `site-label` (light).
+  - **Pages:** all public page components, Navbar/Footer helpers and `(public)/error.tsx` were converted. This used a class-mapping script (light slate/gray/white → dark translucent; blue/cyan → `site-accent`; other hues → -300 text and -400/10 tints) plus manual fixes.
+    - The manual fixes covered `text-[#040d1f]` headings, navy active tabs (now accent pills), plain cards (now `glass-card`), sticky filter bars (now dark blur), the project detail header, and the achievements featured card.
+    - `Home.tsx` now uses `site-glow`/`site-accent` and the body background.
+  - **Resume documents stay white paper** (Professional and Infographic, including the skill bars) so Save-as-PDF prints correctly; only the surrounding page is dark. Print mode was checked.
+  - **Admin Colours** (`AdminWebsiteColors.tsx`): Layout (4) + Theme (accent, glow) groups, per-field contrast checks, and a dark preview that uses the real `.site-hero`/`.site-backdrop`/`.glass-card`.
+  - **Verified:**
+    - Screenshots of all 20 public routes at 1440 and 390 px: no overflow, 0 page errors.
+    - Admin dashboard unaffected.
+    - Colour save → public `--site-accent/--site-glow` updated → reset restores the defaults.
+    - tsc, lint (0) and build pass.

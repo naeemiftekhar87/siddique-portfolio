@@ -42,18 +42,18 @@ export default function Resume({ profile, config, experiences, education, skills
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden print:hidden">
+      <section className="site-hero bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden print:hidden">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-cyan-400/30 flex items-center justify-center">
-              <FileText size={18} className="text-cyan-400" />
+              <FileText size={18} className="text-site-accent" />
             </div>
-            <span className="text-cyan-400 text-sm font-medium tracking-wide uppercase">Documents</span>
+            <span className="text-site-accent text-sm font-medium tracking-wide uppercase">Documents</span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div>
               <h1 className="font-serif text-5xl lg:text-6xl text-white mb-3 leading-tight">
-                Resume<br /><span className="italic text-cyan-300">Center</span>
+                Resume<br /><span className="italic text-site-accent">Center</span>
               </h1>
               <p className="text-slate-300 text-lg max-w-xl leading-relaxed">
                 Professional resume and infographic resume — each tailored for different audiences and contexts.
@@ -71,7 +71,7 @@ export default function Resume({ profile, config, experiences, education, skills
       </section>
 
       {/* Sticky tab bar */}
-      <div className="sticky top-[72px] z-10 bg-white/90 backdrop-blur-md border-b border-blue-100/40 shadow-sm print:hidden">
+      <div className="sticky top-[72px] z-10 bg-slate-950/60 backdrop-blur-xl border-b border-white/10 shadow-sm print:hidden">
         <div className="max-w-5xl mx-auto px-6 py-4 flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <Button variant="unstyled"
@@ -80,8 +80,8 @@ export default function Resume({ profile, config, experiences, education, skills
               aria-pressed={activeTab === tab}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === tab
-                  ? "bg-[#040d1f] text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-site-accent/15 text-site-accent ring-1 ring-inset ring-site-accent/30"
+                  : "bg-white/[0.06] text-slate-300 hover:bg-white/10"
               }`}
             >
               {tab}
@@ -92,7 +92,7 @@ export default function Resume({ profile, config, experiences, education, skills
 
       <div className="max-w-5xl mx-auto px-6 py-12 print:p-0 print:max-w-none">
         {/* Resume document */}
-        <Card variant="site-glass-card" className="overflow-hidden shadow-lg print:shadow-none print:border-0">
+        <Card variant="unstyled" className="overflow-hidden rounded-2xl bg-white ring-1 ring-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] print:shadow-none print:ring-0">
           {/* Header */}
           <div className="bg-gradient-to-r from-[#040d1f] to-[#071428] px-10 py-10 text-white print-color">
             <h2 className={`${heading} text-3xl mb-2`}>{profile.name}</h2>

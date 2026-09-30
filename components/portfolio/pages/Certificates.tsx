@@ -25,7 +25,7 @@ export default function Certificates({ certificates }: { certificates: Certifica
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
+      <section className="site-hero bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
@@ -56,7 +56,7 @@ export default function Certificates({ certificates }: { certificates: Certifica
       </section>
 
       {/* Sticky filter bar */}
-      <div className="sticky top-[72px] z-10 bg-white/90 backdrop-blur-md border-b border-blue-100/40 shadow-sm">
+      <div className="sticky top-[72px] z-10 bg-slate-950/60 backdrop-blur-xl border-b border-white/10 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <Button variant="unstyled"
@@ -65,8 +65,8 @@ export default function Certificates({ certificates }: { certificates: Certifica
               aria-pressed={activeTab === tab}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === tab
-                  ? "bg-[#040d1f] text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-site-accent/15 text-site-accent ring-1 ring-inset ring-site-accent/30"
+                  : "bg-white/[0.06] text-slate-300 hover:bg-white/10"
               }`}
             >
               {tab}
@@ -86,10 +86,10 @@ export default function Certificates({ certificates }: { certificates: Certifica
             <Link
               key={cert.id}
               href={`/certificates/${cert.id}`}
-              className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-lg hover:border-slate-200 transition-all group"
+              className="glass-card rounded-2xl overflow-hidden transition-all group"
             >
               {/* Image */}
-              <div className="relative h-44 overflow-hidden bg-slate-100">
+              <div className="relative h-44 overflow-hidden bg-white/[0.06]">
                 {cert.image ? (
                   <img loading="lazy" decoding="async"
                     src={cert.image}
@@ -97,18 +97,18 @@ export default function Certificates({ certificates }: { certificates: Certifica
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-slate-100" aria-hidden>
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-400/10 to-white/5" aria-hidden>
                     <Award size={40} className="text-amber-400" />
                   </div>
                 )}
                 {cert.verified && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full border border-green-100">
-                    <CheckCircle size={12} className="text-green-500" />
-                    <span className="text-xs text-green-600 font-medium">Verified</span>
+                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-slate-950/70 backdrop-blur-sm px-2.5 py-1 rounded-full border border-green-400/20">
+                    <CheckCircle size={12} className="text-green-300" />
+                    <span className="text-xs text-green-300 font-medium">Verified</span>
                   </div>
                 )}
                 <div className="absolute bottom-3 left-3">
-                  <Badge variant="unstyled" className="bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-600 px-2.5 py-1 rounded-full border border-slate-100">
+                  <Badge variant="unstyled" className="bg-slate-950/70 backdrop-blur-sm text-xs font-medium text-slate-300 px-2.5 py-1 rounded-full border border-white/10">
                     {cert.category}
                   </Badge>
                 </div>
@@ -116,10 +116,10 @@ export default function Certificates({ certificates }: { certificates: Certifica
 
               {/* Content */}
               <div className="p-5">
-                <h3 className="font-semibold text-slate-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="font-semibold text-slate-100 mb-1 line-clamp-2 group-hover:text-site-accent transition-colors">
                   {cert.title}
                 </h3>
-                <p className="text-blue-600 text-sm mb-3">{cert.issuer}</p>
+                <p className="text-site-accent text-sm mb-3">{cert.issuer}</p>
 
                 <div className="flex items-center justify-between text-xs text-slate-400 mb-4">
                   <span className="flex items-center gap-1">
@@ -134,12 +134,12 @@ export default function Certificates({ certificates }: { certificates: Certifica
 
                 <div className="flex flex-wrap gap-1.5">
                   {cert.skills.slice(0, 4).map((s) => (
-                    <Badge variant="unstyled" key={s} className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded-md border border-slate-100">
+                    <Badge variant="unstyled" key={s} className="px-2 py-1 bg-white/[0.03] text-slate-300 text-xs rounded-md border border-white/10">
                       {s}
                     </Badge>
                   ))}
                   {cert.skills.length > 4 && (
-                    <Badge variant="unstyled" className="px-2 py-1 bg-slate-50 text-slate-400 text-xs rounded-md border border-slate-100">
+                    <Badge variant="unstyled" className="px-2 py-1 bg-white/[0.03] text-slate-400 text-xs rounded-md border border-white/10">
                       +{cert.skills.length - 4}
                     </Badge>
                   )}

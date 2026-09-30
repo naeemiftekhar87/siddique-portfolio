@@ -14,6 +14,7 @@ export default async function PublicShell({ children }: { children: React.ReactN
   return (
     <>
       <SiteColorStyle colors={colors} />
+      <div className="site-public contents">
       <Navbar
         name={profile.name}
         navLinks={navigation.links.filter((l) => l.visible)}
@@ -21,6 +22,7 @@ export default async function PublicShell({ children }: { children: React.ReactN
       />
       {children}
       <Footer profile={profile} footer={footer} />
+      </div>
     </>
   );
 }

@@ -8,7 +8,7 @@ export default function Education({ education, profile }: { education: Education
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
+      <section className="site-hero bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center">
@@ -44,19 +44,19 @@ export default function Education({ education, profile }: { education: Education
             <div className="text-center py-16 text-slate-400">No education entries yet.</div>
           )}
           {education.map((edu) => (
-            <Card variant="site-white-card" key={edu.id} className="overflow-hidden hover:shadow-lg hover:border-slate-200 transition-all">
+            <Card variant="site-white-card" key={edu.id} className="overflow-hidden hover:shadow-lg hover:border-white/10 transition-all">
               {/* Header gradient bar */}
               <div className={`h-1.5 ${edu.status === "In Progress" ? "bg-gradient-to-r from-blue-500 to-teal-500" : "bg-gradient-to-r from-slate-400 to-slate-500"}`} />
 
               <div className="p-8">
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="flex-shrink-0">
-                    <div className="w-16 h-16 rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                    <div className="w-16 h-16 rounded-2xl border border-white/10 overflow-hidden shadow-sm">
                       {edu.logo ? (
                         <img loading="lazy" decoding="async" src={edu.logo} alt={edu.university} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-teal-50 flex items-center justify-center" aria-hidden>
-                          <GraduationCap size={24} className="text-teal-600" />
+                        <div className="w-full h-full bg-teal-400/10 flex items-center justify-center" aria-hidden>
+                          <GraduationCap size={24} className="text-teal-300" />
                         </div>
                       )}
                     </div>
@@ -64,14 +64,14 @@ export default function Education({ education, profile }: { education: Education
                   <div className="flex-1">
                     <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                       <div>
-                        <h3 className="font-serif text-xl text-slate-900">{edu.university}</h3>
-                        <p className="text-blue-600 font-medium mt-1">{edu.degree}</p>
-                        <p className="text-slate-600 text-sm mt-0.5">{edu.major}</p>
+                        <h3 className="font-serif text-xl text-slate-100">{edu.university}</h3>
+                        <p className="text-site-accent font-medium mt-1">{edu.degree}</p>
+                        <p className="text-slate-300 text-sm mt-0.5">{edu.major}</p>
                       </div>
                       <Badge variant="unstyled" className={`px-3 py-1 rounded-full text-xs font-medium font-mono ${
                         edu.status === "In Progress"
-                          ? "bg-blue-50 text-blue-600 border border-blue-100"
-                          : "bg-green-50 text-green-600 border border-green-100"
+                          ? "bg-site-accent/10 text-site-accent border border-site-accent/20"
+                          : "bg-green-400/10 text-green-300 border border-green-400/20"
                       }`}>
                         {edu.status}
                       </Badge>
@@ -90,17 +90,17 @@ export default function Education({ education, profile }: { education: Education
                       )}
                     </div>
 
-                    <p className="text-slate-600 leading-relaxed mb-6">{edu.description}</p>
+                    <p className="text-slate-300 leading-relaxed mb-6">{edu.description}</p>
 
                     <div className="grid md:grid-cols-2 gap-6">
                       {edu.coursework.length > 0 && (
                       <div>
-                        <h4 className="text-slate-900 font-semibold text-sm mb-3 flex items-center gap-2">
-                          <BookOpen size={14} className="text-blue-600" /> Coursework
+                        <h4 className="text-slate-100 font-semibold text-sm mb-3 flex items-center gap-2">
+                          <BookOpen size={14} className="text-site-accent" /> Coursework
                         </h4>
                         <div className="flex flex-wrap gap-2">
                           {edu.coursework.map((c) => (
-                            <Badge variant="unstyled" key={c} className="px-3 py-1.5 bg-slate-50 text-slate-600 text-xs rounded-lg border border-slate-100">
+                            <Badge variant="unstyled" key={c} className="px-3 py-1.5 bg-white/[0.03] text-slate-300 text-xs rounded-lg border border-white/10">
                               {c}
                             </Badge>
                           ))}
@@ -109,12 +109,12 @@ export default function Education({ education, profile }: { education: Education
                       )}
                       {edu.skills.length > 0 && (
                       <div>
-                        <h4 className="text-slate-900 font-semibold text-sm mb-3 flex items-center gap-2">
-                          <GraduationCap size={14} className="text-teal-600" /> Skills Gained
+                        <h4 className="text-slate-100 font-semibold text-sm mb-3 flex items-center gap-2">
+                          <GraduationCap size={14} className="text-teal-300" /> Skills Gained
                         </h4>
                         <div className="flex flex-wrap gap-2">
                           {edu.skills.map((s) => (
-                            <Badge variant="unstyled" key={s} className="px-3 py-1.5 bg-teal-50 text-teal-700 text-xs rounded-lg border border-teal-100">
+                            <Badge variant="unstyled" key={s} className="px-3 py-1.5 bg-teal-400/10 text-teal-300 text-xs rounded-lg border border-teal-400/20">
                               {s}
                             </Badge>
                           ))}

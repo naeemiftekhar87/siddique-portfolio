@@ -52,6 +52,11 @@
   --font-mono:
     var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
+
+  /* Admin-editable public colours (lib/site-colors.ts, SiteColorStyle):
+     text-site-accent, bg-site-accent/10, bg-site-glow/25, … */
+  --color-site-accent: var(--site-accent, #93c5fd);
+  --color-site-glow: var(--site-glow, #2563eb);
 }
 
 /* ==========================================================================
@@ -265,15 +270,21 @@
 
   body {
     font-family: var(--font-sans);
-    /* --site-body-bg: admin-chosen body colour (lib/site-colors.ts) */
-    background: var(--site-body-bg, var(--gradient-body));
-    background-attachment: fixed; /* gradient does not scroll */
-    color: var(--foreground);
+    /* Glossy dark theme: admin-chosen page background (--site-bg) lit by
+       soft pools of the admin-chosen glow colour (lib/site-colors.ts). */
+    background:
+      radial-gradient(60rem 45rem at 85% -10%, color-mix(in oklab, var(--site-glow, #2563eb) 28%, transparent), transparent 70%),
+      radial-gradient(50rem 40rem at -10% 50%, color-mix(in oklab, var(--site-glow, #2563eb) 14%, transparent), transparent 70%),
+      radial-gradient(45rem 35rem at 100% 100%, color-mix(in oklab, var(--site-glow, #2563eb) 12%, transparent), transparent 70%),
+      var(--site-bg, #040d1f);
+    background-attachment: fixed; /* the light does not scroll */
+    color: #cbd5e1; /* slate-300 */
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
   html.admin-theme body {
     background: var(--background);
+    color: var(--foreground);
   }
 
   h1,
@@ -358,21 +369,63 @@
   color: #ffffff;
 }
 
-/* ---- Glassmorphism ---- */
+/* ---- Glossy glass (public dark theme) ----
+   Translucent fill with a top-lit sheen, hairline border and an inner
+   highlight along the top edge; hover picks up the glow colour. */
 .glass-card {
-  background: rgba(255, 255, 255, 0.75);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.02));
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgb(255 255 255 / 0.1);
   box-shadow:
-    0 4px 24px rgba(37, 99, 235, 0.06),
-    0 1px 4px rgba(37, 99, 235, 0.04);
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    0 20px 40px -24px rgb(0 0 0 / 0.6);
 }
-.glass-card:hover {
-  background: rgba(255, 255, 255, 0.88);
+a.glass-card:hover,
+.group.glass-card:hover,
+.glass-card.is-interactive:hover {
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04));
+  border-color: color-mix(in oklab, var(--site-accent, #93c5fd) 30%, transparent);
   box-shadow:
-    0 8px 40px rgba(37, 99, 235, 0.12),
-    0 2px 8px rgba(37, 99, 235, 0.06);
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 24px 48px -20px color-mix(in oklab, var(--site-glow, #2563eb) 45%, transparent);
+}
+
+/* Same lit background as the public <body>, for previews (admin Colours). */
+.site-backdrop {
+  background:
+    radial-gradient(40rem 30rem at 85% -10%, color-mix(in oklab, var(--site-glow, #2563eb) 28%, transparent), transparent 70%),
+    radial-gradient(30rem 24rem at -10% 60%, color-mix(in oklab, var(--site-glow, #2563eb) 14%, transparent), transparent 70%),
+    var(--site-bg, #040d1f);
+}
+
+/* Public headings: the display serif has a single weight, so bold/semibold
+   headings would be faux-bolded (harsh). Those use the sans family instead. */
+.site-public :is(h1, h2, h3):is(.font-semibold, .font-bold):not(.font-serif) {
+  font-family: var(--font-sans);
+}
+/* Explicitly serif text keeps the serif, at its real (only) weight. */
+.site-public .font-serif:is(.font-semibold, .font-bold, .font-medium) {
+  font-weight: 400;
+}
+
+/* Header banner of inner pages: faint grid fading out, lit by the glow. */
+.site-hero {
+  position: relative;
+  isolation: isolate;
+}
+.site-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 24rem at 80% 0%, color-mix(in oklab, var(--site-glow, #2563eb) 30%, transparent), transparent 70%),
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px) 0 0 / 56px 56px,
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px) 0 0 / 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 90% at 70% 0%, black, transparent);
+  mask-image: radial-gradient(ellipse 80% 90% at 70% 0%, black, transparent);
 }
 
 .glass-dark {
@@ -384,10 +437,10 @@
 
 /* ---- From the source index.css (unlayered, so it overrides utilities) ---- */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgb(255 255 255 / 0.06);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgb(255 255 255 / 0.1);
 }
 a,
 button {
@@ -436,7 +489,7 @@ button {
   border-color: var(--nav-active-border);
 }
 .nav-social:hover {
-  color: var(--color-cyan-light);
+  color: var(--site-accent, #93c5fd);
 }
 
 /* ---- Admin: inputs use slate-800 background ---- */

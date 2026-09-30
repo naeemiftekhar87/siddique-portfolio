@@ -113,7 +113,7 @@ export default function Footer({ profile, footer }: FooterProps) {
             {stats.map(({ value, label }) => (
               <div key={label} className="text-center">
                 <p className="font-serif text-2xl text-white">{value}</p>
-                <p className="text-slate-500 text-xs mt-0.5">{label}</p>
+                <p className="text-slate-400 text-xs mt-0.5">{label}</p>
               </div>
             ))}
           </div>
@@ -122,8 +122,8 @@ export default function Footer({ profile, footer }: FooterProps) {
 
         {/* Bottom bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-slate-500 text-sm">{footer.copyright || `© ${year} ${profile.name}. All rights reserved.`}</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-600">
+          <p className="text-slate-400 text-sm">{footer.copyright || `© ${year} ${profile.name}. All rights reserved.`}</p>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-300">
             {profile.location && <><span>{profile.location}</span><span>·</span></>}
             {profile.email && (
               <><a href={`mailto:${profile.email}`} className="hover:text-slate-400 transition-colors">{profile.email}</a><span>·</span></>

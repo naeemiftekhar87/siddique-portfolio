@@ -26,18 +26,18 @@ export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Dark header band */}
-      <section className="bg-(color:--site-top) py-20 px-6 flex-1 flex items-center">
+      <section className="site-hero bg-(color:--site-top) py-20 px-6 flex-1 flex items-center">
         <div className="max-w-3xl mx-auto text-center w-full">
           <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-8">
-            <Search size={28} className="text-cyan-400" />
+            <Search size={28} className="text-site-accent" />
           </div>
 
-          <p className="font-mono text-cyan-400 text-sm tracking-widest uppercase mb-4">404 — Not Found</p>
+          <p className="font-mono text-site-accent text-sm tracking-widest uppercase mb-4">404 — Not Found</p>
           <h1 className="font-serif text-6xl lg:text-7xl text-white mb-5 leading-tight">
-            Page not<br /><span className="italic text-cyan-300">found</span>
+            Page not<br /><span className="italic text-site-accent">found</span>
           </h1>
           <p className="text-slate-400 text-lg mb-4 leading-relaxed max-w-md mx-auto">
-            The page at <code className="text-cyan-400 bg-white/5 px-2 py-0.5 rounded text-sm font-mono">{pathname}</code> doesn&apos;t exist or has been moved.
+            The page at <code className="text-site-accent bg-white/5 px-2 py-0.5 rounded text-sm font-mono">{pathname}</code> doesn&apos;t exist or has been moved.
           </p>
 
           <div className="flex flex-wrap gap-3 justify-center mb-12">
@@ -57,7 +57,7 @@ export default function NotFound() {
 
           {/* Quick links */}
           <div>
-            <p className="text-slate-500 text-sm mb-4">Or try one of these pages:</p>
+            <p className="text-slate-400 text-sm mb-4">Or try one of these pages:</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {suggestions.map(({ label, to }) => (
                 <Link

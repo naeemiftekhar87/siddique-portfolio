@@ -36,18 +36,18 @@ export default function InfographicResume({ profile, config, experiences, educat
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden print:hidden">
+      <section className="site-hero bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden print:hidden">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-cyan-400/30 flex items-center justify-center">
-              <LayoutTemplate size={18} className="text-cyan-400" />
+              <LayoutTemplate size={18} className="text-site-accent" />
             </div>
-            <span className="text-cyan-400 text-sm font-medium tracking-wide uppercase">Visual Resume</span>
+            <span className="text-site-accent text-sm font-medium tracking-wide uppercase">Visual Resume</span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div>
               <h1 className="font-serif text-5xl lg:text-6xl text-white mb-3 leading-tight">
-                Infographic<br /><span className="italic text-cyan-300">Resume</span>
+                Infographic<br /><span className="italic text-site-accent">Resume</span>
               </h1>
               <p className="text-slate-300 text-lg max-w-xl leading-relaxed">
                 A visual one-page summary of professional experience, skills, education, and research output.

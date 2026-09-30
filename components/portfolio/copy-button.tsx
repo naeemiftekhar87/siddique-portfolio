@@ -24,7 +24,7 @@ export function CopyButton({ text, label, className, iconSize = 11 }: { text: st
 
   return (
     <Button variant="unstyled" type="button" onClick={copy} className={className} aria-live="polite">
-      {copied ? <Check size={iconSize} className="text-green-500" /> : <Copy size={iconSize} />}
+      {copied ? <Check size={iconSize} className="text-green-300" /> : <Copy size={iconSize} />}
       {copied ? "Copied" : failed ? "Copy failed" : label}
     </Button>
   );

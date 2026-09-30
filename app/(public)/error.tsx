@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 export default function PublicError({ retry }: { error: Error & { digest?: string }; retry: () => void }) {
   return (
     <div className="min-h-screen">
-      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) pt-32 pb-20 px-6">
+      <section className="site-hero bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) pt-32 pb-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center mx-auto mb-6">
             <AlertTriangle size={20} className="text-amber-400" />

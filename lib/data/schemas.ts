@@ -291,11 +291,15 @@ export const footerSettingsSchema = z.object({
   quickLinks: z.array(navLinkSchema.omit({ visible: true })).max(20),
 });
 
+// The old light-theme "pageBody" key is dropped on parse (z.object strips
+// unknown keys), so a saved light body never lands on the dark theme.
 export const colorSettingsSchema = z.object({
   navbar: hexColor,
-  footer: hexColor,
   pageTop: hexColor,
-  pageBody: hexColor,
+  pageBackground: hexColor,
+  footer: hexColor,
+  accent: hexColor,
+  glow: hexColor,
 });
 
 export const resumeConfigSchema = z.object({

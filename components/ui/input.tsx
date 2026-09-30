@@ -9,9 +9,9 @@ export const fieldDesignVariants = {
   "admin-field-dark":
     "bg-slate-900 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-blue-500",
   "site-field":
-    "px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all",
+    "px-4 py-3 bg-white/[0.04] border border-white/10 rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-site-accent/60 focus:ring-2 focus:ring-site-accent/20 focus:bg-white/[0.07] transition-all",
   "site-search":
-    "pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-400 focus:ring-2",
+    "pl-9 pr-4 py-2.5 bg-white/[0.04] border border-white/10 rounded-xl text-sm text-slate-100 placeholder:text-slate-500 backdrop-blur-xl focus:outline-none focus:border-site-accent/60 focus:ring-2 focus:ring-site-accent/20",
   /** No preset styles: pass the full design via className. */
   unstyled: "",
 } as const

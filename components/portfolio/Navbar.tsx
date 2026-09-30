@@ -86,7 +86,7 @@ export default function Navbar({ name, navLinks, social }: NavbarProps) {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 text-white/50 hover:text-cyan-400 transition-colors"
+                className="p-2 text-white/50 hover:text-site-accent transition-colors"
                 title={title}
                 aria-label={title}
               >
@@ -128,7 +128,7 @@ export default function Navbar({ name, navLinks, social }: NavbarProps) {
             ))}
             <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/10 px-4">
               {socialLinks.map(({ href, title, Icon }) => (
-                <a key={title} href={href} target="_blank" rel="noopener noreferrer" aria-label={title} className="text-white/50 hover:text-cyan-400 transition-colors">
+                <a key={title} href={href} target="_blank" rel="noopener noreferrer" aria-label={title} className="text-white/50 hover:text-site-accent transition-colors">
                   <Icon size={20} />
                 </a>
               ))}

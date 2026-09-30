@@ -20,22 +20,35 @@ type ColorField = {
   key: keyof SiteColors;
   label: string;
   hint: string;
-  /** Text colour drawn on top of this background, for the contrast check. */
-  textOn: string;
-  textName: string;
+  /**
+   * Contrast check: the text colour drawn on this background, or (for the
+   * accent) the background it is drawn on. Omitted for decorative colours.
+   */
+  check?: { against: string | keyof SiteColors; message: string };
 };
 
-const fields: ColorField[] = [
-  { key: "navbar",   label: "Navbar",         hint: "Top navigation bar on every public page.",          textOn: "#ffffff", textName: "white" },
-  { key: "pageTop",  label: "Page top",       hint: "Dark header section at the top of every page.",     textOn: "#ffffff", textName: "white" },
-  { key: "pageBody", label: "Page body",      hint: "Light page area below the header.",                 textOn: "#040d1f", textName: "dark" },
-  { key: "footer",   label: "Footer",         hint: "Footer at the bottom of every public page.",        textOn: "#cbd5e1", textName: "light grey" },
+const layoutFields: ColorField[] = [
+  { key: "navbar",         label: "Navbar",          hint: "Top navigation bar on every public page.",
+    check: { against: "#ffffff", message: "white text on this colour may be hard to read." } },
+  { key: "pageTop",        label: "Page header",     hint: "Header banner at the top of each inner page.",
+    check: { against: "#ffffff", message: "white text on this colour may be hard to read." } },
+  { key: "pageBackground", label: "Page background", hint: "Dark background behind all page content. Keep it dark.",
+    check: { against: "#cbd5e1", message: "the light text on this colour may be hard to read. Choose a darker colour." } },
+  { key: "footer",         label: "Footer",          hint: "Footer at the bottom of every public page.",
+    check: { against: "#cbd5e1", message: "light grey text on this colour may be hard to read." } },
+];
+
+const themeFields: ColorField[] = [
+  { key: "accent", label: "Accent",     hint: "Section labels, links, icons and highlights.",
+    check: { against: "pageBackground", message: "this accent is hard to read on the page background. Choose a lighter colour." } },
+  { key: "glow",   label: "Glow light", hint: "Soft ambient light behind the glass panels and headers." },
 ];
 
 // Below WCAG AA for normal text.
 const MIN_CONTRAST = 4.5;
 
-function ColorRow({ field, value, onChange }: { field: ColorField; value: string; onChange: (hex: string) => void }) {
+function ColorRow({ field, colors, onChange }: { field: ColorField; colors: SiteColors; onChange: (hex: string) => void }) {
+  const value = colors[field.key];
   // The text box may hold an unfinished code while typing; the colour only
   // changes once it is a valid hex code.
   const [draft, setDraft] = useState(value);
@@ -46,7 +59,8 @@ function ColorRow({ field, value, onChange }: { field: ColorField; value: string
   }
 
   const valid = normalizeHex(draft) !== null;
-  const lowContrast = contrastRatio(value, field.textOn) < MIN_CONTRAST;
+  const against = field.check && (field.check.against.startsWith("#") ? field.check.against : colors[field.check.against as keyof SiteColors]);
+  const lowContrast = !!against && contrastRatio(value, against) < MIN_CONTRAST;
   const isDefault = value === defaultSiteColors[field.key];
   const id = `color-${field.key}`;
 
@@ -86,7 +100,7 @@ function ColorRow({ field, value, onChange }: { field: ColorField; value: string
         ) : lowContrast ? (
           <p className="text-amber-400 flex items-center gap-1.5">
             <AlertTriangle size={12} className="flex-shrink-0" />
-            Low contrast: {field.textName} text on this colour may be hard to read.
+            Low contrast: {field.check?.message}
           </p>
         ) : null}
       </div>
@@ -115,7 +129,7 @@ export default function AdminWebsiteColors({ initial, name }: { initial: SiteCol
         <h1 className="font-serif text-3xl text-white mb-1 flex items-center gap-2">
           <Palette size={22} className="text-blue-400" /> Colours
         </h1>
-        <p className="text-slate-400 text-sm">Choose the navbar, footer, and page colours. Each change applies to every public page.</p>
+        <p className="text-slate-400 text-sm">Choose the colours of the public site&apos;s dark theme. Each change applies to every public page.</p>
       </div>
 
       {saved && (
@@ -132,8 +146,13 @@ export default function AdminWebsiteColors({ initial, name }: { initial: SiteCol
             <RotateCcw size={12} /> Reset all
           </Button>
         </div>
+        <p className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Layout</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {fields.map(f => <ColorRow key={f.key} field={f} value={colors[f.key]} onChange={set(f.key)} />)}
+          {layoutFields.map(f => <ColorRow key={f.key} field={f} colors={colors} onChange={set(f.key)} />)}
+        </div>
+        <p className="text-slate-500 text-xs uppercase tracking-wider font-semibold pt-2">Theme</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {themeFields.map(f => <ColorRow key={f.key} field={f} colors={colors} onChange={set(f.key)} />)}
         </div>
       </Card>
 
@@ -145,14 +164,19 @@ export default function AdminWebsiteColors({ initial, name }: { initial: SiteCol
             <span className="font-serif text-white text-sm">{name || "Your Name"}</span>
             <span className="hidden sm:flex gap-3 text-white/70 text-xs"><span className="text-white">Home</span><span>About</span><span>Research</span><span>Contact</span></span>
           </div>
-          <div className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) px-4 py-8">
-            <p className="text-cyan-400 text-[10px] uppercase tracking-widest font-semibold mb-1">Page top</p>
-            <p className="font-serif text-white text-xl">Page Title</p>
-            <p className="text-slate-300 text-xs mt-1">Page introduction text</p>
-          </div>
-          <div className="px-4 py-6 [background:var(--site-body-bg,var(--gradient-body))]">
-            <p className="font-serif text-[#040d1f] text-base mb-2">Page body</p>
-            <div className="glass-card rounded-lg p-3 text-slate-600 text-xs">Cards and content sit on this background.</div>
+          <div className="site-backdrop">
+            <div className="site-hero overflow-hidden bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) px-4 py-8">
+              <p className="text-site-accent text-[10px] uppercase tracking-widest font-semibold mb-1">Page header</p>
+              <p className="font-serif text-slate-100 text-xl">Page Title</p>
+              <p className="text-slate-300 text-xs mt-1">Page introduction text</p>
+            </div>
+            <div className="px-4 py-6 space-y-3">
+              <p className="font-serif text-slate-100 text-base">Page background</p>
+              <div className="glass-card rounded-lg p-3 text-xs">
+                <p className="text-slate-300">Glass panels sit on the page background.</p>
+                <p className="text-site-accent mt-1.5 font-medium">Accent: links and labels →</p>
+              </div>
+            </div>
           </div>
           <div className="bg-(color:--site-footer) px-4 py-4 text-slate-300 text-xs flex justify-between">
             <span className="font-serif text-white">{name || "Your Name"}</span>

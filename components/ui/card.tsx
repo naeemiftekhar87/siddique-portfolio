@@ -6,8 +6,8 @@ const cardDesignVariants = {
   "admin-panel": "bg-slate-900 rounded-2xl border border-slate-800",
   "site-glass-card": "glass-card rounded-2xl",
   "site-glass-dark": "glass-dark rounded-2xl",
-  "site-panel": "bg-slate-50 rounded-2xl border border-slate-100",
-  "site-white-card": "bg-white rounded-2xl border border-slate-100",
+  "site-panel": "bg-white/[0.03] rounded-2xl border border-white/10",
+  "site-white-card": "glass-card rounded-2xl",
   /** No preset styles: pass the full design via className. */
   unstyled: "",
 } as const

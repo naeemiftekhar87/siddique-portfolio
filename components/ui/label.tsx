@@ -7,7 +7,7 @@ import { Label as LabelPrimitive } from "radix-ui"
 // Design variants: exact classes from the ported design (margins via className).
 const labelDesignVariants = {
   "admin-label": "block text-xs text-slate-400",
-  "site-label": "block text-sm font-medium text-slate-700",
+  "site-label": "block text-sm font-medium text-slate-200",
   /** No preset styles: pass the full design via className. */
   unstyled: "",
 } as const

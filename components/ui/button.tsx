@@ -33,9 +33,9 @@ const designVariants = {
   "admin-danger-sm":
     "px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700",
   // Public site (padding, text size, transition, shadow via className)
-  "site-primary": "bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700",
-  "site-glass": "bg-white/10 text-white rounded-xl border border-white/20 hover:bg-white/20",
-  "site-outline": "bg-white border border-slate-200 rounded-xl",
+  "site-primary": "bg-gradient-to-b from-blue-500 to-blue-700 text-white font-medium rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_10px_30px_-12px_rgba(59,130,246,0.8)] hover:from-blue-400 hover:to-blue-600",
+  "site-glass": "bg-white/[0.06] text-slate-100 rounded-xl border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl hover:bg-white/[0.12] hover:border-white/25",
+  "site-outline": "bg-white/[0.06] text-slate-100 border border-white/15 rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl hover:bg-white/[0.12] hover:border-white/25",
   /** No preset styles: pass the full design via className. */
   unstyled: "",
 } as const

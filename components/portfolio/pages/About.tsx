@@ -49,7 +49,7 @@ export default function About({ profile, about, education, experiences }: AboutP
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
+      <section className="site-hero bg-gradient-to-br from-(color:--site-top) via-(color:--site-top-mid) to-(color:--site-top) py-20 px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-10 items-start md:items-center">
             <div className="flex-shrink-0">
@@ -62,24 +62,24 @@ export default function About({ profile, about, education, experiences }: AboutP
                   />
                 ) : (
                   <div className="w-36 h-36 rounded-3xl border-2 border-white/10 shadow-2xl bg-white/5 flex items-center justify-center" aria-hidden>
-                    <User size={40} className="text-slate-500" />
+                    <User size={40} className="text-slate-400" />
                   </div>
                 )}
                 {profile.badge && (
-                  <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white text-xs font-mono px-2.5 py-1 rounded-lg border-2 border-[#040d1f]">
+                  <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white text-xs font-mono px-2.5 py-1 rounded-lg border-2 border-(color:--site-top)">
                     {profile.badge}
                   </div>
                 )}
               </div>
             </div>
             <div className="flex-1">
-              <p className="text-cyan-400 text-sm font-medium tracking-wide uppercase mb-3">
+              <p className="text-site-accent text-sm font-medium tracking-wide uppercase mb-3">
                 Profile
               </p>
               <h1 className="font-serif text-5xl text-white mb-3 leading-tight">
                 {profile.name}
               </h1>
-              <p className="text-cyan-300 font-medium mb-4">
+              <p className="text-site-accent font-medium mb-4">
                 {profile.headline}
               </p>
               <div className="flex flex-wrap gap-4 text-slate-400 text-sm mb-6">
@@ -129,10 +129,10 @@ export default function About({ profile, about, education, experiences }: AboutP
           <div className="lg:col-span-2 space-y-10">
             {profile.summary && (
               <div>
-                <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                <h2 className="font-serif text-2xl text-slate-100 mb-4">
                   Professional Summary
                 </h2>
-                <p className="text-slate-600 leading-relaxed text-base whitespace-pre-line">
+                <p className="text-slate-300 leading-relaxed text-base whitespace-pre-line">
                   {profile.summary}
                 </p>
               </div>
@@ -140,10 +140,10 @@ export default function About({ profile, about, education, experiences }: AboutP
 
             {about.careerFocus && (
               <div>
-                <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                <h2 className="font-serif text-2xl text-slate-100 mb-4">
                   Career Focus
                 </h2>
-                <p className="text-slate-600 leading-relaxed whitespace-pre-line">
+                <p className="text-slate-300 leading-relaxed whitespace-pre-line">
                   {about.careerFocus}
                 </p>
               </div>
@@ -151,11 +151,11 @@ export default function About({ profile, about, education, experiences }: AboutP
 
             {(about.academicBio || education.length > 0) && (
             <div>
-              <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+              <h2 className="font-serif text-2xl text-slate-100 mb-4">
                 Academic Journey
               </h2>
               {about.academicBio && (
-                <p className="text-slate-600 leading-relaxed mb-6 whitespace-pre-line">
+                <p className="text-slate-300 leading-relaxed mb-6 whitespace-pre-line">
                   {about.academicBio}
                 </p>
               )}
@@ -166,27 +166,27 @@ export default function About({ profile, about, education, experiences }: AboutP
                     className="flex items-start gap-4 p-4"
                   >
                     <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.status === "In Progress" ? "bg-blue-100" : "bg-teal-100"}`}
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.status === "In Progress" ? "bg-site-accent/15" : "bg-teal-400/15"}`}
                     >
                       <GraduationCap
                         size={16}
                         className={
                           edu.status === "In Progress"
-                            ? "text-blue-600"
-                            : "text-teal-600"
+                            ? "text-site-accent"
+                            : "text-teal-300"
                         }
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-slate-800 font-medium text-sm">
+                      <p className="text-slate-100 font-medium text-sm">
                         {edu.degree}
                       </p>
-                      <p className="text-slate-500 text-xs mt-0.5">
+                      <p className="text-slate-400 text-xs mt-0.5">
                         {edu.university}{(edu.startDate || edu.endDate) && ` · ${dateRange(edu.startDate, edu.endDate)}`}
                       </p>
                     </div>
                     <Badge variant="unstyled"
-                      className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 border ${edu.status === "In Progress" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-green-50 text-green-600 border-green-100"}`}
+                      className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 border ${edu.status === "In Progress" ? "bg-site-accent/10 text-site-accent border-site-accent/20" : "bg-green-400/10 text-green-300 border-green-400/20"}`}
                     >
                       {edu.status}
                     </Badge>
@@ -198,7 +198,7 @@ export default function About({ profile, about, education, experiences }: AboutP
 
             {currentRole && (
               <div>
-                <h2 className="font-serif text-2xl text-[#040d1f] mb-4">
+                <h2 className="font-serif text-2xl text-slate-100 mb-4">
                   Current Role
                 </h2>
                 <Card variant="site-glass-card" className="p-6 hover:shadow-md transition-all">
@@ -207,31 +207,31 @@ export default function About({ profile, about, education, experiences }: AboutP
                       <img loading="lazy" decoding="async"
                         src={currentRole.logo}
                         alt={currentRole.company}
-                        className="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-100"
+                        className="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-white/10"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 border border-slate-100">
-                        <Briefcase size={20} className="text-blue-600" />
+                      <div className="w-12 h-12 rounded-xl bg-site-accent/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                        <Briefcase size={20} className="text-site-accent" />
                       </div>
                     )}
                     <div className="flex-1">
-                      <h3 className="font-semibold text-slate-900">
+                      <h3 className="font-semibold text-slate-100">
                         {currentRole.position}
                       </h3>
-                      <p className="text-blue-600 text-sm font-medium">
+                      <p className="text-site-accent text-sm font-medium">
                         {currentRole.company}
                       </p>
                       <p className="text-slate-400 text-xs mt-0.5">
                         {[dateRange(currentRole.startDate, currentRole.endDate), currentRole.location].filter(Boolean).join(" · ")}
                       </p>
-                      <p className="text-slate-600 text-sm mt-3 leading-relaxed">
+                      <p className="text-slate-300 text-sm mt-3 leading-relaxed">
                         {currentRole.description}
                       </p>
                     </div>
                   </div>
                   <Link
                     href="/experience"
-                    className="flex items-center gap-1.5 text-sm text-blue-600 font-medium mt-4 hover:gap-2.5 transition-all"
+                    className="flex items-center gap-1.5 text-sm text-site-accent font-medium mt-4 hover:gap-2.5 transition-all"
                   >
                     Full experience history <ArrowRight size={14} />
                   </Link>
@@ -244,15 +244,15 @@ export default function About({ profile, about, education, experiences }: AboutP
           <div className="space-y-6">
             {profile.researchInterests.length > 0 && (
             <Card variant="site-panel" className="p-6">
-              <h3 className="font-serif text-lg text-[#040d1f] mb-4 flex items-center gap-2">
-                <BookOpen size={16} className="text-blue-500" /> Research
+              <h3 className="font-serif text-lg text-slate-100 mb-4 flex items-center gap-2">
+                <BookOpen size={16} className="text-site-accent" /> Research
                 Interests
               </h3>
               <div className="flex flex-wrap gap-2">
                 {profile.researchInterests.map((interest) => (
                   <span
                     key={interest}
-                    className="px-3 py-1.5 bg-white text-blue-700 text-xs rounded-xl border border-blue-100 font-medium hover:bg-blue-50 transition-colors cursor-default"
+                    className="px-3 py-1.5 bg-white/[0.04] text-site-accent text-xs rounded-xl border border-site-accent/20 font-medium hover:bg-site-accent/10 transition-colors cursor-default"
                   >
                     {interest}
                   </span>
@@ -260,7 +260,7 @@ export default function About({ profile, about, education, experiences }: AboutP
               </div>
               <Link
                 href="/research"
-                className="flex items-center gap-1 text-xs text-blue-600 mt-4 hover:underline"
+                className="flex items-center gap-1 text-xs text-site-accent mt-4 hover:underline"
               >
                 View research papers <ArrowRight size={11} />
               </Link>
@@ -269,12 +269,12 @@ export default function About({ profile, about, education, experiences }: AboutP
 
             {about.domainExpertise.length > 0 && (
               <Card variant="site-panel" className="p-6">
-                <h3 className="font-serif text-lg text-[#040d1f] mb-4">
+                <h3 className="font-serif text-lg text-slate-100 mb-4">
                   Domain Expertise
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {about.domainExpertise.map((d) => (
-                    <span key={d} className="px-3 py-1.5 bg-white text-slate-700 text-xs rounded-xl border border-slate-200 font-medium">
+                    <span key={d} className="px-3 py-1.5 bg-white/[0.04] text-slate-200 text-xs rounded-xl border border-white/10 font-medium">
                       {d}
                     </span>
                   ))}
@@ -284,17 +284,17 @@ export default function About({ profile, about, education, experiences }: AboutP
 
             {glance.length > 0 && (
             <Card variant="site-glass-card" className="p-6">
-              <h3 className="font-serif text-lg text-[#040d1f] mb-4">
+              <h3 className="font-serif text-lg text-slate-100 mb-4">
                 At a Glance
               </h3>
               <div className="space-y-3">
                 {glance.map(([label, value]) => (
                   <div
                     key={label}
-                    className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0"
+                    className="flex justify-between items-center py-2 border-b border-white/10 last:border-0"
                   >
-                    <span className="text-slate-500 text-sm">{label}</span>
-                    <span className="font-semibold text-[#040d1f] text-sm font-mono">
+                    <span className="text-slate-400 text-sm">{label}</span>
+                    <span className="font-semibold text-slate-100 text-sm font-mono">
                       {value}
                     </span>
                   </div>
@@ -317,7 +317,7 @@ export default function About({ profile, about, education, experiences }: AboutP
                 <Link
                   key={to}
                   href={to}
-                  className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-600 text-sm hover:border-blue-200 hover:text-blue-600 transition-all"
+                  className="flex items-center gap-2 p-3 bg-white/[0.03] border border-white/10 rounded-xl text-slate-300 text-sm hover:border-site-accent/40 hover:text-site-accent transition-all"
                 >
                   <Icon size={14} /> {label}
                 </Link>

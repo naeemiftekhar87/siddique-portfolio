@@ -1,23 +1,29 @@
 // Site-wide public colours, edited at /admin/website/colours and saved in
-// site_settings ("colors"). defaultSiteColors are the ported design's exact
+// site_settings ("colors"). defaultSiteColors are the glossy dark theme's
 // colours, used until the owner saves a change.
 
 export type SiteColors = {
   /** Fixed top navigation bar (white text on top). */
   navbar: string;
+  /** Header banner at the top of every inner page. */
+  pageTop: string;
+  /** Dark background behind all page content. */
+  pageBackground: string;
   /** Page footer. */
   footer: string;
-  /** Dark header section at the top of every inner page. */
-  pageTop: string;
-  /** Light page area below the header. */
-  pageBody: string;
+  /** Labels, links, icons and highlights on the dark pages. */
+  accent: string;
+  /** Soft ambient light behind the glass panels. */
+  glow: string;
 };
 
 export const defaultSiteColors: SiteColors = {
   navbar: "#040d1f",
-  footer: "#0a1628",
   pageTop: "#040d1f",
-  pageBody: "#eef4ff",
+  pageBackground: "#040d1f",
+  footer: "#0a1628",
+  accent: "#93c5fd",
+  glow: "#2563eb",
 };
 
 /** Normalise "#abc", "abc", "#AABBCC" or "aabbcc" to "#aabbcc"; null if invalid. */
@@ -42,31 +48,36 @@ export function contrastRatio(a: string, b: string) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+/** Saved colours with invalid values replaced by the defaults. */
+export function resolveSiteColors(colors: SiteColors): SiteColors {
+  const pick = (key: keyof SiteColors) => normalizeHex(colors[key] ?? "") ?? defaultSiteColors[key];
+  return {
+    navbar: pick("navbar"),
+    pageTop: pick("pageTop"),
+    pageBackground: pick("pageBackground"),
+    footer: pick("footer"),
+    accent: pick("accent"),
+    glow: pick("glow"),
+  };
+}
+
 /**
- * CSS custom properties consumed by the Navbar, Footer, page headers and the
- * body background. Default colours keep the design's exact secondary stops;
- * custom colours derive them from the chosen colour.
+ * CSS custom properties consumed by the Navbar, Footer, page headers, the
+ * body background and the accent/glow utilities (see app/globals.css).
  */
 export function siteColorVars(colors: SiteColors): Record<string, string> {
-  const pick = (key: keyof SiteColors) => normalizeHex(colors[key]) ?? defaultSiteColors[key];
-  const pageTop = pick("pageTop");
-  const pageBody = pick("pageBody");
-  const topIsDefault = pageTop === defaultSiteColors.pageTop;
-
-  const vars: Record<string, string> = {
-    "--site-navbar": pick("navbar"),
-    "--site-footer": pick("footer"),
-    "--site-top": pageTop,
-    // Middle stop of the header gradient (design: #071428).
-    "--site-top-mid": topIsDefault ? "#071428" : `color-mix(in oklab, ${pageTop}, white 4%)`,
-    // End stop of the eBook detail header (design: Tailwind blue-950).
-    // Tailwind emits --color-blue-950 because other components use blue-950.
-    "--site-top-end": topIsDefault ? "var(--color-blue-950)" : `color-mix(in oklab, ${pageTop}, white 12%)`,
+  const c = resolveSiteColors(colors);
+  return {
+    "--site-navbar": c.navbar,
+    "--site-footer": c.footer,
+    "--site-top": c.pageTop,
+    // Middle and end stops of the header gradients, derived from the header colour.
+    "--site-top-mid": `color-mix(in oklab, ${c.pageTop}, white 4%)`,
+    "--site-top-end": `color-mix(in oklab, ${c.pageTop}, white 12%)`,
+    "--site-bg": c.pageBackground,
+    "--site-accent": c.accent,
+    "--site-glow": c.glow,
   };
-  // The default body keeps the design's soft gradient (--gradient-body in
-  // globals.css); a custom body colour is applied as a solid background.
-  if (pageBody !== defaultSiteColors.pageBody) vars["--site-body-bg"] = pageBody;
-  return vars;
 }
 
 export function siteColorCss(colors: SiteColors) {
