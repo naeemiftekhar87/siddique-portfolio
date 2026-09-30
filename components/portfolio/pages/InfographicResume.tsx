@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BarChart2, GraduationCap, Briefcase, Award, LayoutTemplate, ArrowLeft, User, Languages } from "lucide-react";
 import type { ResumeData } from "@/components/portfolio/pages/Resume";
 import { PrintButton } from "@/components/portfolio/print-button";
+import { ResumeSheet } from "@/components/portfolio/resume-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { dateRange } from "@/lib/data/format";
@@ -64,10 +65,10 @@ export default function InfographicResume({ profile, config, experiences, educat
         </div>
       </section>
 
-      <div className="max-w-5xl mx-auto px-6 py-12 print:p-0 print:max-w-none">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 print:p-0 print:max-w-none">
 
-        {/* A4-proportioned infographic */}
-        <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-100 print:shadow-none print:border-0 print:rounded-none">
+        {/* One A4 page on screen and in the PDF */}
+        <ResumeSheet className="rounded-md shadow-2xl">
           {/* Header band */}
           <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 px-10 py-10 relative overflow-hidden print-color">
             {/* Decorative dots */}
@@ -77,7 +78,7 @@ export default function InfographicResume({ profile, config, experiences, educat
                   style={{ width: 4, height: 4, top: `${(i * 53 + 17) % 100}%`, left: `${(i / 20) * 100}%` }} />
               ))}
             </div>
-            <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
+            <div className="relative z-10 flex flex-row gap-8 items-center">
               <div className="w-24 h-24 rounded-2xl border-2 border-cyan-400/40 overflow-hidden flex-shrink-0">
                 {profile.photo ? (
                   <img src={profile.photo} alt={profile.name} className="w-full h-full object-cover" />
@@ -90,7 +91,7 @@ export default function InfographicResume({ profile, config, experiences, educat
                 {profile.headline && <p className="text-cyan-300 text-sm font-medium mb-3">{profile.headline}</p>}
                 <p className="text-xs text-slate-500">{[profile.location, profile.email].filter(Boolean).join(" · ")}</p>
               </div>
-              <div className="md:ml-auto grid grid-cols-3 gap-4">
+              <div className="ml-auto grid grid-cols-3 gap-4">
                 {headerStats.map(([v, l]) => (
                   <div key={l} className="text-center">
                     <div className="font-serif text-2xl text-cyan-400">{v}</div>
@@ -101,7 +102,7 @@ export default function InfographicResume({ profile, config, experiences, educat
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-0">
+          <div className="flex-1 grid grid-cols-3 gap-0">
             {/* Left column */}
             <div className="bg-slate-50 p-8 space-y-8 border-r border-slate-100">
               {/* Skills */}
@@ -162,7 +163,7 @@ export default function InfographicResume({ profile, config, experiences, educat
             </div>
 
             {/* Right columns (2 cols) */}
-            <div className="md:col-span-2 p-8 space-y-8">
+            <div className="col-span-2 p-8 space-y-8">
               {/* Summary */}
               {config.showSummary && profile.summary && (
               <section>
@@ -232,7 +233,7 @@ export default function InfographicResume({ profile, config, experiences, educat
               )}
             </div>
           </div>
-        </div>
+        </ResumeSheet>
       </div>
     </div>
   );

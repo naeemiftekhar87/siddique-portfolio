@@ -208,14 +208,15 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
 
       {/* Table */}
       <Card variant="admin-panel" className="overflow-hidden">
+        <div className="overflow-x-auto">
         <Table variant="unstyled" className="w-full">
           <TableHeader variant="unstyled">
             <TableRow variant="unstyled" className="border-b border-slate-800">
-              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Certificate</TableHead>
-              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Issuer</TableHead>
-              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden md:table-cell">Category</TableHead>
-              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Date</TableHead>
-              <TableHead variant="unstyled" className="text-right px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Actions</TableHead>
+              <TableHead variant="unstyled" className="text-left px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Certificate</TableHead>
+              <TableHead variant="unstyled" className="text-left px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden sm:table-cell">Issuer</TableHead>
+              <TableHead variant="unstyled" className="text-left px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden md:table-cell">Category</TableHead>
+              <TableHead variant="unstyled" className="text-left px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Date</TableHead>
+              <TableHead variant="unstyled" className="text-right px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody variant="unstyled" className="divide-y divide-slate-800">
@@ -228,15 +229,16 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
             )}
             {filtered.map((cert) => (
               <TableRow variant="unstyled" key={cert.id} className="hover:bg-slate-800/50 transition-colors">
-                <TableCell variant="unstyled" className="px-5 py-4">
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-4">
                   <div className="flex items-center gap-3">
                     {cert.image ? (
                       <img loading="lazy" decoding="async" src={cert.image} alt={cert.title} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0"><Award size={14} className="text-slate-600" /></div>
                     )}
-                    <div>
-                      <p className="text-slate-200 text-sm font-medium">{cert.title}</p>
+                    <div className="min-w-0">
+                      <p className="text-slate-200 text-sm font-medium break-words">{cert.title}</p>
+                      <p className="sm:hidden text-slate-500 text-xs break-words">{cert.issuer}</p>
                       {cert.verified && (
                         <span className="flex items-center gap-1 text-green-400 text-xs">
                           <CheckCircle size={10} /> Verified
@@ -245,11 +247,11 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
                     </div>
                   </div>
                 </TableCell>
-                <TableCell variant="unstyled" className="px-5 py-4 text-slate-400 text-sm">{cert.issuer}</TableCell>
-                <TableCell variant="unstyled" className="px-5 py-4 text-slate-500 text-xs hidden md:table-cell">{cert.category}</TableCell>
-                <TableCell variant="unstyled" className="px-5 py-4 text-slate-500 text-xs font-mono hidden lg:table-cell">{cert.completionDate}</TableCell>
-                <TableCell variant="unstyled" className="px-5 py-4">
-                  <div className="flex items-center justify-end gap-2">
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-4 text-slate-400 text-sm hidden sm:table-cell">{cert.issuer}</TableCell>
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-4 text-slate-500 text-xs hidden md:table-cell">{cert.category}</TableCell>
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-4 text-slate-500 text-xs font-mono hidden lg:table-cell">{cert.completionDate}</TableCell>
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-4">
+                  <div className="flex items-center justify-end gap-1 sm:gap-2">
                     <Button asChild variant="admin-icon-info">
                       <Link href={`/certificates/${cert.id}`} target="_blank" aria-label={`View ${cert.title} on the site`}>
                         <Eye size={14} />
@@ -265,6 +267,7 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
             ))}
           </TableBody>
         </Table>
+        </div>
       </Card>
     </div>
   );

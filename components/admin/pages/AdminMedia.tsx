@@ -158,6 +158,7 @@ export default function AdminMedia({ initial }: { initial: MediaAsset[] }) {
         </div>
       ) : (
         <Card variant="admin-panel" className="overflow-hidden">
+          <div className="overflow-x-auto">
           <Table variant="unstyled" className="w-full">
             <TableHeader variant="unstyled">
               <TableRow variant="unstyled" className="border-b border-slate-800">
@@ -216,6 +217,7 @@ export default function AdminMedia({ initial }: { initial: MediaAsset[] }) {
               ))}
             </TableBody>
           </Table>
+          </div>
         </Card>
       )}
     </div>

@@ -132,13 +132,14 @@ export default function AdminSkills({ initial }: { initial: Skill[] }) {
       </div>
 
       <Card variant="admin-panel" className="overflow-hidden">
+        <div className="overflow-x-auto">
         <Table variant="unstyled" className="w-full">
           <TableHeader variant="unstyled">
             <TableRow variant="unstyled" className="border-b border-slate-800">
-              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Skill</TableHead>
-              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden sm:table-cell">Category</TableHead>
-              <TableHead variant="unstyled" className="text-left px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Level</TableHead>
-              <TableHead variant="unstyled" className="text-right px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Actions</TableHead>
+              <TableHead variant="unstyled" className="text-left px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Skill</TableHead>
+              <TableHead variant="unstyled" className="text-left px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider hidden sm:table-cell">Category</TableHead>
+              <TableHead variant="unstyled" className="text-left px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Level</TableHead>
+              <TableHead variant="unstyled" className="text-right px-3 sm:px-5 py-3.5 text-slate-400 text-xs font-medium uppercase tracking-wider">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody variant="unstyled" className="divide-y divide-slate-800">
@@ -151,16 +152,23 @@ export default function AdminSkills({ initial }: { initial: Skill[] }) {
             )}
             {filtered.map((skill) => (
               <TableRow variant="unstyled" key={skill.id} className="hover:bg-slate-800/50 transition-colors">
-                <TableCell variant="unstyled" className="px-5 py-3.5">
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-3.5">
                   {editing === skill.id ? (
-                    <Input variant="unstyled" value={(editForm.name ?? skill.name)} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      placeholder="Skill name" aria-label="Skill name"
-                      className="px-3 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-blue-500 w-36" />
+                    <div className="space-y-2">
+                      <Input variant="unstyled" value={(editForm.name ?? skill.name)} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        placeholder="Skill name" aria-label="Skill name"
+                        className="px-3 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-blue-500 w-full min-w-24 sm:w-36" />
+                      {/* The Category column is hidden on phones, so edit it here. */}
+                      <NativeSelect variant="unstyled" aria-label="Category" value={editForm.category ?? skill.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value as SkillCategory })}
+                        className="sm:hidden w-full px-2 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-slate-200 text-xs focus:outline-none focus:border-blue-500">
+                        {cats.map((c) => <option key={c}>{c}</option>)}
+                      </NativeSelect>
+                    </div>
                   ) : (
                     <span className="text-slate-200 text-sm font-medium">{skill.name}</span>
                   )}
                 </TableCell>
-                <TableCell variant="unstyled" className="px-5 py-3.5 hidden sm:table-cell">
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-3.5 hidden sm:table-cell">
                   {editing === skill.id ? (
                     <NativeSelect variant="unstyled" value={editForm.category ?? skill.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value as SkillCategory })}
                       className="px-2 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-slate-200 text-xs focus:outline-none focus:border-blue-500">
@@ -170,25 +178,25 @@ export default function AdminSkills({ initial }: { initial: Skill[] }) {
                     <span className="text-slate-500 text-xs">{skill.category}</span>
                   )}
                 </TableCell>
-                <TableCell variant="unstyled" className="px-5 py-3.5">
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-3.5">
                   {editing === skill.id ? (
                     <div className="flex items-center gap-2">
                       <Input variant="unstyled" type="range" min={10} max={100} value={editForm.level ?? skill.level}
                         onChange={(e) => setEditForm({ ...editForm, level: Number(e.target.value) })}
-                        className="w-24 accent-blue-500" />
+                        aria-label="Level" className="w-16 sm:w-24 accent-blue-500" />
                       <span className="text-slate-400 text-xs font-mono w-8">{editForm.level ?? skill.level}%</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="w-12 sm:w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-blue-500 to-teal-500 rounded-full" style={{ width: `${skill.level}%` }} />
                       </div>
                       <span className="text-slate-400 text-xs font-mono">{skill.level}%</span>
                     </div>
                   )}
                 </TableCell>
-                <TableCell variant="unstyled" className="px-5 py-3.5">
-                  <div className="flex items-center justify-end gap-2">
+                <TableCell variant="unstyled" className="px-3 sm:px-5 py-3.5">
+                  <div className={`flex items-center justify-end gap-2 ${editing === skill.id ? "flex-col items-end sm:flex-row sm:items-center" : ""}`}>
                     {editing === skill.id ? (
                       <>
                         <Button variant="unstyled" onClick={() => handleEdit(skill)} disabled={pending} className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">Save</Button>
@@ -208,6 +216,7 @@ export default function AdminSkills({ initial }: { initial: Skill[] }) {
             ))}
           </TableBody>
         </Table>
+        </div>
       </Card>
     </div>
   );

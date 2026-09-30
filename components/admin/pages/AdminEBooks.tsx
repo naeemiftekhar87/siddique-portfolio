@@ -154,6 +154,7 @@ export default function AdminEBooks({ initial }: { initial: Book[] }) {
       </div>
 
       <Card variant="admin-panel" className="overflow-hidden">
+        <div className="overflow-x-auto">
         <Table variant="unstyled" className="w-full">
           <TableHeader variant="unstyled">
             <TableRow variant="unstyled" className="border-b border-slate-800">
@@ -209,6 +210,7 @@ export default function AdminEBooks({ initial }: { initial: Book[] }) {
             ))}
           </TableBody>
         </Table>
+        </div>
       </Card>
     </div>
   );

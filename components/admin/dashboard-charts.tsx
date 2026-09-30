@@ -4,6 +4,7 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from "rec
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Card } from "@/components/ui/card";
 import type { DownloadPoint } from "@/lib/data/dashboard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const contentConfig = { count: { label: "Items", color: "#3b82f6" } } satisfies ChartConfig;
 const downloadConfig = {
@@ -16,15 +17,18 @@ const shortDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateStri
 /** Overview charts: content items per section and anonymous downloads over 30 days. */
 export function DashboardCharts({ counts, downloads }: { counts: { section: string; count: number }[]; downloads: DownloadPoint[] }) {
   const totalDownloads = downloads.reduce((sum, d) => sum + d.resume + d.ebook, 0);
+  // Phones: slant the section names so all eight fit without overlapping.
+  const narrow = useIsMobile();
   return (
-    <div className="grid lg:grid-cols-2 gap-6 mb-8">
-      <Card variant="admin-panel" className="p-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
+      <Card variant="admin-panel" className="min-w-0 p-4 sm:p-6">
         <h2 className="font-serif text-lg text-white mb-1">Content by Section</h2>
         <p className="text-slate-500 text-xs mb-4">Items currently published in each section</p>
         <ChartContainer config={contentConfig} className="h-56 w-full [&_.recharts-cartesian-axis-tick_text]:fill-slate-500">
           <BarChart data={counts} margin={{ left: -20, right: 4 }} accessibilityLayer>
             <CartesianGrid vertical={false} stroke="#1e293b" />
-            <XAxis dataKey="section" tickLine={false} axisLine={false} interval={0} fontSize={10} />
+            <XAxis dataKey="section" tickLine={false} axisLine={false} interval={0} fontSize={10}
+              {...(narrow ? { angle: -40, textAnchor: "end", height: 64 } : {})} />
             <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={10} />
             <ChartTooltip cursor={{ fill: "#1e293b" }} content={<ChartTooltipContent />} />
             <Bar dataKey="count" fill="var(--color-count)" radius={[6, 6, 0, 0]} />
@@ -32,7 +36,7 @@ export function DashboardCharts({ counts, downloads }: { counts: { section: stri
         </ChartContainer>
       </Card>
 
-      <Card variant="admin-panel" className="p-6">
+      <Card variant="admin-panel" className="min-w-0 p-4 sm:p-6">
         <h2 className="font-serif text-lg text-white mb-1">Downloads</h2>
         <p className="text-slate-500 text-xs mb-4">
           Last 30 days · {totalDownloads} total · anonymous daily counts only

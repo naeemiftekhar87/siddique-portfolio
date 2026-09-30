@@ -571,6 +571,26 @@ button {
   size: A4;
   margin: 12mm;
 }
+/* Resumes print as one edge-to-edge A4 sheet (components/portfolio/resume-sheet.tsx). */
+@page resume {
+  size: A4;
+  margin: 0;
+}
+.resume-frame {
+  overflow: hidden; /* until the sheet is zoomed to fit a narrow screen */
+}
+.resume-sheet {
+  page: resume;
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  background: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.resume-sheet[data-overflow="true"] {
+  height: auto;
+}
 @media print {
   body {
     background: #fff !important;
@@ -585,5 +605,50 @@ button {
   .print-color {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+  .resume-frame {
+    max-width: none;
+    overflow: visible;
+  }
+  /* Screen zoom (narrow screens) never applies to the printed page. */
+  .resume-sheet {
+    zoom: 1 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+  .resume-sheet:not([data-overflow="true"]) {
+    break-after: avoid;
+    break-inside: avoid;
+    /* A hair under the page height so rounding never spills onto page 2. */
+    height: calc(297mm - 1px);
+  }
+  /* Print only the sheet. Anything else in the page, even an empty element
+     after it (Next's dev overlay, browser-extension widgets), would start a
+     blank second page. Its containers keep no spacing of their own. */
+  body:has(.resume-sheet) *:not(:has(.resume-sheet), .resume-sheet, .resume-sheet *) {
+    display: none !important;
+  }
+  body:has(.resume-sheet) *:has(.resume-sheet) {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+  html:has(.resume-sheet),
+  body:has(.resume-sheet) {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  body:has(.resume-sheet)::before,
+  body:has(.resume-sheet)::after {
+    display: none !important;
   }
 }

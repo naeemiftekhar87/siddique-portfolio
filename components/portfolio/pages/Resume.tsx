@@ -5,8 +5,8 @@ import Link from "next/link";
 import { FileText, User, Briefcase, GraduationCap, Award, BarChart2, LayoutTemplate, Languages, BookOpen } from "lucide-react";
 import type { Certificate, Education, Experience, Language, Paper, ResumeConfig, SiteProfile, Skill } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { PrintButton } from "@/components/portfolio/print-button";
+import { ResumeSheet } from "@/components/portfolio/resume-sheet";
 import { dateRange } from "@/lib/data/format";
 
 const tabs = ["Professional Resume"];
@@ -63,7 +63,7 @@ export default function Resume({ profile, config, experiences, education, skills
               <Button asChild variant="site-glass" className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors"><Link href="/resume/infographic">
                 <LayoutTemplate size={16} /> Infographic View
               </Link></Button>
-              {/* Opens the resume in a new tab and starts Save as PDF (owner decision). */}
+              {/* Opens Save as PDF: a single A4 page (ResumeSheet). */}
               <PrintButton variant="professional" className="flex items-center gap-2 px-6 py-3 text-sm transition-colors" />
             </div>
           </div>
@@ -90,9 +90,9 @@ export default function Resume({ profile, config, experiences, education, skills
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-12 print:p-0 print:max-w-none">
-        {/* Resume document */}
-        <Card variant="unstyled" className="overflow-hidden rounded-2xl bg-white ring-1 ring-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] print:shadow-none print:ring-0">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 print:p-0 print:max-w-none">
+        {/* Resume document: one A4 page on screen and in the PDF */}
+        <ResumeSheet className="rounded-md ring-1 ring-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)]">
           {/* Header */}
           <div className="bg-gradient-to-r from-[#040d1f] to-[#071428] px-10 py-10 text-white print-color">
             <h2 className={`${heading} text-3xl mb-2`}>{profile.name}</h2>
@@ -222,7 +222,7 @@ export default function Resume({ profile, config, experiences, education, skills
               <h3 className={`${heading} break-after-avoid text-xl text-slate-900 mb-6 flex items-center gap-2`}>
                 <Languages size={18} style={accent} /> Languages
               </h3>
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 {languages.map((lang) => (
                   <div key={lang.id} className="flex items-center gap-4">
                     <span className="text-2xl flex-shrink-0">{lang.flag}</span>
@@ -248,7 +248,7 @@ export default function Resume({ profile, config, experiences, education, skills
               <p className="text-slate-500 text-sm italic border-t border-slate-100 pt-6 whitespace-pre-line">{config.customNote}</p>
             )}
           </div>
-        </Card>
+        </ResumeSheet>
       </div>
     </div>
   );

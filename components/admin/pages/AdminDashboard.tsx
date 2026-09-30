@@ -66,9 +66,9 @@ export default function AdminDashboard({ counts: sectionCounts, activity: recent
 
       <DashboardCharts counts={sectionCounts} downloads={downloads} />
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Recent activity */}
-        <Card variant="admin-panel" className="lg:col-span-2 p-6">
+        <Card variant="admin-panel" className="min-w-0 lg:col-span-2 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-serif text-lg text-white">Recent Activity</h2>
             <span className="text-xs text-slate-500">Latest changes</span>
@@ -97,7 +97,7 @@ export default function AdminDashboard({ counts: sectionCounts, activity: recent
         </Card>
 
         {/* Quick actions */}
-        <Card variant="admin-panel" className="p-6">
+        <Card variant="admin-panel" className="min-w-0 p-4 sm:p-6">
           <h2 className="font-serif text-lg text-white mb-6">Quick Actions</h2>
           <div className="space-y-3">
             {[
