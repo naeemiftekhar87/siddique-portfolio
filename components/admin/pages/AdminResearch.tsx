@@ -1,5 +1,7 @@
 "use client";
 
+import { DatePicker } from "@/components/admin/date-picker";
+
 import { useId, useState } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Search, ExternalLink, Download, Copy, BookOpen, Check } from "lucide-react";
@@ -74,8 +76,8 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
         </div>
         <div>
           <Label htmlFor={`${uid}-year`} variant="admin-label" className="mb-1">Year</Label>
-          <Input id={`${uid}-year`} variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
-            placeholder="e.g. 2025" className="w-full" />
+          <DatePicker id={`${uid}-year`} value={f.year == null ? "" : String(f.year)} precision="year"
+            onChange={(value) => set("year", value ? Number(value) : null)} />
         </div>
         <div>
           <Label htmlFor={`${uid}-status`} variant="admin-label" className="mb-1">Status</Label>
@@ -127,8 +129,8 @@ function PubForm({ initial, areas, onSave, onCancel, pending }: { initial?: Pub;
           </div>
           <div>
             <Label htmlFor={`${uid}-submission-date`} variant="admin-label" className="mb-1">Submission Date</Label>
-            <Input id={`${uid}-submission-date`} variant="admin-field" type="date" value={f.submissionDate ?? ""} onChange={(e) => set("submissionDate", e.target.value || null)}
-              className="w-full" />
+            <DatePicker id={`${uid}-submission-date`} value={f.submissionDate ?? ""}
+              onChange={(value) => set("submissionDate", value || null)} />
           </div>
           <div>
             <Label htmlFor={`${uid}-ssrn-preprint-url`} variant="admin-label" className="mb-1">SSRN / Preprint URL</Label>

@@ -1,5 +1,7 @@
 "use client";
 
+import { DatePicker } from "@/components/admin/date-picker";
+
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Eye, Search, CheckCircle, Award } from "lucide-react";
@@ -109,13 +111,16 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
             ] as const).map(([key, label, placeholder]) => (
               <div key={key}>
                 <Label variant="unstyled" htmlFor={`cert-${key}`} className="block text-sm text-slate-400 mb-1">{label}</Label>
-                <Input variant="admin-field"
+                {key === "completionDate" ? (
+                  <DatePicker id={`cert-${key}`} value={form[key]} precision="month"
+                    onChange={(value) => setForm({ ...form, [key]: value })} />
+                ) : <Input variant="admin-field"
                   id={`cert-${key}`}
                   value={form[key]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                   placeholder={placeholder}
                   className="w-full"
-                />
+                />}
               </div>
             ))}
           </div>

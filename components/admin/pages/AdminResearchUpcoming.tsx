@@ -1,5 +1,7 @@
 "use client";
 
+import { DatePicker } from "@/components/admin/date-picker";
+
 import { useId, useState } from "react";
 import { Plus, Edit2, Trash2, Save, X, Microscope, ChevronDown, ChevronUp } from "lucide-react";
 import { upcomingStatuses, type UpcomingResearch } from "@/lib/data";
@@ -116,9 +118,8 @@ export default function AdminResearchUpcoming({ initial, areas }: { initial: Top
             </div>
             <div>
               <Label htmlFor={`${uid}-expected-year`} variant="admin-label" className="mb-1.5">Expected Year</Label>
-              <Input id={`${uid}-expected-year`} variant="admin-field" value={editing.expectedYear} onChange={e => setEditing({ ...editing, expectedYear: e.target.value })}
-                placeholder="2027"
-                className="w-full" />
+              <DatePicker id={`${uid}-expected-year`} value={editing.expectedYear} precision="year"
+                onChange={(value) => setEditing({ ...editing, expectedYear: value })} />
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor={`${uid}-research-question`} variant="admin-label" className="mb-1.5">Research Question</Label>

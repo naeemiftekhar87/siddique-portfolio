@@ -1,5 +1,7 @@
 "use client";
 
+import { DatePicker } from "@/components/admin/date-picker";
+
 import { useId, useState } from "react";
 import { Trophy, Plus, Edit2, Trash2, Save, X, Award } from "lucide-react";
 import { achievementCategories, type Achievement } from "@/lib/data";
@@ -139,12 +141,8 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
             </div>
             <div>
               <Label htmlFor={`${uid}-year-date`} variant="admin-label" className="mb-1.5">Year / Date</Label>
-              <Input id={`${uid}-year-date`} variant="admin-field"
-                value={editing.date}
-                onChange={e => setEditing({ ...editing, date: e.target.value })}
-                placeholder="2026"
-                className="w-full"
-              />
+              <DatePicker id={`${uid}-year-date`} value={editing.date}
+                onChange={(value) => setEditing({ ...editing, date: value })} />
             </div>
             <div>
               <Label htmlFor={`${uid}-category`} variant="admin-label" className="mb-1.5">Category</Label>

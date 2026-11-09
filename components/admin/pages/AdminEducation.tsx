@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { dateRange } from "@/lib/data/format";
+import { DatePicker } from "@/components/admin/date-picker";
 
 type Edu = Education;
 type EduInput = Omit<Edu, "id"> & { id?: number };
@@ -47,12 +48,15 @@ function EduForm({ initial, onSave, onCancel, pending }: { initial?: Edu; onSave
         ] as [keyof Edu, string, string][]).map(([key, label, placeholder]) => (
           <div key={key}>
             <Label htmlFor={`${uid}-${key}`} variant="admin-label" className="mb-1">{label}</Label>
-            <Input id={`${uid}-${key}`} variant="admin-field"
+            {key === "startDate" || key === "endDate" ? (
+              <DatePicker id={`${uid}-${key}`} value={f[key]} onChange={(value) => set(key, value)}
+                precision="month" allowPresent={key === "endDate"} />
+            ) : <Input id={`${uid}-${key}`} variant="admin-field"
               value={(f[key] as string) ?? ""}
               onChange={(e) => set(key, e.target.value)}
               placeholder={placeholder}
               className="w-full"
-            />
+            />}
           </div>
         ))}
         <div>

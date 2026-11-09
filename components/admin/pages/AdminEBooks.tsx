@@ -1,5 +1,7 @@
 "use client";
 
+import { DatePicker } from "@/components/admin/date-picker";
+
 import { useId, useState } from "react";
 import { Plus, Pencil, Search } from "lucide-react";
 import type { EBook } from "@/lib/data";
@@ -62,8 +64,8 @@ function BookForm({ initial, categories, onSave, onCancel, pending }: { initial?
         </div>
         <div>
           <Label htmlFor={`${uid}-year`} variant="admin-label" className="mb-1">Year</Label>
-          <Input id={`${uid}-year`} variant="admin-field" type="number" value={f.year ?? ""} onChange={(e) => set("year", e.target.value ? Number(e.target.value) : null)}
-            placeholder="e.g. 2025" className="w-full" />
+          <DatePicker id={`${uid}-year`} value={f.year == null ? "" : String(f.year)} precision="year"
+            onChange={(value) => set("year", value ? Number(value) : null)} />
         </div>
       </div>
       <div>
