@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePicker } from "@/components/admin/date-picker";
+import { orderPapers } from "@/lib/data/order";
 
 import { useId, useState } from "react";
 import Link from "next/link";
@@ -169,7 +170,7 @@ export default function AdminResearch({ initial, areas }: { initial: Pub[]; area
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
 
-  const filtered = pubs.filter((p) => {
+  const filtered = orderPapers(pubs).filter((p) => {
     const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.area.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === "All" || p.status === statusFilter;
     return matchSearch && matchStatus;

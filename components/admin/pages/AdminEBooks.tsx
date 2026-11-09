@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePicker } from "@/components/admin/date-picker";
+import { orderEbooks } from "@/lib/data/order";
 
 import { useId, useState } from "react";
 import { Plus, Pencil, Search } from "lucide-react";
@@ -96,7 +97,7 @@ export default function AdminEBooks({ initial }: { initial: Book[] }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
 
-  const filtered = books.filter(
+  const filtered = orderEbooks(books).filter(
     (b) =>
       b.title.toLowerCase().includes(search.toLowerCase()) ||
       b.category.toLowerCase().includes(search.toLowerCase())

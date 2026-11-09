@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import { format, isValid, parse } from "date-fns";
+import { format } from "date-fns";
+import { parseContentDate } from "@/lib/data/dates";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,18 +16,10 @@ type DatePickerProps = {
   allowPresent?: boolean;
 };
 
-// Accept the existing human-readable dates without changing them on load.
-function readDate(value: string): Date | undefined {
-  for (const pattern of ["yyyy-MM-dd", "MMM yyyy", "MMMM yyyy", "MMM d, yyyy", "MMMM d, yyyy", "d MMM yyyy", "yyyy-MM", "yyyy", "M/d/yyyy"]) {
-    const date = parse(value.trim(), pattern, new Date(2000, 0, 1));
-    if (isValid(date)) return date;
-  }
-}
-
 /** Admin date fields keep their existing string contracts and public formatting. */
 export function DatePicker({ id, value, onChange, precision = "date", allowPresent = false }: DatePickerProps) {
   const [open, setOpen] = useState(false);
-  const selected = value ? readDate(value) : undefined;
+  const selected = value ? parseContentDate(value) : undefined;
   const [yearStart, setYearStart] = useState(2000);
   const placeholder = precision === "year" ? "Pick a year" : precision === "month" ? "Pick a month and year" : "Pick a date";
 

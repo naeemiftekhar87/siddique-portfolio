@@ -3,8 +3,8 @@
 import { useId, useState } from "react";
 import { Plus, Pencil, Search, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
 import { educationStatuses, type Education } from "@/lib/data";
-import { deleteEducation, reorderEducation, saveEducation } from "@/lib/actions/content";
-import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
+import { deleteEducation, saveEducation } from "@/lib/actions/content";
+import { orderEducation } from "@/lib/data/order";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
@@ -120,7 +120,7 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
   const [editing, setEditing] = useState<number | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
 
-  const filtered = list.filter(
+  const filtered = orderEducation(list).filter(
     (e) =>
       e.university.toLowerCase().includes(search.toLowerCase()) ||
       e.degree.toLowerCase().includes(search.toLowerCase())
@@ -144,14 +144,6 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
         setEditing(null);
       },
     });
-  };
-
-  // Order shown on the public site; arrows are hidden while searching.
-  const move = (index: number, delta: -1 | 1) => {
-    const previous = list;
-    const next = moveItem(list, index, delta);
-    setList(next);
-    run(() => reorderEducation(next.map((e) => e.id)), { onError: () => setList(previous) });
   };
 
   const handleDelete = (id: number) => {
@@ -198,7 +190,7 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
             <p className="text-slate-500 text-sm">{list.length === 0 ? "No education entries yet." : "No education entries match your filters."}</p>
           </div>
         )}
-        {filtered.map((edu, index) => (
+        {filtered.map((edu) => (
           <Card variant="admin-panel" key={edu.id} className="overflow-hidden">
             {editing === edu.id ? (
               <div className="p-6">
@@ -210,7 +202,6 @@ export default function AdminEducation({ initial }: { initial: Edu[] }) {
                   className="flex items-center gap-4 p-5 cursor-pointer hover:bg-slate-800/30 transition-colors"
                   onClick={() => setExpanded(expanded === edu.id ? null : edu.id)}
                 >
-                  {!search && <ReorderButtons index={index} count={list.length} label={edu.degree} disabled={pending} onMove={(d) => move(index, d)} />}
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.status === "In Progress" ? "bg-blue-600" : "bg-teal-700"}`}>
                     <GraduationCap size={18} className="text-white" />
                   </div>

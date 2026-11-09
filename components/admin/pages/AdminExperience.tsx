@@ -3,8 +3,8 @@
 import { useId, useState } from "react";
 import { Plus, Pencil, Search, ChevronDown, ChevronUp, Calendar, Briefcase } from "lucide-react";
 import type { Experience } from "@/lib/data";
-import { deleteExperience, reorderExperiences, saveExperience } from "@/lib/actions/content";
-import { ReorderButtons, moveItem } from "@/components/admin/reorder-buttons";
+import { deleteExperience, saveExperience } from "@/lib/actions/content";
+import { orderExperiences } from "@/lib/data/order";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { ImageSourceField } from "@/components/admin/image-source-field";
 import { useAction } from "@/components/admin/use-action";
@@ -152,7 +152,7 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
   const [editing, setEditing] = useState<number | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
 
-  const filtered = exps.filter(
+  const filtered = orderExperiences(exps).filter(
     (e) =>
       e.company.toLowerCase().includes(search.toLowerCase()) ||
       e.position.toLowerCase().includes(search.toLowerCase())
@@ -176,14 +176,6 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
         setEditing(null);
       },
     });
-  };
-
-  // Order shown on the public site; arrows are hidden while searching.
-  const move = (index: number, delta: -1 | 1) => {
-    const previous = exps;
-    const next = moveItem(exps, index, delta);
-    setExps(next);
-    run(() => reorderExperiences(next.map((e) => e.id)), { onError: () => setExps(previous) });
   };
 
   const handleDelete = (id: number) => {
@@ -230,7 +222,7 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
             <p className="text-slate-500 text-sm">{exps.length === 0 ? "No experience entries yet." : "No experience entries match your filters."}</p>
           </div>
         )}
-        {filtered.map((exp, index) => (
+        {filtered.map((exp) => (
           <Card variant="admin-panel" key={exp.id}>
             {editing === exp.id ? (
               <div className="p-6">
@@ -247,7 +239,6 @@ export default function AdminExperience({ initial }: { initial: Exp[] }) {
                   className="flex items-center gap-4 p-5 cursor-pointer"
                   onClick={() => setExpanded(expanded === exp.id ? null : exp.id)}
                 >
-                  {!search && <ReorderButtons index={index} count={exps.length} label={exp.position} disabled={pending} onMove={(d) => move(index, d)} />}
                   {exp.logo ? (
                     <img loading="lazy" decoding="async" src={exp.logo} alt={exp.company} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
                   ) : (

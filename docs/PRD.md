@@ -89,6 +89,7 @@ Priority legend: **P0** = must have for launch, **P1** = should have, **P2** = n
 - **P0** Dark navy hero pattern reused across all inner pages (title, subtitle, contextual stats).
 - **P0** Consistent card, badge, chip, and button styles; status badges (Published, Under Review, Draft, etc.) with colour coding.
 - **P0** Fully responsive layout; mobile-first.
+- **P0** Dated content is automatically shown newest first across admin lists, public pages, related content, Home/About teasers and resume output. Certificates use completion date; achievements use achievement date; experience/education use end date (then start date); papers use year (then submission date); eBooks and upcoming research use their year. Present/ongoing entries come first, unknown dates last, and equal dates use newest entry first. Adding or editing a date immediately updates list position; manual Experience/Education ordering is replaced by this rule (owner, 2026-11-10).
 - **P1** Smooth scroll, hover, and expand/collapse animations; respect `prefers-reduced-motion`.
 - **P0** Accessibility: WCAG 2.1 AA (contrast, keyboard navigation, ARIA on accordions/tabs, alt text).
 

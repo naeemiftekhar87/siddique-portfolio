@@ -383,6 +383,8 @@ During Phase 5 and later:
 
 ## 9. Rendering and caching
 
+- Dated collections share the client-safe ordering functions in `lib/data/order.ts` and date parser in `lib/data/dates.ts`. Server selectors sort mapped content before returning it, so public pages, related content, teasers and resumes share the same newest-first order. Admin lists apply the same functions to local state so add/edit results move immediately. Experience/Education manual ordering is superseded by chronological ordering (owner, 2026-11-10); existing `sort_order` columns/data are retained without a migration. No new dates are inferred for collections without a content date.
+
 - Use Server Components and `metadata` exports for plain page titles. There is no SEO module (no Open Graph, canonical, sitemap, robots, or structured data), per the owner's 2026-09-23 decision.
 - Use `next/image` for local and remote portfolio imagery with meaningful alt text and explicit dimensions or a controlled `fill` layout.
 - Use route-level loading, error, and not-found states where data or records can fail.

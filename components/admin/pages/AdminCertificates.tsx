@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePicker } from "@/components/admin/date-picker";
+import { orderCertificates } from "@/lib/data/order";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -45,7 +46,7 @@ export default function AdminCertificates({ initial }: { initial: Certificate[] 
   const { pending, run } = useAction();
   const { uploading, track } = useUploadTracker();
 
-  const filtered = certs.filter((c) =>
+  const filtered = orderCertificates(certs).filter((c) =>
     (categoryFilter === "All" || c.category === categoryFilter) &&
     (c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.issuer.toLowerCase().includes(search.toLowerCase()))

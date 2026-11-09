@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePicker } from "@/components/admin/date-picker";
+import { orderUpcomingResearch } from "@/lib/data/order";
 
 import { useId, useState } from "react";
 import { Plus, Edit2, Trash2, Save, X, Microscope, ChevronDown, ChevronUp } from "lucide-react";
@@ -159,7 +160,7 @@ export default function AdminResearchUpcoming({ initial, areas }: { initial: Top
 
       {/* Topics list */}
       <div className="space-y-3">
-        {topics.map(t => {
+        {orderUpcomingResearch(topics).map(t => {
           const isOpen = expanded === t.id;
           return (
             <Card variant="admin-panel" key={t.id} className="overflow-hidden hover:border-slate-700 transition-all">

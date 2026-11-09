@@ -17,6 +17,7 @@ import {
   upcomingFromRow,
 } from "./mappers";
 import { parseSettings, type SettingsKey, type SettingsValue } from "./settings";
+import { orderAchievements, orderCertificates, orderEbooks, orderEducation, orderExperiences, orderPapers, orderUpcomingResearch } from "./order";
 
 /**
  * Server-side reads for public pages and admin screens. Public content is
@@ -74,37 +75,37 @@ export type SiteProfile = Awaited<ReturnType<typeof getSiteProfile>>;
 
 // ─── Collections ─────────────────────────────────────────────────────────────
 
-export const getExperiences = cache(async () =>
+export const getExperiences = cache(async () => orderExperiences(
   unwrap(
     "experience",
-    await createPublicClient().from("experiences").select("*").order("sort_order").order("id", { ascending: false }),
+    await createPublicClient().from("experiences").select("*").order("id", { ascending: false }),
   ).map(experienceFromRow),
-);
+));
 
-export const getEducation = cache(async () =>
+export const getEducation = cache(async () => orderEducation(
   unwrap(
     "education",
-    await createPublicClient().from("education").select("*").order("sort_order").order("id", { ascending: false }),
+    await createPublicClient().from("education").select("*").order("id", { ascending: false }),
   ).map(educationFromRow),
-);
+));
 
 export const getSkills = cache(async () =>
   unwrap("skills", await createPublicClient().from("skills").select("*").order("id")).map(skillFromRow),
 );
 
-export const getAchievements = cache(async () =>
+export const getAchievements = cache(async () => orderAchievements(
   unwrap(
     "achievements",
     await createPublicClient().from("achievements").select("*").order("id", { ascending: false }),
   ).map(achievementFromRow),
-);
+));
 
-export const getCertificates = cache(async () =>
+export const getCertificates = cache(async () => orderCertificates(
   unwrap(
     "certificates",
     await createPublicClient().from("certificates").select("*").order("id", { ascending: false }),
   ).map(certificateFromRow),
-);
+));
 
 export const getCertificate = cache(async (id: number) => {
   const row = unwrap("certificate", await createPublicClient().from("certificates").select("*").eq("id", id).maybeSingle());
@@ -145,7 +146,7 @@ export const getGalleryItems = cache(async () =>
   ).map(galleryFromRow),
 );
 
-export const getPapers = cache(async () =>
+export const getPapers = cache(async () => orderPapers(
   unwrap(
     "research papers",
     await createPublicClient()
@@ -154,19 +155,19 @@ export const getPapers = cache(async () =>
       .order("year", { ascending: false, nullsFirst: false })
       .order("id", { ascending: false }),
   ).map(paperFromRow),
-);
+));
 
 export const getPaper = cache(async (id: number) => {
   const row = unwrap("paper", await createPublicClient().from("research_papers").select("*").eq("id", id).maybeSingle());
   return row ? paperFromRow(row) : null;
 });
 
-export const getUpcomingResearch = cache(async () =>
+export const getUpcomingResearch = cache(async () => orderUpcomingResearch(
   unwrap(
     "upcoming research",
     await createPublicClient().from("upcoming_research").select("*").order("id", { ascending: false }),
   ).map(upcomingFromRow),
-);
+));
 
 export const getLanguages = cache(async () =>
   unwrap("languages", await createPublicClient().from("languages").select("*").order("id")).map(languageFromRow),
@@ -188,7 +189,7 @@ export const getEbooks = cache(async () => {
     createPublicClient().from("ebooks").select("*").order("id", { ascending: false }),
     getEbookDownloadCounts(),
   ]);
-  return unwrap("eBooks", rows).map((r) => ebookFromRow(r, downloads.get(String(r.id)) ?? 0));
+  return orderEbooks(unwrap("eBooks", rows).map((r) => ebookFromRow(r, downloads.get(String(r.id)) ?? 0)));
 });
 
 export const getEbook = cache(async (id: number) => {

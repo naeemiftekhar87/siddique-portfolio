@@ -11,7 +11,7 @@ import {
   achievementSchema, certificateSchema, ebookSchema, educationSchema, experienceSchema, galleryItemSchema,
   languageSchema, paperSchema, portfolioCategorySchema, projectSchema, skillSchema, upcomingSchema,
 } from "@/lib/data/schemas";
-import { check, mutate, type AdminClient } from "./helpers";
+import { check, mutate } from "./helpers";
 
 // Admin CRUD. Every action verifies the admin session, validates with zod,
 // writes with the privileged client, and revalidates the public site
@@ -38,7 +38,7 @@ export async function saveExperience(input: unknown) {
     const row = experienceToRow(v);
     const q = v.id
       ? db.from("experiences").update(row).eq("id", v.id)
-      : db.from("experiences").insert({ ...row, sort_order: await topSortOrder(db, "experiences") });
+      : db.from("experiences").insert(row);
     return experienceFromRow(check("experience entry", await q.select().single()));
   });
 }
@@ -49,7 +49,7 @@ export async function saveEducation(input: unknown) {
     const row = educationToRow(v);
     const q = v.id
       ? db.from("education").update(row).eq("id", v.id)
-      : db.from("education").insert({ ...row, sort_order: await topSortOrder(db, "education") });
+      : db.from("education").insert(row);
     return educationFromRow(check("education entry", await q.select().single()));
   });
 }
@@ -101,7 +101,7 @@ export async function savePortfolioCategory(input: unknown) {
 export async function deletePortfolioCategory(id: number) { return remove("portfolio_categories", "category", id); }
 
 /** Saves a list order shown in the admin (ids from first to last). */
-async function reorder(table: "portfolio_categories" | "experiences" | "education", label: string, ids: unknown) {
+async function reorder(table: "portfolio_categories", label: string, ids: unknown) {
   return mutate(z.array(idSchema).max(500), ids, async (order, db) => {
     await Promise.all(
       order.map(async (id, index) =>
@@ -113,14 +113,6 @@ async function reorder(table: "portfolio_categories" | "experiences" | "educatio
 }
 
 export async function reorderPortfolioCategories(ids: number[]) { return reorder("portfolio_categories", "category", ids); }
-export async function reorderExperiences(ids: number[]) { return reorder("experiences", "experience entry", ids); }
-export async function reorderEducation(ids: number[]) { return reorder("education", "education entry", ids); }
-
-/** sort_order that places a new row at the top of an ordered list. */
-async function topSortOrder(db: AdminClient, table: "experiences" | "education") {
-  const { data } = await db.from(table).select("sort_order").order("sort_order").limit(1).maybeSingle();
-  return (data?.sort_order ?? 1) - 1;
-}
 
 export async function saveProject(input: unknown) {
   return mutate(projectSchema, input, async (v, db) => {

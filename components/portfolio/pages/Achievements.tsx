@@ -1,4 +1,5 @@
 import type { Achievement } from "@/lib/data";
+import { orderAchievements } from "@/lib/data/order";
 import { Trophy, Calendar, Building, Star, Award, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -13,7 +14,8 @@ const categoryConfig: Record<string, { color: string; bg: string; dot: string; i
 };
 
 export default function Achievements({ achievements: allAchievements }: { achievements: Achievement[] }) {
-  const categoryGroups = allAchievements.reduce((acc, a) => {
+  const byDateDesc = orderAchievements(allAchievements);
+  const categoryGroups = byDateDesc.reduce((acc, a) => {
     if (!acc[a.category]) acc[a.category] = [];
     acc[a.category].push(a);
     return acc;
@@ -28,9 +30,8 @@ export default function Achievements({ achievements: allAchievements }: { achiev
     { value: new Set(allAchievements.map((a) => a.organization).filter(Boolean)).size.toString(), label: "Institutions" },
   ];
 
-  const byDateDesc = [...allAchievements].sort((a, b) => b.date.localeCompare(a.date));
   // A pinned achievement is featured; otherwise the most recent one.
-  const featured = allAchievements.find((a) => a.pinned) ?? byDateDesc[0];
+  const featured = byDateDesc.find((a) => a.pinned) ?? byDateDesc[0];
 
   return (
     <div className="min-h-screen">

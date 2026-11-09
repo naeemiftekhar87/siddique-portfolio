@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePicker } from "@/components/admin/date-picker";
+import { orderAchievements } from "@/lib/data/order";
 
 import { useId, useState } from "react";
 import { Trophy, Plus, Edit2, Trash2, Save, X, Award } from "lucide-react";
@@ -41,7 +42,8 @@ export default function AdminAchievements({ initial }: { initial: Achievement[] 
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [filterCat, setFilterCat] = useState("All");
 
-  const filtered = filterCat === "All" ? items : items.filter(a => a.category === filterCat);
+  const ordered = orderAchievements(items);
+  const filtered = filterCat === "All" ? ordered : ordered.filter(a => a.category === filterCat);
 
   const startNew = () => {
     setEditing({ ...empty });
