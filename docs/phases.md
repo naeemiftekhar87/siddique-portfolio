@@ -20,6 +20,8 @@
 
 **Status legend:** ⬜ Not started · 🟨 In progress · ✅ Complete
 
+**Owner-requested security addition (2026-11-11):** authenticator setup/sign-in verification and email password recovery are implemented; see `docs/admin-security.md`. Configuration and a real phone/email acceptance pass remain before launch. This does not complete any previously pending phase definition of done; existing phase counts remain unchanged.
+
 ---
 
 ## Phase 1 — Foundation

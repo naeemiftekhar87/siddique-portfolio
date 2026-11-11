@@ -370,6 +370,8 @@ During Phase 5 and later:
 
 ## 8. Security boundaries
 
+Owner update, 2026-11-11: Supabase Auth TOTP (Google Authenticator compatible) is now in scope. `lib/auth/mfa-actions.ts` implements enrollment, confirmation, code-verified two-step removal and the second login step; `getAdminUser()` checks current verified factors and JWT `aal2`. Admin and short-lived pending/recovery markers are signed and bound to the Supabase session ID. Password recovery uses Supabase Admin `generateLink` for a single-use recovery token delivered through the existing Resend adapter to the admin sign-in email, with the configured `SITE_URL` origin. `/admin/forgot-password` and `/admin/reset-password` are public authentication routes outside the admin shell. Recovery sessions are excluded from admin access; password updates use the user's verified recovery session and require MFA when enrolled. See `docs/admin-security.md` for operational setup, token expiry and lost-device recovery. No schema migration or new dependency.
+
 - `/admin/*` is a protected boundary. Unauthenticated visitors must be redirected to `/admin/login`.
 - Authentication state and secrets remain server-side. Never expose private environment variables or credentials to client bundles; use `NEXT_PUBLIC_` only for values that are safe to expose.
 - Passwords must be hashed, sessions must expire, logout must revoke the session, and repeated login failures must be rate-limited or locked out.

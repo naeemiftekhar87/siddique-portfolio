@@ -12,8 +12,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { UrlInput } from "@/components/admin/url-input";
 import { Label } from "@/components/ui/label";
+import { AuthenticatorSettings } from "@/components/admin/authenticator-settings";
 
-export default function AdminSettings({ initial, email: initialEmail }: { initial: LinksSettings; email: string }) {
+export default function AdminSettings({ initial, email: initialEmail, mfaEnabled = false }: { initial: LinksSettings; email: string; mfaEnabled?: boolean }) {
   // Personal information is edited on the Profile page. Every social and
   // academic link is edited only here (footer, navbar, Research page use them).
   const [profile_, setProfile] = useState<LinksSettings>(initial);
@@ -87,7 +88,7 @@ export default function AdminSettings({ initial, email: initialEmail }: { initia
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="font-serif text-3xl text-white mb-1">Settings</h1>
-        <p className="text-slate-400 text-sm">Manage your links, sign-in email and password</p>
+        <p className="text-slate-400 text-sm">Manage your links, sign-in email, password and authenticator</p>
       </div>
 
       {/* ─── Social Links ─────────────────────────────────────────── */}
@@ -170,6 +171,8 @@ export default function AdminSettings({ initial, email: initialEmail }: { initia
           <Mail size={15} /> {mail.pending ? "Updating…" : "Update Email"}
         </Button>
       </form>
+
+      <AuthenticatorSettings enabled={mfaEnabled} />
 
       {/* ─── Change Password ──────────────────────────────────────── */}
       <form onSubmit={handlePasswordSave} className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">

@@ -6,24 +6,26 @@ import { safeEqual } from "@/lib/security/hash";
 /**
  * Absolute admin session lifetime. Supabase refresh tokens can live far
  * longer, so the sign-in time is kept in a signed, httpOnly cookie and the
- * session is treated as expired once it is older than this.
+ * session is treated as expired once it is older than this. The marker is
+ * bound to the Supabase session ID so recovery cannot reuse a prior login.
  */
 const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
 export const SESSION_COOKIE = "admin_session_started";
 
-const sign = (issuedAt: string) =>
-  createHmac("sha256", supabaseSecretKey()).update(`admin-session:${issuedAt}`).digest("base64url");
+const sign = (payload: string) =>
+  createHmac("sha256", supabaseSecretKey()).update(`admin-session:${payload}`).digest("base64url");
 
-export function createSessionCookieValue(now = Date.now()) {
+export function createSessionCookieValue(sessionId: string, now = Date.now()) {
   const issuedAt = String(now);
-  return `${issuedAt}.${sign(issuedAt)}`;
+  const payload = `${sessionId}.${issuedAt}`;
+  return `${payload}.${sign(payload)}`;
 }
 
 /** True when the cookie is present, correctly signed and not yet expired. */
-export function isSessionCookieValid(value: string | undefined, now = Date.now()) {
-  if (!value) return false;
-  const [issuedAt, signature] = value.split(".");
-  if (!issuedAt || !signature || !safeEqual(signature, sign(issuedAt))) return false;
+export function isSessionCookieValid(value: string | undefined, sessionId: string | undefined, now = Date.now()) {
+  if (!value || !sessionId) return false;
+  const [boundSession, issuedAt, signature, extra] = value.split(".");
+  if (extra || boundSession !== sessionId || !issuedAt || !signature || !safeEqual(signature, sign(`${boundSession}.${issuedAt}`))) return false;
   const age = now - Number(issuedAt);
   return Number.isFinite(age) && age >= 0 && age < SESSION_MAX_AGE_SECONDS * 1000;
 }

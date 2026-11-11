@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, BarChart2, AlertCircle, CheckCircle } from "lucide-react";
 import { login } from "@/lib/auth/actions";
+import { verifyLoginCode } from "@/lib/auth/mfa-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,8 @@ export default function AdminLogin({ name }: { name: string }) {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [requiresMfa, setRequiresMfa] = useState(false);
+  const [code, setCode] = useState("");
 
   // After a sign-in email change (Settings), the admin lands here signed out
   // with ?emailChanged=<new email>. Read in the browser: this page is static.
@@ -33,7 +36,7 @@ export default function AdminLogin({ name }: { name: string }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!form.email || !form.password) {
+    if (!requiresMfa && (!form.email || !form.password)) {
       setError("Please enter your email and password.");
       return;
     }
@@ -42,6 +45,13 @@ export default function AdminLogin({ name }: { name: string }) {
     startTransition(async () => {
       let result;
       try {
+        if (requiresMfa) {
+          const verified = await verifyLoginCode(code);
+          if (!verified.ok) { setError(verified.error); return; }
+          router.replace("/admin");
+          router.refresh();
+          return;
+        }
         result = await login(form);
       } catch {
         setError("Could not reach the server. Check your connection and try again.");
@@ -51,7 +61,13 @@ export default function AdminLogin({ name }: { name: string }) {
         setError(result.error);
         return;
       }
+      setForm((f) => ({ ...f, password: "" }));
+      if (result.data.requiresMfa) {
+        setRequiresMfa(true);
+        return;
+      }
       router.replace("/admin");
+      router.refresh();
     });
   };
 
@@ -118,8 +134,8 @@ export default function AdminLogin({ name }: { name: string }) {
           </div>
 
           <div className="mb-8">
-            <h2 className="font-serif text-3xl text-white mb-2">Sign in</h2>
-            <p className="text-slate-400 text-sm">Access your CMS dashboard</p>
+            <h2 className="font-serif text-3xl text-white mb-2">{requiresMfa ? "Verify your identity" : "Sign in"}</h2>
+            <p className="text-slate-400 text-sm">{requiresMfa ? "Enter the current code from Google Authenticator." : "Access your CMS dashboard"}</p>
           </div>
 
           {notice && !error && (
@@ -137,6 +153,12 @@ export default function AdminLogin({ name }: { name: string }) {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {requiresMfa ? (
+              <div>
+                <Label variant="admin-label" htmlFor="login-code" className="mb-2">Authenticator code</Label>
+                <Input variant="admin-field-dark" id="login-code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required autoFocus value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} placeholder="6-digit code" className="w-full py-3" />
+              </div>
+            ) : <>
             <div>
               <Label variant="unstyled" htmlFor="admin-email" className="block text-sm text-slate-400 mb-2">Email address</Label>
               <div className="relative">
@@ -176,7 +198,7 @@ export default function AdminLogin({ name }: { name: string }) {
                 </Button>
               </div>
             </div>
-
+            </>}
             <Button variant="unstyled"
               type="submit"
               disabled={loading}
@@ -188,10 +210,16 @@ export default function AdminLogin({ name }: { name: string }) {
                   Signing in…
                 </>
               ) : (
-                "Sign in to Dashboard"
+                requiresMfa ? "Verify and sign in" : "Sign in to Dashboard"
               )}
             </Button>
           </form>
+
+          {requiresMfa ? (
+            <Button variant="unstyled" disabled={loading} className="mt-5 text-sm text-blue-400 hover:text-blue-300" onClick={() => { setRequiresMfa(false); setCode(""); setError(""); }}>Back to sign in</Button>
+          ) : (
+            <Link href="/admin/forgot-password" className="block mt-5 text-sm text-blue-400 hover:text-blue-300">Forgot password?</Link>
+          )}
 
           <div className="mt-6 text-center">
             <Link href="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">

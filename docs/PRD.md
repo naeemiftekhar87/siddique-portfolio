@@ -235,6 +235,8 @@ Combined page with a 3-section toggle.
 - **P0** All `/admin/*` routes protected; redirect to login when unauthenticated.
 - **P0** Session expiry, logout, secure password hashing, brute-force lockout.
 - **P0** Destructive actions require confirmation (two-step delete).
+- **P0 (owner, 2026-11-11)** Google Authenticator-compatible TOTP enrollment/removal in Settings, with verification required at password sign-in once enabled. Enforce MFA in server guards and every protected mutation.
+- **P0 (owner, 2026-11-11)** Forgot-password entry on admin login; single-use, expiring email reset link, matching 12–128 character passwords, generic account-disclosure-safe responses and server-side rate limits. Recovery requires an enrolled authenticator's code and never grants CMS access. See `docs/admin-security.md` for setup and device-loss recovery.
 
 ### 6.2 Dashboard (`/admin`)
 

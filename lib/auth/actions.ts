@@ -12,6 +12,8 @@ import { escapeHtml, sendEmail } from "@/lib/email/resend";
 import { fail, ok, unauthenticated, validationMessage, type ActionResult } from "@/lib/actions/result";
 import { getAdminUser, isAdmin } from "./session";
 import { SESSION_COOKIE, createSessionCookieValue, sessionCookieOptions } from "./session-cookie";
+import { PENDING_MFA_COOKIE, RECOVERY_COOKIE, setFlowCookie } from "./flow-cookie";
+import { verifiedTotp } from "./mfa";
 
 // Brute-force protection on top of Supabase Auth's own limits: at most
 // 10 attempts per 15 minutes per client address and per email address.
@@ -23,7 +25,7 @@ const loginSchema = z.object({
   password: z.string().min(1, "Enter your password.").max(256),
 });
 
-export async function login(input: { email: string; password: string }): Promise<ActionResult> {
+export async function login(input: { email: string; password: string }): Promise<ActionResult<{ requiresMfa: boolean }>> {
   const parsed = loginSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Enter your email and password.");
   const { email, password } = parsed.data;
@@ -35,6 +37,10 @@ export async function login(input: { email: string; password: string }): Promise
   if (!byAddress || !byEmail) return fail("Too many sign-in attempts. Please wait 15 minutes and try again.");
 
   const supabase = await createSessionClient();
+  const store = await cookies();
+  store.delete(SESSION_COOKIE);
+  store.delete(PENDING_MFA_COOKIE);
+  store.delete(RECOVERY_COOKIE);
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error || !data.user) return fail("Incorrect email or password.");
   if (!isAdmin(data.user)) {
@@ -42,16 +48,24 @@ export async function login(input: { email: string; password: string }): Promise
     return fail("Incorrect email or password.");
   }
 
-  (await cookies()).set(SESSION_COOKIE, createSessionCookieValue(), sessionCookieOptions);
+  if (verifiedTotp(data.user).length) {
+    await setFlowCookie(PENDING_MFA_COOKIE);
+    return ok({ requiresMfa: true });
+  }
+  const claims = await supabase.auth.getClaims();
+  if (claims.error || !claims.data?.claims.session_id) return fail("Could not establish a secure session. Sign in again.");
+  store.set(SESSION_COOKIE, createSessionCookieValue(claims.data.claims.session_id), sessionCookieOptions);
   // The login form navigates to /admin itself. A redirect() here would throw
   // NEXT_REDIRECT into the form's try/catch and flash a false error.
-  return ok(null);
+  return ok({ requiresMfa: false });
 }
 
 export async function logout() {
   const supabase = await createSessionClient();
   await supabase.auth.signOut();
   (await cookies()).delete(SESSION_COOKIE);
+  (await cookies()).delete(PENDING_MFA_COOKIE);
+  (await cookies()).delete(RECOVERY_COOKIE);
   redirect("/admin/login");
 }
 
@@ -65,7 +79,7 @@ async function isCurrentPassword(email: string, password: string) {
   });
   const { error } = await verifier.auth.signInWithPassword({ email, password });
   if (error) return false;
-  await verifier.auth.signOut();
+  await verifier.auth.signOut({ scope: "local" });
   return true;
 }
 

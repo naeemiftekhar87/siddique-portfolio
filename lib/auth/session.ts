@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createSessionClient } from "@/lib/db/server";
 import { SESSION_COOKIE, isSessionCookieValid } from "./session-cookie";
+import { RECOVERY_COOKIE } from "./flow-cookie";
+import { hasRequiredAssurance } from "./mfa";
 
 export const isAdmin = (user: Pick<User, "app_metadata"> | null | undefined) => user?.app_metadata?.role === "admin";
 
@@ -14,10 +16,14 @@ export const isAdmin = (user: Pick<User, "app_metadata"> | null | undefined) => 
  */
 export const getAdminUser = cache(async (): Promise<User | null> => {
   const cookieStore = await cookies();
-  if (!isSessionCookieValid(cookieStore.get(SESSION_COOKIE)?.value)) return null;
+  if (cookieStore.has(RECOVERY_COOKIE)) return null;
+  if (!cookieStore.has(SESSION_COOKIE)) return null;
   const supabase = await createSessionClient();
+  const claims = await supabase.auth.getClaims();
+  if (claims.error || !isSessionCookieValid(cookieStore.get(SESSION_COOKIE)?.value, claims.data?.claims.session_id)) return null;
   const { data, error } = await supabase.auth.getUser();
   if (error || !isAdmin(data.user)) return null;
+  if (!(await hasRequiredAssurance(data.user!))) return null;
   return data.user;
 });
 
